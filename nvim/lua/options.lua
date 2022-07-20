@@ -42,6 +42,10 @@ opt.swapfile = false
 opt.updatetime = 300
 
 
+-- Window
+opt.splitright = true
+
+
 -- Avoid automatically commenting when adding a new line
 vim.cmd [[ autocmd FileType * setlocal formatoptions-=r ]]
 vim.cmd [[ autocmd FileType * setlocal formatoptions-=o ]]
