@@ -83,6 +83,15 @@ require 'packer'.startup(function(use)
     }
 
 
+    -- Rust
+    use {
+        'rust-lang/rust.vim',
+        setup = function()
+            vim.cmd [[ let g:rustfmt_autosave = 1 ]]
+        end,
+    }
+
+
     if packer_bootstrap then
         require("packer").sync()
     end
