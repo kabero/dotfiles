@@ -14,5 +14,5 @@ if [ -d $ZSHHOME -a -r $ZSHHOME -a \
     done
 fi
 
-# Keep at the bottom of this section
+# Keep this section at the bottom of lines
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
