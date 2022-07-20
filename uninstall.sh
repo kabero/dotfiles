@@ -13,7 +13,7 @@ rm -rf ~/.zsh
 rm -rf ~/.zshrc
 
 # alacritty
-rm -rf ~/.config/alacritty/alacritty.yml
+rm -rf ~/.config/alacritty/
 
 # nvim & ultisnips
 rm -rf ~/.config/nvim

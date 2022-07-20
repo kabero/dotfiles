@@ -8,6 +8,7 @@ mkdir -p ~/.config/nvim 2>/dev/null
 mkdir -p ~/.config/nvim/lua 2>/dev/null
 mkdir -p ~/.zsh 2>/dev/null
 mkdir -p ~/.config/broot
+mkdir -p ~/.config/alacritty/colorthemes
 
 # make a directory for ultisnips
 mkdir -p ~/.config/nvim/UltiSnips
@@ -24,6 +25,11 @@ echo "zsh"
 
 # Alacritty
 ln -sf $curdir/alacritty/alacritty.yml ~/.config/alacritty/alacritty.yml
+for file in `\find ./alacritty/colorthemes/dracula.yml -maxdepth 1 -type f`; do
+    base=$(basename $file)
+    echo "Alacritty/colortheme: $base"
+    ln -sf $curdir/alacritty/colorthemes/$base ~/.config/alacritty/colorthemes/$base
+done
 echo "Alacritty"
 
 # nvim
