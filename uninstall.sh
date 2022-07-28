@@ -24,6 +24,9 @@ rm -rf ~/.tmux.conf
 # git
 rm -rf ~/.gitconfig
 
+# ideavim
+rm -rf ~/.ideavimrc
+
 # broot
 # rm -rf ~/.config/broot
 
