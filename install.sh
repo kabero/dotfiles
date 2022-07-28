@@ -63,6 +63,9 @@ echo "tmux"
 ln -sf $curdir/git/.gitconfig ~/.gitconfig
 echo "git"
 
+# ideavim
+ln -sf $curdir/ideavim/.ideavimrc ~/.ideavimrc
+
 # broot
 # ln -sf $curdir/broot/verbs.hjson ~/.config/broot/
 # echo "broot"
