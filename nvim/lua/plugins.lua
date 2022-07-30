@@ -9,6 +9,7 @@ vim.cmd [[packadd packer.nvim]]
 require 'packer'.startup(function(use)
     -- colorschemes
     use {'nanotech/jellybeans.vim', opt=true}
+    use "EdenEast/nightfox.nvim"
 
     -- commenting
     use {
