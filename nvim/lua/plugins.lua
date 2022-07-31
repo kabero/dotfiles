@@ -113,4 +113,3 @@ require 'packer'.startup(function(use)
         require("packer").sync()
     end
 end)
-
