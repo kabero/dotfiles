@@ -11,6 +11,22 @@ require 'packer'.startup(function(use)
     use {'nanotech/jellybeans.vim', opt=true}
     use "EdenEast/nightfox.nvim"
 
+
+    -- quickrun
+    use {
+        'thinca/vim-quickrun',
+        setup = function()
+            vim.cmd[[let g:quickrun_config = {}]]
+            vim.cmd[[let g:quickrun_config._ = {'outputter/error/success': 'buffer', 'outputter/error/error': 'quickfix', 'runner': 'vimproc', 'hook/atime/enable': 1}]]
+            vim.cmd[[let g:quickrun_config.python = {'command': expand('~/.pyenv/shims/python'), 'cmdopt': '-u'}]]
+            vim.api.nvim_set_keymap("n", "<leader>q", ":QuickRun<CR>", {noremap=false, silent=true})
+            vim.cmd[[au FileType qf nnoremap <silent><buffer>q :quit<CR>]]
+        end,
+    }
+
+    -- vimproc
+    use {'Shougo/vimproc.vim', run = 'make'}
+
     -- commenting
     use {
         'tomtom/tcomment_vim',
