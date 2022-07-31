@@ -61,7 +61,7 @@ require 'packer'.startup(function(use)
     use 'tpope/vim-fugitive'
 
     -- treesitter
-    use 'nvim-treesitter/nvim-treesitter'
+    use {'nvim-treesitter/nvim-treesitter', run=[[:TSUpdate]]}
 
     -- make brackets colorful
     use {
