@@ -21,6 +21,7 @@ ln -sf $curdir/zsh/prompt.zsh ~/.zsh/prompt.zsh
 ln -sf $curdir/zsh/lazyenv.zsh ~/.zsh/lazyenv.zsh
 ln -sf $curdir/zsh/comp.zsh ~/.zsh/comp.zsh
 ln -sf $curdir/zsh/fzf.zsh ~/.zsh/fzf.zsh
+git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
 echo "zsh"
 
 # Alacritty
