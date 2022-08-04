@@ -1,5 +1,6 @@
 export PATH="/usr/local/sbin:$PATH"
 export PATH=$PATH:$HOME/.nodebrew/current/bin
+export PATH=$PATH:$HOME/Library/Android/sdk/platform-tools/ 
 eval "$(zoxide init zsh)"
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
