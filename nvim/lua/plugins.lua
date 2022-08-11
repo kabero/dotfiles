@@ -109,6 +109,26 @@ require 'packer'.startup(function(use)
     }
 
 
+    -- lsp
+    use "neovim/nvim-lspconfig"
+    use "williamboman/nvim-lsp-installer"
+
+
+    -- nvim-cmp
+    use "hrsh7th/nvim-cmp"
+    use "hrsh7th/cmp-path"
+    use "hrsh7th/cmp-buffer"
+    use "hrsh7th/cmp-cmdline"
+    use "hrsh7th/cmp-nvim-lsp"
+    use "hrsh7th/vim-vsnip"
+    use {
+        "quangnguyen30192/cmp-nvim-ultisnips",
+        config = function()
+            require("cmp_nvim_ultisnips").setup {}
+        end,
+    }
+
+
     if packer_bootstrap then
         require("packer").sync()
     end
