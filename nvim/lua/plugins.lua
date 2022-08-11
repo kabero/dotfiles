@@ -129,6 +129,9 @@ require 'packer'.startup(function(use)
         end,
     }
 
+    -- startup-time
+    use "dstein64/vim-startuptime"
+
 
     if packer_bootstrap then
         require("packer").sync()
