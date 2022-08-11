@@ -2,13 +2,14 @@
 local fn = vim.fn
 local install_path = fn.stdpath('data') .. '/site/pack/packer/start/packer.nvim'
 if fn.empty(fn.glob(install_path)) > 0 then
-    packer_bootstrap = fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
+    packer_bootstrap = fn.system({ 'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim',
+        install_path })
 end
 
 vim.cmd [[packadd packer.nvim]]
 require 'packer'.startup(function(use)
     -- colorschemes
-    use {'nanotech/jellybeans.vim', opt=true}
+    use { 'nanotech/jellybeans.vim', opt = true }
     use "EdenEast/nightfox.nvim"
 
 
@@ -16,16 +17,16 @@ require 'packer'.startup(function(use)
     use {
         'thinca/vim-quickrun',
         setup = function()
-            vim.cmd[[let g:quickrun_config = {}]]
-            vim.cmd[[let g:quickrun_config._ = {'outputter/error/success': 'buffer', 'outputter/error/error': 'quickfix', 'runner': 'vimproc', 'hook/atime/enable': 1}]]
-            vim.cmd[[let g:quickrun_config.python = {'command': expand('~/.pyenv/shims/python'), 'cmdopt': '-u'}]]
-            vim.api.nvim_set_keymap("n", "<leader>q", ":QuickRun<CR>", {noremap=false, silent=true})
-            vim.cmd[[au FileType qf nnoremap <silent><buffer>q :quit<CR>]]
+            vim.cmd [[let g:quickrun_config = {}]]
+            vim.cmd [[let g:quickrun_config._ = {'outputter/error/success': 'buffer', 'outputter/error/error': 'quickfix', 'runner': 'vimproc', 'hook/atime/enable': 1}]]
+            vim.cmd [[let g:quickrun_config.python = {'command': expand('~/.pyenv/shims/python'), 'cmdopt': '-u'}]]
+            vim.api.nvim_set_keymap("n", "<leader>q", ":QuickRun<CR>", { noremap = false, silent = true })
+            vim.cmd [[au FileType qf nnoremap <silent><buffer>q :quit<CR>]]
         end,
     }
 
     -- vimproc
-    use {'Shougo/vimproc.vim', run = 'make'}
+    use { 'Shougo/vimproc.vim', run = 'make' }
 
     -- commenting
     use {
@@ -37,14 +38,14 @@ require 'packer'.startup(function(use)
 
     -- vim surround
     use 'tpope/vim-surround'
-    
+
 
     -- Auto close parentheses
     use {
         'cohama/lexima.vim',
         setup = function()
-            vim.api.nvim_set_keymap("i", "<c-h>", "<BS>", {noremap=false, silent=true})
-            vim.api.nvim_set_keymap("c", "<c-h>", "<BS>", {noremap=false, silent=true})
+            vim.api.nvim_set_keymap("i", "<c-h>", "<BS>", { noremap = false, silent = true })
+            vim.api.nvim_set_keymap("c", "<c-h>", "<BS>", { noremap = false, silent = true })
         end,
     }
 
@@ -61,7 +62,7 @@ require 'packer'.startup(function(use)
     use 'tpope/vim-fugitive'
 
     -- treesitter
-    use {'nvim-treesitter/nvim-treesitter', run=[[:TSUpdate]]}
+    use { 'nvim-treesitter/nvim-treesitter', run = [[:TSUpdate]] }
 
     -- make brackets colorful
     use {
@@ -77,7 +78,7 @@ require 'packer'.startup(function(use)
         setup = function()
             -- vim.cmd [[let g:UltiSnipsSnippetsDir = "~/.config/nvim/ultisnips/UltiSnips"]]
             vim.cmd [[let g:UltiSnipsEditSplit = "vertical"]]
-            vim.api.nvim_set_keymap("n", "<leader>s", ":UltiSnipsEdit<CR>", {noremap=true, silent=true})
+            vim.api.nvim_set_keymap("n", "<leader>s", ":UltiSnipsEdit<CR>", { noremap = true, silent = true })
         end,
     }
 
@@ -89,13 +90,13 @@ require 'packer'.startup(function(use)
     use 'junegunn/fzf'
     use {
         'junegunn/fzf.vim',
-        setup = function() 
-            vim.api.nvim_set_keymap("n", "<leader>f", ":Files<CR>", {noremap=true, silent=true})
-            vim.api.nvim_set_keymap("n", "<leader>h", ":History<CR>", {noremap=true, silent=true})
-            vim.api.nvim_set_keymap("n", "<leader>g", ":Commit<CR>", {noremap=true, silent=true})
-            vim.api.nvim_set_keymap("n", "<leader>b", ":Buffers<CR>", {noremap=true, silent=true})
-            vim.api.nvim_set_keymap("n", "<leader>r", ":Rg<CR>", {noremap=true, silent=true})
-            vim.api.nvim_set_keymap("n", "<leader>:", ":History:<CR>", {noremap=true, silent=true})
+        setup = function()
+            vim.api.nvim_set_keymap("n", "<leader>f", ":Files<CR>", { noremap = true, silent = true })
+            vim.api.nvim_set_keymap("n", "<leader>h", ":History<CR>", { noremap = true, silent = true })
+            vim.api.nvim_set_keymap("n", "<leader>g", ":Commit<CR>", { noremap = true, silent = true })
+            vim.api.nvim_set_keymap("n", "<leader>b", ":Buffers<CR>", { noremap = true, silent = true })
+            vim.api.nvim_set_keymap("n", "<leader>r", ":Rg<CR>", { noremap = true, silent = true })
+            vim.api.nvim_set_keymap("n", "<leader>:", ":History:<CR>", { noremap = true, silent = true })
         end,
     }
 
