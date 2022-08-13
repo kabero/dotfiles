@@ -43,6 +43,7 @@ opt.updatetime = 300
 
 
 -- Window
+opt.splitbelow = true
 opt.splitright = true
 
 
