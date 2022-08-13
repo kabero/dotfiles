@@ -44,8 +44,10 @@ require("nvim-lsp-installer").on_server_ready(function(server)
 end)
 
 local cmp = require("cmp")
-local cmp_ultisnips_mappings = require("cmp_nvim_ultisnips.mappings")
 cmp.setup({
+    completion = {
+        completeopt = 'menu,menuone,noinsert'
+    },
     snippet = {
         expand = function(args)
             vim.fn["UltiSnips#Anon"](args.body)
@@ -61,19 +63,8 @@ cmp.setup({
     mapping = cmp.mapping.preset.insert({
         ["<C-p>"] = cmp.mapping.select_prev_item(),
         ["<C-n>"] = cmp.mapping.select_next_item(),
-        -- ["<CR>"] = cmp.mapping.confirm { select = true },
-        ["<TAB>"] = cmp.mapping(
-            function(fallback)
-                cmp_ultisnips_mappings.expand_or_jump_forwards(fallback)
-            end,
-            { "i", "s" }
-        ),
-        ["<CR>"] = cmp.mapping(
-            function(fallback)
-                cmp_ultisnips_mappings.expand_or_jump_forwards(fallback)
-            end,
-            { "i", "s" }
-        )
+        ["<TAB>"] = cmp.mapping.confirm { select = true },
+        ["<CR>"] = cmp.mapping.confirm { select = true },
     }),
     experimental = {
         ghost_text = true,
