@@ -8,12 +8,16 @@ while true; do
     esac
 done
 
+
 # zsh
 rm -rf ~/.zsh
 rm -rf ~/.zshrc
 
 # alacritty
 rm -rf ~/.config/alacritty/
+
+# vim
+rm ~/.vimrc
 
 # nvim & ultisnips
 rm -rf ~/.config/nvim

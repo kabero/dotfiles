@@ -33,6 +33,9 @@ for file in `\find ./alacritty/colorthemes/dracula.yml -maxdepth 1 -type f`; do
 done
 echo "Alacritty"
 
+# vim
+ln -sf $curdir/vim/.vimrc ~/.vimrc
+
 # nvim
 ln -sf $curdir/nvim/init.lua ~/.config/nvim/init.lua
 ln -sf $curdir/nvim/lua/options.lua ~/.config/nvim/lua/options.lua
