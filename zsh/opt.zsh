@@ -16,6 +16,8 @@ setopt nolistbeep
 
 setopt auto_pushd
 
+disable r
+
 # ---------------------------
 # History
 # ---------------------------
