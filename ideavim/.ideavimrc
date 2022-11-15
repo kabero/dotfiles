@@ -1,8 +1,36 @@
-set clipboard=unnamed
-nnoremap gd :action GotoDeclaration<CR>
-nnoremap gi :action GotoImplementation<CR>
+" Search for actions
+" :actionlist <Pattern>
+
+" Options
+set clipboard=unnamedplus,unnamed,ideaput
+set hlsearch
+set smartcase
+set incsearch
+set wrapscan
+
+" Ideavim
+" https://github.com/JetBrains/ideavim/wiki/%22set%22-commands
+set commentary
+set surround
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''
+" Keybindings
+"
+
+" General
+let mapleader=" "
+
+" Normal
 nnoremap j gj
 nnoremap k gk
-" nnoremap gs :action GotoSuperMethod<CR>
-" nnoremap gb :action Back<CR>
-" nnoremap gf :action Forward<CR>
+nnoremap x "_x
+
+nnoremap <leader>q :action Run<CR>
+nnoremap <leader>, :e ~/.ideavimrc<CR>
+nnoremap <leader>l :action ReformatCode<CR>
+
+nnoremap gd :action GotoDeclaration<CR>
+nnoremap gi :action GotoImplementation<CR>
+
+" Experimental configs
+nnoremap <leader>a :action GotoAction<CR>

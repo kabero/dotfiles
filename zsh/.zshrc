@@ -5,6 +5,9 @@ eval "$(zoxide init zsh)"
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# Java11
+export PATH="/usr/local/opt/openjdk@11/bin:$PATH"
+export CPPFLAGS="-I/usr/local/opt/openjdk@11/include"
 
 ZSHHOME="${HOME}/.zsh"
 if [ -d $ZSHHOME -a -r $ZSHHOME -a \
