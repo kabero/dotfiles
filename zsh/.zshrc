@@ -5,6 +5,11 @@ eval "$(zoxide init zsh)"
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# Ruby
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"
+
+
 # Java11
 export PATH="/usr/local/opt/openjdk@11/bin:$PATH"
 export CPPFLAGS="-I/usr/local/opt/openjdk@11/include"
