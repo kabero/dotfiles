@@ -1,0 +1,49 @@
+eval "$(starship init zsh)"
+
+# general
+export EDITOR=nvim
+LANG=en_US.UTF-8
+autoload -Uz colors
+colors
+bindkey -e
+
+# options
+setopt print_eight_bit
+setopt no_beep
+setopt nolistbeep
+
+# history
+setopt auto_pushd
+setopt share_history
+setopt hist_ignore_dups
+setopt hist_ignore_space
+setopt hist_reduce_blanks
+setopt pushd_ignore_dups
+setopt hist_ignore_all_dups
+HISTFILE=$ZSHHOME/.zsh_history
+HISTSIZE=100000
+SAVEHIST=100000
+
+# aliases
+alias vi="nvim"
+alias vim="nvim"
+alias view="nvim -R"
+alias ls="exa --sort=ext" 
+alias tree="exa -T"
+
+alias zshconf="chezmoi edit ~/.zshrc"
+alias nvimconf="chezmoi edit ~/.config/nvim/init.lua"
+alias tmuxconf="chezmoi edit ~/.tmux.conf"
+alias alacrittyconf="chezmoi edit ~/.config/alacritty/alacritty.yml"
+alias starshipconf="chezmoi edit ~/.config/starship.toml"
+
+# z-command
+. `brew --prefix`/etc/profile.d/z.sh
+
+# fish-like behavior
+source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+if type brew &>/dev/null; then
+    FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+    autoload -Uz compinit
+    compinit
+fi
