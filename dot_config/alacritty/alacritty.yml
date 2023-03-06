@@ -1,5 +1,5 @@
 import:
-  - ~/.config/alacritty/colorthemes/dracula.yml
+  - ~/.config/alacritty/dracula.yml
 env:
   TERM: alacritty
 
@@ -8,7 +8,6 @@ window:
     columns: 137
     lines: 48
   decorations: full  # full, buttonless
-    # startup_mode: Fullscreen  # Fullscreen, Windowed
   startup_mode: Windowed  # Fullscreen, Windowed
   padding:
       x: 0 
@@ -19,13 +18,13 @@ window:
 font:
   size: 13
   normal:
-    family: 'Fira Code'
+    family: 'FiraCode Nerd Font'
     style: Regular
   bold:
-    family: 'Fira Code'
+    family: 'FiraCode Nerd Font'
     style: Regular
 
-  use_thin_strokes: true
+  AppleFontSmoothing: true
   offset:
       x: 0
       y: 1
@@ -50,5 +49,3 @@ key_bindings:
 
 mouse:
   hide_when_typing: true
-  # hints: open
-    
