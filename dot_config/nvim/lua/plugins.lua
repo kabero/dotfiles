@@ -36,6 +36,11 @@ require("packer").startup(function()
         tag = 'release'
     }
 
+    -- fzf
+    use 'junegunn/fzf'
+    use 'junegunn/fzf.vim'
+
+
     -- z-command for vim
     use 'nanotee/zoxide.vim'
 
