@@ -36,8 +36,11 @@ require("packer").startup(function()
         tag = 'release'
     }
 
+    -- z-command for vim
+    use 'nanotee/zoxide.vim'
+
     use {
-        "folke/which-key.nvim",
+        'folke/which-key.nvim',
         config = function()
             vim.o.timeout = true
             vim.o.timeoutlen = 300
