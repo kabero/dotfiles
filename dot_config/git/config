@@ -19,5 +19,8 @@
 [diff]
     colorMoved = default
 [user]
-	name = kabero
+	name = kabe
 	email = q4bero@gmail.com
+
+[ghq]
+root = ~/ghq/github.com
