@@ -7,7 +7,7 @@ window:
   dimensions:
     columns: 180
     lines: 52
-  decorations: full  # full, buttonless
+  decorations: buttonless  # full, buttonless
   startup_mode: Windowed  # Fullscreen, Windowed
   padding:
       x: 0 

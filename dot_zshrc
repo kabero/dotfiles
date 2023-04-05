@@ -20,6 +20,14 @@ pyenv() {
 # eval "$(pyenv init -)"
 # eval "$(pyenv virtualenv-init -)"
 
+# rbenv
+export PATH="$HOME/.rbenv/shims:$PATH"
+rbenv() {
+    unfunction "$0"
+    source <(rbenv init -)
+    $0 "$@"
+}
+
 # options
 setopt print_eight_bit
 setopt no_beep
@@ -78,8 +86,23 @@ export FZF_CTRL_T_OPTS="
     --preview-window=right:60%
 "
 
+# ghq + fzf
+function _ghq_fzf() {
+  local src=$(ghq list | fzf --preview "ls -laTp $(ghq root)/{} | tail -n+4 | awk '{print \$9\"/\"\$6\"/\"\$7 \" \" \$10}'")
+  if [ -n "$src" ]; then
+    BUFFER="cd $(ghq root)/$src"
+    zle accept-line
+  fi
+  zle -R -c
+}
+zle -N _ghq_fzf
+bindkey '^g' _ghq_fzf
+
 
 # jupyter
 function jupyter-local() {
     jupyter notebook --notebook-dir=. --ip='*' --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''
 }
+
+# starship
+PYENV_VIRTUALENV_DISABLE_PROMPT=1
