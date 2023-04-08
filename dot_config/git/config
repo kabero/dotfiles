@@ -24,3 +24,5 @@
 
 [ghq]
 root = ~/ghq/github.com
+[alias]
+	s = status
