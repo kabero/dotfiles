@@ -35,10 +35,10 @@ require("packer").startup(function()
         'lewis6991/gitsigns.nvim',
         tag = 'release'
     }
-
-    -- fzf
-    use 'junegunn/fzf'
-    use 'junegunn/fzf.vim'
+    use {
+        'nvim-telescope/telescope.nvim', tag = '0.1.1',
+        requires = { {'nvim-lua/plenary.nvim'} },
+    }
 
 
     -- z-command for vim
