@@ -15,22 +15,15 @@ require("packer").startup(function()
         },
         tag = 'nightly'
     }
-
     use 'machakann/vim-sandwich'
-
     use 'wbthomason/packer.nvim'
-
     use 'jiangmiao/auto-pairs'
-
     use 'tpope/vim-commentary'
-
     use 'nvim-lua/plenary.nvim'
-
     use { 
         'nvim-treesitter/nvim-treesitter',
         run = [[:TSUpdate]] 
     }
-
     use {
         'lewis6991/gitsigns.nvim',
         tag = 'release'
@@ -39,7 +32,6 @@ require("packer").startup(function()
         'nvim-telescope/telescope.nvim', tag = '0.1.1',
         requires = { {'nvim-lua/plenary.nvim'} },
     }
-
 
     -- z-command for vim
     use 'nanotee/zoxide.vim'
@@ -57,7 +49,6 @@ require("packer").startup(function()
     use 'neovim/nvim-lspconfig'
     use 'williamboman/mason.nvim'
     use 'williamboman/mason-lspconfig.nvim'
-
     use "hrsh7th/nvim-cmp"
     use "hrsh7th/cmp-nvim-lsp"
     use "hrsh7th/vim-vsnip"
