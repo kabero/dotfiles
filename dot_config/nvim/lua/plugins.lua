@@ -7,6 +7,7 @@ require("packer").startup(function()
     -- color schemes
     use 'Mofiqul/dracula.nvim'
     use 'EdenEast/nightfox.nvim'
+    use 'cocopon/iceberg.vim'
 
     use {
         'nvim-tree/nvim-tree.lua',
