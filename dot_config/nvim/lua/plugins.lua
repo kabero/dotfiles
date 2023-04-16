@@ -49,15 +49,15 @@ packer.startup(function()
     }
 
     -- lsp
-    -- use 'neovim/nvim-lspconfig'
-    -- use 'williamboman/mason.nvim'
-    -- use 'williamboman/mason-lspconfig.nvim'
-    -- use "hrsh7th/nvim-cmp"
-    -- use "hrsh7th/cmp-nvim-lsp"
+    use 'neovim/nvim-lspconfig'
+    use 'williamboman/mason.nvim'
+    use 'williamboman/mason-lspconfig.nvim'
+    use "hrsh7th/nvim-cmp"
+    use "hrsh7th/cmp-nvim-lsp"
     -- use "hrsh7th/vim-vsnip"
-    -- use "hrsh7th/cmp-path"
-    -- use "hrsh7th/cmp-buffer"
-    -- use "hrsh7th/cmp-cmdline"
+    use "hrsh7th/cmp-path"
+    use "hrsh7th/cmp-buffer"
+    use "hrsh7th/cmp-cmdline"
 
     -- Github copilot
     use 'github/copilot.vim'
