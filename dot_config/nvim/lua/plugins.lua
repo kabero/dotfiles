@@ -3,7 +3,13 @@
 
 vim.cmd.packadd "packer.nvim"
 
-require("packer").startup(function()
+local packer = require("packer")
+
+packer.init({ })
+
+packer.startup(function()
+    use 'wbthomason/packer.nvim'
+
     -- color schemes
     use 'Mofiqul/dracula.nvim'
     use 'EdenEast/nightfox.nvim'
@@ -17,7 +23,6 @@ require("packer").startup(function()
         tag = 'nightly'
     }
     use 'machakann/vim-sandwich'
-    use 'wbthomason/packer.nvim'
     use 'jiangmiao/auto-pairs'
     use 'tpope/vim-commentary'
     use 'nvim-lua/plenary.nvim'
@@ -25,10 +30,7 @@ require("packer").startup(function()
         'nvim-treesitter/nvim-treesitter',
         run = [[:TSUpdate]] 
     }
-    use {
-        'lewis6991/gitsigns.nvim',
-        tag = 'release'
-    }
+    use 'lewis6991/gitsigns.nvim'
     use {
         'nvim-telescope/telescope.nvim', tag = '0.1.1',
         requires = { {'nvim-lua/plenary.nvim'} },
@@ -41,18 +43,18 @@ require("packer").startup(function()
         'folke/which-key.nvim',
         config = function()
             vim.o.timeout = true
-            vim.o.timeoutlen = 300
+            vim.o.timeoutlen = 500
             require("which-key").setup {}
         end
     }
 
     -- lsp
-    use 'neovim/nvim-lspconfig'
-    use 'williamboman/mason.nvim'
-    use 'williamboman/mason-lspconfig.nvim'
-    use "hrsh7th/nvim-cmp"
-    use "hrsh7th/cmp-nvim-lsp"
-    use "hrsh7th/vim-vsnip"
+    -- use 'neovim/nvim-lspconfig'
+    -- use 'williamboman/mason.nvim'
+    -- use 'williamboman/mason-lspconfig.nvim'
+    -- use "hrsh7th/nvim-cmp"
+    -- use "hrsh7th/cmp-nvim-lsp"
+    -- use "hrsh7th/vim-vsnip"
     -- use "hrsh7th/cmp-path"
     -- use "hrsh7th/cmp-buffer"
     -- use "hrsh7th/cmp-cmdline"
