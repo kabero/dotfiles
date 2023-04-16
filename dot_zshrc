@@ -2,10 +2,11 @@ eval "$(starship init zsh)"
 
 # general
 export EDITOR=nvim
-LANG=en_US.UTF-8
+export LANG=C
 autoload -Uz colors
 colors
 bindkey -e
+
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
@@ -27,6 +28,15 @@ rbenv() {
     source <(rbenv init -)
     $0 "$@"
 }
+
+
+# Java
+export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
+export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
+
+# PHP
+export PATH="/opt/homebrew/opt/php@8.0/bin:$PATH"
+export PATH="/opt/homebrew/opt/php@8.0/sbin:$PATH"
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
