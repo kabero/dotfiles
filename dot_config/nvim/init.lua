@@ -9,7 +9,7 @@ require "options"
 require "color"
 require "keymap"
 require "plugins"
-require "lsp"
+-- require "lsp"
 
 -- configs of plugins
 -----------------------------
