@@ -15,6 +15,7 @@ packer.startup(function()
     use 'cocopon/iceberg.vim'
     use 'ellisonleao/gruvbox.nvim'
     use 'habamax/vim-gruvbit'
+    use 'sainnhe/gruvbox-material'
 
     use {
         'nvim-tree/nvim-tree.lua',
