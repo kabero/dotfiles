@@ -4,9 +4,7 @@
 vim.cmd.packadd "packer.nvim"
 
 local packer = require("packer")
-
 packer.init({ })
-
 packer.startup(function()
     -- packer
     use 'wbthomason/packer.nvim'
@@ -16,6 +14,7 @@ packer.startup(function()
     use 'EdenEast/nightfox.nvim'
     use 'cocopon/iceberg.vim'
     use 'ellisonleao/gruvbox.nvim'
+    use 'habamax/vim-gruvbit'
 
     use {
         'nvim-tree/nvim-tree.lua',
