@@ -8,12 +8,14 @@ local packer = require("packer")
 packer.init({ })
 
 packer.startup(function()
+    -- packer
     use 'wbthomason/packer.nvim'
 
     -- color schemes
     use 'Mofiqul/dracula.nvim'
     use 'EdenEast/nightfox.nvim'
     use 'cocopon/iceberg.vim'
+    use 'ellisonleao/gruvbox.nvim'
 
     use {
         'nvim-tree/nvim-tree.lua',
@@ -26,14 +28,22 @@ packer.startup(function()
     use 'jiangmiao/auto-pairs'
     use 'tpope/vim-commentary'
     use 'nvim-lua/plenary.nvim'
-    use { 
+    use {
         'nvim-treesitter/nvim-treesitter',
-        run = [[:TSUpdate]] 
+        run = [[:TSUpdate]]
     }
     use 'lewis6991/gitsigns.nvim'
     use {
         'nvim-telescope/telescope.nvim', tag = '0.1.1',
         requires = { {'nvim-lua/plenary.nvim'} },
+    }
+
+    use {
+        'nvim-lualine/lualine.nvim',
+        requires = {
+            'kyazdani42/nvim-web-devicons',
+            opt = true
+        }
     }
 
     -- z-command for vim
@@ -54,7 +64,7 @@ packer.startup(function()
     use 'williamboman/mason-lspconfig.nvim'
     use "hrsh7th/nvim-cmp"
     use "hrsh7th/cmp-nvim-lsp"
-    -- use "hrsh7th/vim-vsnip"
+    use "hrsh7th/vim-vsnip"
     use "hrsh7th/cmp-path"
     use "hrsh7th/cmp-buffer"
     use "hrsh7th/cmp-cmdline"
