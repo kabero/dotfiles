@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 -- disable some standard plugins
 -----------------------------
 vim.g.loaded_netrw = 1
@@ -19,7 +20,6 @@ require("gitsigns").setup()
 
 -- nvim-tree
 vim.api.nvim_set_keymap("n", "<leader>n", ":NvimTreeToggle<CR>", opts)
-
 
 -- whichkey
 vim.api.nvim_set_keymap("n", "<leader>w", ":WhichKey<CR>", opts)
