@@ -1,1 +1,1 @@
-vim.api.nvim_command [[colorscheme gruvbit]]
+vim.api.nvim_command [[colorscheme gruvbox-material]]
