@@ -8,7 +8,7 @@ cmd("let g:python3_host_prog = expand('/Users/ko_abe/.pyenv/versions/nvim3/bin/p
 cmd("let g:ruby_host_prog = expand('~/.rbenv/versions/3.0.6/bin/ruby')")
 opt.clipboard:append { 'unnamedplus' }
 opt.mouse = 'a'
-opt.fileformats = 'unix', 'mac', 'dos'
+opt.fileformats = 'unix'
 
 -- Search
 opt.hlsearch = true

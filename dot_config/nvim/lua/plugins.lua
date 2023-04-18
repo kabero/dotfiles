@@ -4,7 +4,7 @@
 vim.cmd.packadd "packer.nvim"
 
 local packer = require("packer")
-packer.init({ })
+packer.init({})
 packer.startup(function()
     -- packer
     use 'wbthomason/packer.nvim'
@@ -35,7 +35,7 @@ packer.startup(function()
     use 'lewis6991/gitsigns.nvim'
     use {
         'nvim-telescope/telescope.nvim', tag = '0.1.1',
-        requires = { {'nvim-lua/plenary.nvim'} },
+        requires = { { 'nvim-lua/plenary.nvim' } },
     }
 
     use {
@@ -70,14 +70,14 @@ packer.startup(function()
     use "hrsh7th/cmp-cmdline"
     use {
         'jose-elias-alvarez/null-ls.nvim',
-        requires = {{"nvim-lua/plenary.nvim"}, {'neovim/nvim-lspconfig'}},
+        requires = { { "nvim-lua/plenary.nvim" }, { 'neovim/nvim-lspconfig' } },
         config = function()
             local null_ls = require("null-ls")
             local sources = {
                 null_ls.builtins.diagnostics.rubocop,
                 null_ls.builtins.formatting.rubocop,
             }
-            null_ls.setup({sources = sources, debug = true})
+            null_ls.setup({ sources = sources, debug = true })
         end
     }
 
