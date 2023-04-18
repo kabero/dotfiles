@@ -1,3 +1,19 @@
+[directory]
+read_only = " "
+truncation_length = 100
+truncate_to_repo = true
+
+[hostname]
+ssh_only = false
+format = "[$hostname]($style): "
+style = "green"
+disabled = true
+
+[username]
+style_user = "green"
+show_always = true
+disabled = true
+
 [aws]
 symbol = "  "
 
@@ -12,9 +28,6 @@ symbol = " "
 
 [dart]
 symbol = " "
-
-[directory]
-read_only = " "
 
 [docker_context]
 symbol = " "
