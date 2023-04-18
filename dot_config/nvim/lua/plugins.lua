@@ -68,6 +68,18 @@ packer.startup(function()
     use "hrsh7th/cmp-path"
     use "hrsh7th/cmp-buffer"
     use "hrsh7th/cmp-cmdline"
+    use {
+        'jose-elias-alvarez/null-ls.nvim',
+        requires = {{"nvim-lua/plenary.nvim"}, {'neovim/nvim-lspconfig'}},
+        config = function()
+            local null_ls = require("null-ls")
+            local sources = {
+                null_ls.builtins.diagnostics.rubocop,
+                null_ls.builtins.formatting.rubocop,
+            }
+            null_ls.setup({sources = sources, debug = true})
+        end
+    }
 
     -- Github copilot
     use 'github/copilot.vim'
