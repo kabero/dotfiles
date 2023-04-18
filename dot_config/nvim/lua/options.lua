@@ -9,6 +9,7 @@ cmd("let g:ruby_host_prog = expand('~/.rbenv/versions/3.0.6/bin/ruby')")
 opt.clipboard:append { 'unnamedplus' }
 opt.mouse = 'a'
 opt.fileformats = 'unix'
+opt.ambiwidth = "single"
 
 -- Search
 opt.hlsearch = true
@@ -28,6 +29,7 @@ opt.termguicolors = true
 opt.visualbell = false
 opt.wildmenu = true
 opt.wrap = true
+opt.showtabline = 2
 
 -- Edit
 opt.autoindent = true
@@ -40,6 +42,7 @@ opt.tabstop = 4
 -- Others
 opt.swapfile = false
 opt.updatetime = 300
+opt.hidden = true
 
 -- Window
 opt.splitbelow = true

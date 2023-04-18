@@ -1,9 +1,4 @@
 ---@diagnostic disable: undefined-global
--- disable some standard plugins
------------------------------
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
-
 -- load configs
 -----------------------------
 require "options"
@@ -18,11 +13,11 @@ local opts = { noremap = true, silent = true }
 require("nvim-tree").setup()
 require("gitsigns").setup()
 
+-- which-key
+vim.api.nvim_set_keymap("n", "<leader>w", ":WhichKey<CR>", opts)
+
 -- nvim-tree
 vim.api.nvim_set_keymap("n", "<leader>n", ":NvimTreeToggle<CR>", opts)
-
--- whichkey
-vim.api.nvim_set_keymap("n", "<leader>w", ":WhichKey<CR>", opts)
 
 require('lualine').setup {
     options = {
@@ -68,6 +63,3 @@ require('lualine').setup {
 
 -- other configs
 -----------------------------
-
--- open a quickfix window when executing a command whose name contains "grep"
-vim.cmd([[autocmd QuickFixCmdPost *grep* cwindow]])

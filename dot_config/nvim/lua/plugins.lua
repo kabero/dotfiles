@@ -34,10 +34,29 @@ packer.startup(function()
     }
     use 'lewis6991/gitsigns.nvim'
     use {
+        "norcalli/nvim-colorizer.lua",
+        config = function()
+            require("colorizer").setup {
+                'css',
+                'javascript',
+                html = {
+                    mode = 'foreground'
+                }
+            }
+        end
+    }
+
+    -- fuzzy finder
+    use {
         'nvim-telescope/telescope.nvim', tag = '0.1.1',
         requires = { { 'nvim-lua/plenary.nvim' } },
     }
+    use {
+        "nvim-telescope/telescope-file-browser.nvim",
+        requires = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
+    }
 
+    -- light line
     use {
         'nvim-lualine/lualine.nvim',
         requires = {
@@ -49,14 +68,7 @@ packer.startup(function()
     -- z-command for vim
     use 'nanotee/zoxide.vim'
 
-    use {
-        'folke/which-key.nvim',
-        config = function()
-            vim.o.timeout = true
-            vim.o.timeoutlen = 500
-            require("which-key").setup {}
-        end
-    }
+    use 'folke/which-key.nvim'
 
     -- lsp
     use 'neovim/nvim-lspconfig'
@@ -80,6 +92,14 @@ packer.startup(function()
             null_ls.setup({ sources = sources, debug = true })
         end
     }
+
+    -- snippets
+    use({
+        "L3MON4D3/LuaSnip",
+        tag = "v1.*",
+        run = "make install_jsregexp"
+    })
+
 
     -- Github copilot
     use 'github/copilot.vim'
