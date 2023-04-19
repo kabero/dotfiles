@@ -22,7 +22,10 @@ local sources = {
     null_ls.builtins.diagnostics.rubocop,
     null_ls.builtins.formatting.rubocop,
 }
-null_ls.setup({ sources = sources, debug = true })
+null_ls.setup({
+    sources = sources,
+    debug = true,
+})
 
 -- nvim-tree
 vim.api.nvim_set_keymap("n", "<leader>n", ":NvimTreeToggle<CR>", opts)
