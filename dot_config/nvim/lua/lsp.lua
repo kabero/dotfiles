@@ -17,17 +17,17 @@ mason_lspconfig.setup_handlers({ function(server)
     opts.on_attach = function(client, bufnr)
         local opt = { noremap = true, buffer = bufnr }
         -- Reference highlight
-        vim.cmd [[
-        set updatetime=500
-        highlight LspReferenceText  cterm=underline ctermfg=1 ctermbg=8 gui=underline guibg=#A00000
-        highlight LspReferenceRead  cterm=underline ctermfg=1 ctermbg=8 gui=underline guibg=#A00000
-        highlight LspReferenceWrite cterm=underline ctermfg=1 ctermbg=8 gui=underline guibg=#A00000
-        augroup lsp_document_highlight
-        autocmd!
-        autocmd CursorMoved,CursorMovedI * lua vim.lsp.buf.clear_references()
-        autocmd CursorHold,CursorHoldI * lua vim.lsp.buf.document_highlight()
-        augroup END
-        ]]
+        -- vim.cmd [[
+        -- set updatetime=500
+        -- highlight LspReferenceText  cterm=underline ctermfg=1 ctermbg=8 gui=underline guibg=#A00000
+        -- highlight LspReferenceRead  cterm=underline ctermfg=1 ctermbg=8 gui=underline guibg=#A00000
+        -- highlight LspReferenceWrite cterm=underline ctermfg=1 ctermbg=8 gui=underline guibg=#A00000
+        -- augroup lsp_document_highlight
+        -- autocmd!
+        -- autocmd CursorMoved,CursorMovedI * lua vim.lsp.buf.clear_references()
+        -- autocmd CursorHold,CursorHoldI * lua vim.lsp.buf.document_highlight()
+        -- augroup END
+        -- ]]
 
         -- Keybindings
         local bufopts = { noremap = true, silent = true, buffer = bufnr }
