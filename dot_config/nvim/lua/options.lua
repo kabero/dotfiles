@@ -41,7 +41,9 @@ opt.tabstop = 4
 
 -- Others
 opt.swapfile = false
-opt.updatetime = 300
+vim.o.updatetime = 250
+vim.o.timeout = true
+vim.o.timeoutlen = 300
 opt.hidden = true
 
 -- Window

@@ -45,6 +45,7 @@ packer.startup(function()
             }
         end
     }
+    use 'folke/which-key.nvim'
 
     -- fuzzy finder
     use {
@@ -68,7 +69,6 @@ packer.startup(function()
     -- z-command for vim
     use 'nanotee/zoxide.vim'
 
-    use 'folke/which-key.nvim'
 
     -- lsp
     use 'neovim/nvim-lspconfig'
@@ -83,14 +83,6 @@ packer.startup(function()
     use {
         'jose-elias-alvarez/null-ls.nvim',
         requires = { { "nvim-lua/plenary.nvim" }, { 'neovim/nvim-lspconfig' } },
-        config = function()
-            local null_ls = require("null-ls")
-            local sources = {
-                null_ls.builtins.diagnostics.rubocop,
-                null_ls.builtins.formatting.rubocop,
-            }
-            null_ls.setup({ sources = sources, debug = true })
-        end
     }
 
     -- snippets
@@ -99,7 +91,6 @@ packer.startup(function()
         tag = "v1.*",
         run = "make install_jsregexp"
     })
-
 
     -- Github copilot
     use 'github/copilot.vim'

@@ -16,6 +16,14 @@ require("gitsigns").setup()
 -- which-key
 vim.api.nvim_set_keymap("n", "<leader>w", ":WhichKey<CR>", opts)
 
+-- null_ls
+local null_ls = require("null-ls")
+local sources = {
+    null_ls.builtins.diagnostics.rubocop,
+    null_ls.builtins.formatting.rubocop,
+}
+null_ls.setup({ sources = sources, debug = true })
+
 -- nvim-tree
 vim.api.nvim_set_keymap("n", "<leader>n", ":NvimTreeToggle<CR>", opts)
 
@@ -60,6 +68,29 @@ require('lualine').setup {
     extensions = {}
 }
 
+require('telescope').setup {
+    defaults = {
+        mappings = {
+            i = {
+                ['<C-u>'] = false,
+                ['<C-d>'] = false,
+            },
+        },
+        layout_strategy = "horizontal",
+        layout_config = { prompt_position = "top" },
+        sorting_strategy = "ascending",
+        winblend = 0,
+    },
+}
 
 -- other configs
 -----------------------------
+-- [[ Highlight on yank ]]
+local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
+vim.api.nvim_create_autocmd('TextYankPost', {
+    callback = function()
+        vim.highlight.on_yank()
+    end,
+    group = highlight_group,
+    pattern = '*',
+})
