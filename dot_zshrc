@@ -7,6 +7,8 @@ autoload -Uz colors
 colors
 bindkey -e
 
+# direnv
+eval "$(direnv hook zsh)"
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
@@ -29,6 +31,8 @@ rbenv() {
     $0 "$@"
 }
 
+# nodenv
+eval "$(nodenv init -)"
 
 # Java
 export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
