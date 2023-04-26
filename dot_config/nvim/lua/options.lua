@@ -42,6 +42,8 @@ vim.opt.updatetime = 250
 vim.opt.timeout = true
 vim.opt.timeoutlen = 300
 vim.opt.hidden = true
+vim.opt.undofile = true
+vim.opt.undodir = vim.fn.stdpath('cache') .. '/undo'
 
 -- Window
 vim.opt.splitbelow = true
