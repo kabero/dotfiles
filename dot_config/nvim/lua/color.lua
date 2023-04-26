@@ -1,1 +1,1 @@
-vim.api.nvim_command [[colorscheme gruvbox-material]]
+-- vim.api.nvim_command [[colorscheme tokyonight-night]]
