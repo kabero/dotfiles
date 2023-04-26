@@ -80,6 +80,7 @@ packer.startup(function()
     use "hrsh7th/cmp-path"
     use "hrsh7th/cmp-buffer"
     use "hrsh7th/cmp-cmdline"
+    use "hrsh7th/cmp-emoji"
     use {
         'jose-elias-alvarez/null-ls.nvim',
         requires = { { "nvim-lua/plenary.nvim" }, { 'neovim/nvim-lspconfig' } },
