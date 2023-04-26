@@ -1,55 +1,52 @@
-local opt = vim.opt
-local cmd = vim.cmd
-
 -- General
-cmd("language C")
-cmd("set encoding=utf-8")
-cmd("let g:python3_host_prog = expand('/Users/ko_abe/.pyenv/versions/nvim3/bin/python')")
-cmd("let g:ruby_host_prog = expand('~/.rbenv/versions/3.0.6/bin/ruby')")
-opt.clipboard:append { 'unnamedplus' }
-opt.mouse = 'a'
-opt.fileformats = 'unix'
-opt.ambiwidth = "single"
+vim.cmd("language C")
+vim.cmd("set encoding=utf-8")
+vim.cmd("let g:python3_host_prog = expand('/Users/ko_abe/.pyenv/versions/nvim3/bin/python')")
+vim.cmd("let g:ruby_host_prog = expand('~/.rbenv/versions/3.0.6/bin/ruby')")
+vim.opt.clipboard:append { 'unnamedplus' }
+vim.opt.mouse = 'a'
+vim.opt.fileformats = 'unix'
+vim.opt.ambiwidth = "single"
 
 -- Search
-opt.hlsearch = true
-opt.ignorecase = true
-opt.incsearch = true
-opt.smartcase = true
-opt.wrapscan = true
+vim.opt.hlsearch = true
+vim.opt.ignorecase = true
+vim.opt.incsearch = true
+vim.opt.smartcase = true
+vim.opt.wrapscan = true
 
 -- View
-opt.cursorline = false
-opt.number = true
-opt.numberwidth = 4
-opt.ruler = true
-opt.showmatch = true
-opt.signcolumn = 'yes'
-opt.termguicolors = true
-opt.visualbell = false
-opt.wildmenu = true
-opt.wrap = true
-opt.showtabline = 2
+vim.opt.cursorline = false
+vim.opt.number = true
+vim.opt.numberwidth = 4
+vim.opt.ruler = true
+vim.opt.showmatch = true
+vim.opt.signcolumn = 'yes'
+vim.opt.termguicolors = true
+vim.opt.visualbell = false
+vim.opt.wildmenu = true
+vim.opt.wrap = true
+vim.opt.showtabline = 2
 
 -- Edit
-opt.autoindent = true
-opt.expandtab = true
-opt.shiftround = true
-opt.shiftwidth = 4
-opt.smartindent = true
-opt.tabstop = 4
+vim.opt.autoindent = true
+vim.opt.expandtab = true
+vim.opt.shiftround = true
+vim.opt.shiftwidth = 4
+vim.opt.smartindent = true
+vim.opt.tabstop = 4
 
 -- Others
-opt.swapfile = false
-vim.o.updatetime = 250
-vim.o.timeout = true
-vim.o.timeoutlen = 300
-opt.hidden = true
+vim.opt.swapfile = false
+vim.opt.updatetime = 250
+vim.opt.timeout = true
+vim.opt.timeoutlen = 300
+vim.opt.hidden = true
 
 -- Window
-opt.splitbelow = true
-opt.splitright = true
+vim.opt.splitbelow = true
+vim.opt.splitright = true
 
 -- Avoid automatically commenting when adding a new line
-cmd [[ autocmd FileType * setlocal formatoptions-=r ]]
-cmd [[ autocmd FileType * setlocal formatoptions-=o ]]
+vim.cmd [[ autocmd FileType * setlocal formatoptions-=r ]]
+vim.cmd [[ autocmd FileType * setlocal formatoptions-=o ]]
