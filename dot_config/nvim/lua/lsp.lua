@@ -64,6 +64,7 @@ cmp.setup({
         { name = "nvim_lsp" },
         { name = "path" },
         { name = "buffer" },
+        { name = "emoji" },
     },
     mapping = cmp.mapping.preset.insert({
         ["<C-p>"] = cmp.mapping.select_prev_item(),
