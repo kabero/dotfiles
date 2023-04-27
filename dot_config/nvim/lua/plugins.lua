@@ -28,7 +28,6 @@ require('lazy').setup({
 
     {
         "folke/which-key.nvim",
-        lazy = false,
         config = function()
             vim.opt.timeout = true
             vim.opt.timeoutlen = 300
@@ -39,7 +38,6 @@ require('lazy').setup({
 
     {
         "nvim-telescope/telescope.nvim",
-        lazy = false,
         cmd = 'Telescope',
         dependencies = {
             "nvim-lua/plenary.nvim"
@@ -148,6 +146,14 @@ require('lazy').setup({
     { 'nvim-treesitter/nvim-treesitter', lazy = false },
 
     {
+        'j-hui/fidget.nvim',
+        lazy = false,
+        config = function()
+            require('fidget').setup({})
+        end
+    },
+
+    {
         'lewis6991/gitsigns.nvim',
         lazy = false,
         config = function()
@@ -189,11 +195,9 @@ require('lazy').setup({
                     -- Keybindings
                     local bufopts = { noremap = true, silent = true, buffer = bufnr }
                     vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
-                    vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
                     vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
                     vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
                     vim.keymap.set('n', 'gt', '<cmd>lua vim.lsp.buf.type_definition()<CR>')
-                    vim.keymap.set('n', 'ga', '<cmd>lua vim.lsp.buf.code_action()<CR>')
                     vim.keymap.set('n', 'ge', '<cmd>lua vim.diagnostic.open_float()<CR>')
                 end
                 nvim_lsp[server].setup(opts)
@@ -219,6 +223,9 @@ require('lazy').setup({
             })
 
             vim.keymap.set('n', 'gr', '<cmd>Lspsaga rename<CR>')
+            vim.keymap.set('n', 'ga', '<cmd>Lspsaga code_action<CR>')
+            vim.keymap.set('n', 'gp', '<cmd>Lspsaga peek_definition<CR>')
+            vim.keymap.set('n', 'gd', '<cmd>Lspsaga goto_definition<CR>')
             vim.keymap.set('n', 'g]', '<cmd>Lspsaga diagnostic_jump_next<CR>')
             vim.keymap.set('n', 'g[', '<cmd>Lspsaga diagnostic_jump_prev<CR>')
             vim.keymap.set('n', 'K', '<cmd>Lspsaga hover_doc<CR>')
