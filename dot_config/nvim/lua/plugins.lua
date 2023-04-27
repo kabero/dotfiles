@@ -30,6 +30,9 @@ require('lazy').setup({
         "folke/which-key.nvim",
         lazy = false,
         config = function()
+            vim.opt.timeout = true
+            vim.opt.timeoutlen = 300
+            require("which-key").setup({})
             vim.api.nvim_set_keymap("n", "<leader>w", ":WhichKey<CR>", { noremap = true, silent = true })
         end
     },
@@ -62,12 +65,11 @@ require('lazy').setup({
                 }
             }
 
-            local builtin = require('telescope.builtin')
-            vim.keymap.set('n', '<leader>f', builtin.find_files, {})
-            vim.keymap.set('n', '<leader>r', builtin.live_grep, {})
-            vim.keymap.set('n', '<leader>b', builtin.buffers, {})
-            vim.keymap.set('n', '<leader>g', builtin.git_bcommits, {})
-            vim.keymap.set('n', '<leader>h', builtin.oldfiles, {})
+            vim.keymap.set('n', '<leader>f', '<cmd>lua require("telescope.builtin").find_files()<CR>', {})
+            vim.keymap.set('n', '<leader>r', '<cmd>lua require("telescope.builtin").live_grep()<CR>', {})
+            vim.keymap.set('n', '<leader>b', '<cmd>lua require("telescope.builtin").buffers()<CR>', {})
+            vim.keymap.set('n', '<leader>g', '<cmd>lua require("telescope.builtin").git_bcommits()<CR>', {})
+            vim.keymap.set('n', '<leader>h', '<cmd>lua require("telescope.builtin").oldfiles()<CR>', {})
         end
     },
 
@@ -186,18 +188,13 @@ require('lazy').setup({
                 opts.on_attach = function(_, bufnr)
                     -- Keybindings
                     local bufopts = { noremap = true, silent = true, buffer = bufnr }
-                    vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>')
                     vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
-                    -- vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>')
                     vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
                     vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
                     vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
                     vim.keymap.set('n', 'gt', '<cmd>lua vim.lsp.buf.type_definition()<CR>')
-                    vim.keymap.set('n', 'gn', '<cmd>lua vim.lsp.buf.rename()<CR>')
                     vim.keymap.set('n', 'ga', '<cmd>lua vim.lsp.buf.code_action()<CR>')
                     vim.keymap.set('n', 'ge', '<cmd>lua vim.diagnostic.open_float()<CR>')
-                    vim.keymap.set('n', 'g]', '<cmd>lua vim.diagnostic.goto_next()<CR>')
-                    vim.keymap.set('n', 'g[', '<cmd>lua vim.diagnostic.goto_prev()<CR>')
                 end
                 nvim_lsp[server].setup(opts)
             end })
@@ -215,18 +212,25 @@ require('lazy').setup({
             require('lspsaga').setup({
                 symbol_in_winbar = {
                     enable = false,
+                },
+                ui = {
+                    code_action = "",
                 }
             })
 
             vim.keymap.set('n', 'gr', '<cmd>Lspsaga rename<CR>')
+            vim.keymap.set('n', 'g]', '<cmd>Lspsaga diagnostic_jump_next<CR>')
+            vim.keymap.set('n', 'g[', '<cmd>Lspsaga diagnostic_jump_prev<CR>')
+            vim.keymap.set('n', 'K', '<cmd>Lspsaga hover_doc<CR>')
+            vim.keymap.set('n', '<leader>o', '<cmd>Lspsaga outline<CR>')
+            vim.keymap.set('n', '<leader>d', '<cmd>Lspsaga show_buf_diagnostics<CR>')
+            vim.keymap.set('n', '<leader>D', '<cmd>Lspsaga show_workspace_diagnostics<CR>')
+            vim.keymap.set({ 'n', 't' }, '<C-j>', '<cmd>Lspsaga term_toggle<CR>')
         end,
         dependencies = {
             { 'nvim-tree/nvim-web-devicons' },
             { 'nvim-treesitter/nvim-treesitter' },
         },
-        ui = {
-            code_action = "",
-        }
     },
 
     {
@@ -246,6 +250,14 @@ require('lazy').setup({
         config = function()
             local cmp = require('cmp')
             cmp.setup({
+                window = {
+                    completion = cmp.config.window.bordered({
+                        border = 'single'
+                    }),
+                    documentation = cmp.config.window.bordered({
+                        border = 'single'
+                    }),
+                },
                 snippet = {
                     expand = function(args)
                         vim.fn["vsnip#anonymous"](args.body)
