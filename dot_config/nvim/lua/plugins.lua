@@ -92,7 +92,7 @@ require('lazy').setup({
         'nvim-lualine/lualine.nvim',
         event = 'VeryLazy',
         dependencies = {
-            'kyazdani42/nvim-web-devicons',
+            'nvim-tree/nvim-web-devicons',
         },
         config = function()
             require('lualine').setup {
@@ -183,12 +183,12 @@ require('lazy').setup({
             local nvim_lsp = require('lspconfig')
             mason_lspconfig.setup_handlers({ function(server)
                 local opts = {}
-                opts.on_attach = function(client, bufnr)
+                opts.on_attach = function(_, bufnr)
                     -- Keybindings
                     local bufopts = { noremap = true, silent = true, buffer = bufnr }
                     vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>')
                     vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
-                    vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>')
+                    -- vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>')
                     vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
                     vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
                     vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
@@ -209,16 +209,39 @@ require('lazy').setup({
     },
 
     {
+        'glepnir/lspsaga.nvim',
+        event = 'LspAttach',
+        config = function()
+            require('lspsaga').setup({
+                symbol_in_winbar = {
+                    enable = false,
+                }
+            })
+
+            vim.keymap.set('n', 'gr', '<cmd>Lspsaga rename<CR>')
+        end,
+        dependencies = {
+            { 'nvim-tree/nvim-web-devicons' },
+            { 'nvim-treesitter/nvim-treesitter' },
+        },
+        ui = {
+            code_action = "",
+        }
+    },
+
+    {
         'hrsh7th/nvim-cmp',
         dependencies = {
             'hrsh7th/cmp-nvim-lsp',
             'hrsh7th/cmp-path',
             'hrsh7th/cmp-buffer',
             'hrsh7th/cmp-cmdline',
+            'hrsh7th/cmp-vsnip',
             'hrsh7th/cmp-nvim-lsp-signature-help',
             'hrsh7th/cmp-nvim-lsp-document-symbol',
             'onsails/lspkind.nvim',
             'hrsh7th/vim-vsnip',
+            'onsails/lspkind.nvim',
         },
         config = function()
             local cmp = require('cmp')
@@ -245,6 +268,13 @@ require('lazy').setup({
                 experimental = {
                     ghost_text = true,
                 },
+                formatting = {
+                    format = require('lspkind').cmp_format({
+                        mode = 'symbol',
+                        maxwidth = 50,
+                        ellipsis_char = '...',
+                    })
+                }
             })
 
             cmp.setup.cmdline({ '/', '?' }, {
@@ -276,13 +306,13 @@ require('lazy').setup({
                 null_ls.builtins.diagnostics.rubocop.with({
                     prefer_local = "bundle_bin",
                     condition = function(utils)
-                        return utils.root_has_file({".rubocop.yml"})
+                        return utils.root_has_file({ ".rubocop.yml" })
                     end
                 }),
                 null_ls.builtins.formatting.rubocop.with({
                     prefer_local = "bundle_bin",
                     condition = function(utils)
-                        return utils.root_has_file({".rubocop.yml"})
+                        return utils.root_has_file({ ".rubocop.yml" })
                     end
                 }),
             }
