@@ -223,11 +223,11 @@ require('lazy').setup({
         config = function()
             local cmp = require('cmp')
             cmp.setup({
-                -- snippet = {
-                --     expand = function(args)
-                --         vim.fn["vsnip#anonymous"](args.body)
-                --     end,
-                -- },
+                snippet = {
+                    expand = function(args)
+                        vim.fn["vsnip#anonymous"](args.body)
+                    end,
+                },
                 sources = cmp.config.sources({
                     { name = "nvim_lsp" },
                     { name = "vsnip" },
@@ -242,9 +242,9 @@ require('lazy').setup({
                     ["<C-f>"] = cmp.mapping.confirm { select = true },
                     ["<CR>"] = cmp.mapping.confirm { select = true },
                 }),
-                -- experimental = {
-                --     ghost_text = true,
-                -- },
+                experimental = {
+                    ghost_text = true,
+                },
             })
 
             cmp.setup.cmdline({ '/', '?' }, {
@@ -273,8 +273,18 @@ require('lazy').setup({
         config = function()
             local null_ls = require("null-ls")
             local sources = {
-                null_ls.builtins.diagnostics.rubocop,
-                null_ls.builtins.formatting.rubocop,
+                null_ls.builtins.diagnostics.rubocop.with({
+                    prefer_local = "bundle_bin",
+                    condition = function(utils)
+                        return utils.root_has_file({".rubocop.yml"})
+                    end
+                }),
+                null_ls.builtins.formatting.rubocop.with({
+                    prefer_local = "bundle_bin",
+                    condition = function(utils)
+                        return utils.root_has_file({".rubocop.yml"})
+                    end
+                }),
             }
             null_ls.setup({
                 sources = sources,
