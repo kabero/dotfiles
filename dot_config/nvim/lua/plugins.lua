@@ -227,6 +227,8 @@ require('lazy').setup({
 
     { 'neovim/nvim-lspconfig', event = 'InsertEnter' },
 
+    { 'mfussenegger/nvim-dap', lazy = false },
+
     {
         'williamboman/mason.nvim',
         lazy = false,
@@ -251,6 +253,24 @@ require('lazy').setup({
         config = function()
             local mason_lspconfig = require('mason-lspconfig')
             local nvim_lsp = require('lspconfig')
+            require('mason-lspconfig').setup {
+                ensure_installed = {
+                    -- Ruby
+                    'ruby_ls',
+                    'rubocop',
+
+                    -- Rust
+                    'rust_analyzer',
+
+                    -- Lua
+                    'lua_ls',
+
+                    -- HTML&CSS 
+                    'html',
+                    'emmet_ls',
+                    'cssls',
+                }
+            }
             mason_lspconfig.setup_handlers({ function(server)
                 local opts = {}
                 opts.on_attach = function(_, bufnr)
@@ -258,6 +278,7 @@ require('lazy').setup({
                     local bufopts = { noremap = true, silent = true, buffer = bufnr }
                     vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
                     vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
+                    -- vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
                     vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
                     vim.keymap.set('n', 'gt', '<cmd>lua vim.lsp.buf.type_definition()<CR>')
                     vim.keymap.set('n', 'ge', '<cmd>lua vim.diagnostic.open_float()<CR>')
@@ -386,6 +407,7 @@ require('lazy').setup({
         config = function()
             local null_ls = require("null-ls")
             local sources = {
+                -- Ruby
                 null_ls.builtins.diagnostics.rubocop.with({
                     prefer_local = "bundle_bin",
                     condition = function(utils)
