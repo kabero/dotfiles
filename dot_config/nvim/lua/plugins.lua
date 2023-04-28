@@ -139,11 +139,47 @@ require('lazy').setup({
     },
 
 
-    { 'jiangmiao/auto-pairs',            lazy = false },
+    { 'jiangmiao/auto-pairs', lazy = false },
 
-    { 'tpope/vim-commentary',            lazy = false },
+    {
+        'windwp/nvim-ts-autotag',
+        lazy = false,
+        config = function()
+            require('nvim-ts-autotag').setup({
+                filetypes = { 'html', 'xml' }
+            })
+        end
+    },
 
-    { 'nvim-treesitter/nvim-treesitter', lazy = false },
+    { 'tpope/vim-commentary', lazy = false },
+
+    {
+        'akinsho/bufferline.nvim',
+        lazy = false,
+        version = '*',
+        dependencies = 'nvim-tree/nvim-web-devicons',
+        config = function()
+            require('bufferline').setup {}
+        end
+    },
+
+    {
+        'nvim-treesitter/nvim-treesitter',
+        lazy = false,
+        config = function()
+            require('nvim-treesitter.configs').setup {
+                ensure_installed = {
+                    'css', 'go', 'html', 'javascript', 'markdown', 'markdown_inline', 'python',
+                    'ruby', 'rust', 'tsx', 'gitignore', 'gitcommit', 'graphql', 'bash', 'c',
+                    'cpp', 'dockerfile', 'jq', 'json', 'json5', 'lua', 'php', 'regex', 'scala',
+                    'scss', 'sql', 'typescript', 'vim', 'vue', 'yaml', 'zig',
+                },
+                highlight = {
+                    enable = true,
+                }
+            }
+        end
+    },
 
     {
         'j-hui/fidget.nvim',
@@ -343,12 +379,12 @@ require('lazy').setup({
     },
 })
 
+
 -- -- snippets
 -- use({
 --     "L3MON4D3/LuaSnip",
 --     tag = "v1.*",
 --     run = "make install_jsregexp"
 -- })
-
 -- Github copilot
 -- use 'github/copilot.vim'
