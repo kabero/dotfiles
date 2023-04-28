@@ -345,7 +345,8 @@ require('lazy').setup({
                     ["<C-p>"] = cmp.mapping.select_prev_item(),
                     ["<C-n>"] = cmp.mapping.select_next_item(),
                     ["<C-f>"] = cmp.mapping.confirm { select = true },
-                    ["<CR>"] = cmp.mapping.confirm { select = true },
+                    ["<TAB>"] = cmp.mapping.confirm { select = true },
+                    ["<CR>"] = cmp.mapping.confirm { select = false },
                 }),
                 experimental = {
                     ghost_text = true,
