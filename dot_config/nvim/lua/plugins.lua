@@ -138,20 +138,15 @@ require('lazy').setup({
         end
     },
 
-
-    { 'jiangmiao/auto-pairs', lazy = false },
-
     {
-        'windwp/nvim-ts-autotag',
-        lazy = false,
+        'windwp/nvim-autopairs',
+        event = 'InsertEnter',
         config = function()
-            require('nvim-ts-autotag').setup({
-                filetypes = { 'html', 'xml' }
-            })
+            require('nvim-autopairs').setup({})
         end
     },
 
-    { 'tpope/vim-commentary', lazy = false },
+    { 'tpope/vim-commentary',  lazy = false },
 
     {
         'akinsho/bufferline.nvim',
@@ -166,6 +161,7 @@ require('lazy').setup({
     {
         'nvim-treesitter/nvim-treesitter',
         lazy = false,
+        dependencies = 'windwp/nvim-ts-autotag',
         config = function()
             require('nvim-treesitter.configs').setup {
                 ensure_installed = {
@@ -203,6 +199,9 @@ require('lazy').setup({
                 },
                 highlight = {
                     enable = true,
+                },
+                autotag = {
+                    enable = true,
                 }
             }
         end
@@ -210,7 +209,7 @@ require('lazy').setup({
 
     {
         'j-hui/fidget.nvim',
-        lazy = false,
+        event = 'LspAttach',
         config = function()
             require('fidget').setup({})
         end
@@ -220,7 +219,7 @@ require('lazy').setup({
         'lewis6991/gitsigns.nvim',
         lazy = false,
         config = function()
-            require("gitsigns").setup()
+            require("gitsigns").setup({})
         end
     },
 
@@ -305,11 +304,12 @@ require('lazy').setup({
 
     {
         'hrsh7th/nvim-cmp',
+        event = 'InsertEnter, CmdlineEnter',
         dependencies = {
             'hrsh7th/cmp-nvim-lsp',
             'hrsh7th/cmp-path',
             'hrsh7th/cmp-buffer',
-            'hrsh7th/cmp-cmdline',
+            { 'hrsh7th/cmp-cmdline', event = 'ModeChanged' },
             'hrsh7th/cmp-vsnip',
             'hrsh7th/cmp-nvim-lsp-signature-help',
             'hrsh7th/cmp-nvim-lsp-document-symbol',
