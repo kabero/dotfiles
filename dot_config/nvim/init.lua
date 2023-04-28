@@ -26,3 +26,11 @@ vim.api.nvim_create_autocmd({ 'BufReadPost' }, {
 vim.cmd [[ autocmd FileType * setlocal formatoptions-=r ]]
 vim.cmd [[ autocmd FileType * setlocal formatoptions-=o ]]
 
+-- Highlight ideographic space
+vim.cmd [[
+augroup highlightIdegraphicSpace
+  autocmd!
+  autocmd Colorscheme * highlight IdeographicSpace term=underline ctermbg=DarkGreen guibg=DarkGreen
+  autocmd VimEnter,WinEnter * match IdeographicSpace /　/
+augroup END
+]]
