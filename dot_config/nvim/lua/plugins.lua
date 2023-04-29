@@ -87,7 +87,6 @@ require('lazy').setup({
         end
     },
 
-
     {
         'nvim-lualine/lualine.nvim',
         event = 'VeryLazy',
@@ -265,7 +264,7 @@ require('lazy').setup({
                     -- Lua
                     'lua_ls',
 
-                    -- HTML&CSS 
+                    -- HTML&CSS
                     'html',
                     'emmet_ls',
                     'cssls',
