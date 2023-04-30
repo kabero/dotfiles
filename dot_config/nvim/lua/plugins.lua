@@ -256,7 +256,6 @@ require('lazy').setup({
                 ensure_installed = {
                     -- Ruby
                     'ruby_ls',
-                    'rubocop',
 
                     -- Rust
                     'rust_analyzer',
@@ -426,6 +425,40 @@ require('lazy').setup({
             })
         end
     },
+
+    {
+        'is0n/jaq-nvim',
+        event = 'VeryLazy',
+        config = function()
+            require('jaq-nvim').setup {
+                cmds = {
+                    internal = {
+                        lua = 'luafile %',
+                        vim = 'source %',
+                    },
+
+                    external = {
+                        python = 'python %',
+                        sh = 'bash %',
+                        markdown = 'glow %'
+                    }
+                },
+                behavior = {
+                    default = 'float',
+                    startinsert = false,
+                    wincmd = false,
+                    autosave = false,
+                },
+                ui = {
+                    float = {
+                        border = 'single'
+                    }
+                }
+            }
+            vim.keymap.set('n', '<leader>q', '<cmd>Jaq<CR>')
+        end
+    }
+
 })
 
 
