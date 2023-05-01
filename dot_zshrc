@@ -12,8 +12,8 @@ eval "$(direnv hook zsh)"
 
 # asdf
 . /opt/homebrew/opt/asdf/libexec/asdf.sh
-fpath=(${ASDF_DIR}/completions $fpath)
-autoload -Uz compinit && compinit
+# fpath=(${ASDF_DIR}/completions $fpath)
+# autoload -Uz compinit && compinit
 
 # Java
 export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
@@ -55,6 +55,7 @@ alias tree="exa -T"
 source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 if type brew &>/dev/null; then
     FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+    FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
     autoload -Uz compinit
     compinit
 fi
