@@ -145,7 +145,7 @@ require('lazy').setup({
         end
     },
 
-    { 'tpope/vim-commentary',  lazy = false },
+    { 'tpope/vim-commentary', lazy = false },
 
     {
         'akinsho/bufferline.nvim',
@@ -222,9 +222,20 @@ require('lazy').setup({
         end
     },
 
-    { 'nanotee/zoxide.vim',    event = 'InsertEnter, CmdlineEnter' },
+    { 'nanotee/zoxide.vim',   event = 'InsertEnter, CmdlineEnter' },
 
-    { 'neovim/nvim-lspconfig', event = 'InsertEnter' },
+    {
+        'neovim/nvim-lspconfig',
+        event = 'InsertEnter',
+        config = function()
+            require 'lspconfig'.efm.setup {
+                filetypes = { 'python' },
+                default_config = {
+                    cmd = { 'efm-langserver', '-c', '$HOME/.config/efm-langserver/config.yaml'}
+                }
+            }
+        end
+    },
 
     { 'mfussenegger/nvim-dap', lazy = false },
 
@@ -254,6 +265,9 @@ require('lazy').setup({
             local nvim_lsp = require('lspconfig')
             require('mason-lspconfig').setup {
                 ensure_installed = {
+                    -- Zig
+                    'zls',
+
                     -- Ruby
                     'ruby_ls',
 
@@ -262,6 +276,9 @@ require('lazy').setup({
 
                     -- Lua
                     'lua_ls',
+
+                    -- Python
+                    'pyright',
 
                     -- HTML&CSS
                     'html',
@@ -441,9 +458,10 @@ require('lazy').setup({
                         go = 'go run %',
                         markdown = 'glow %',
                         python = 'python %',
+                        ruby = 'ruby %',
                         rust = 'cargo run %',
                         sh = 'bash %',
-                        ruby = 'ruby %',
+                        zig = 'zig build run',
                     }
                 },
                 behavior = {
