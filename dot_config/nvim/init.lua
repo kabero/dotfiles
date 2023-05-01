@@ -1,6 +1,7 @@
 ---@diagnostic disable: undefined-global
 require "options"
 require "keymap"
+require "filetype"
 require "plugins"
 
 

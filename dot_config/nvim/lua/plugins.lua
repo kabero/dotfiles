@@ -438,14 +438,17 @@ require('lazy').setup({
                     },
 
                     external = {
+                        go = 'go run %',
+                        markdown = 'glow %',
                         python = 'python %',
+                        rust = 'cargo run %',
                         sh = 'bash %',
-                        markdown = 'glow %'
+                        ruby = 'ruby %',
                     }
                 },
                 behavior = {
                     default = 'float',
-                    startinsert = false,
+                    startinsert = true,
                     wincmd = false,
                     autosave = false,
                 },
