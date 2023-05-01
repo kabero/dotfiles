@@ -10,29 +10,10 @@ bindkey -e
 # direnv
 eval "$(direnv hook zsh)"
 
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-
-pyenv() {
-    unfunction "$0"
-    source <(pyenv init -)
-    source <(pyenv virtualenv-init -)
-    $0 "$@"
-}
-# eval "$(pyenv init -)"
-# eval "$(pyenv virtualenv-init -)"
-
-# rbenv
-export PATH="$HOME/.rbenv/shims:$PATH"
-rbenv() {
-    unfunction "$0"
-    source <(rbenv init -)
-    $0 "$@"
-}
-
-# nodenv
-eval "$(nodenv init -)"
+# asdf
+. /opt/homebrew/opt/asdf/libexec/asdf.sh
+fpath=(${ASDF_DIR}/completions $fpath)
+autoload -Uz compinit && compinit
 
 # Java
 export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
@@ -69,12 +50,6 @@ alias vim="nvim"
 alias view="nvim -R"
 alias ls="exa --sort=ext" 
 alias tree="exa -T"
-
-alias zshconf="chezmoi edit ~/.zshrc"
-alias nvimconf="chezmoi edit ~/.config/nvim/init.lua"
-alias tmuxconf="chezmoi edit ~/.tmux.conf"
-alias alacrittyconf="chezmoi edit ~/.config/alacritty/alacritty.yml"
-alias starshipconf="chezmoi edit ~/.config/starship.toml"
 
 # fish-like behavior
 source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
