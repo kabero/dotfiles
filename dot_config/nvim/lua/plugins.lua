@@ -227,14 +227,14 @@ require('lazy').setup({
     {
         'neovim/nvim-lspconfig',
         event = 'InsertEnter',
-        config = function()
-            require 'lspconfig'.efm.setup {
-                filetypes = { 'python' },
-                default_config = {
-                    cmd = { 'efm-langserver', '-c', '$HOME/.config/efm-langserver/config.yaml'}
-                }
-            }
-        end
+        -- config = function()
+        --     require 'lspconfig'.efm.setup {
+        --         filetypes = { 'python' },
+        --         default_config = {
+        --             cmd = { 'efm-langserver', '-c', '$HOME/.config/efm-langserver/config.yaml'}
+        --         }
+        --     }
+        -- end
     },
 
     { 'mfussenegger/nvim-dap', lazy = false },
@@ -435,6 +435,11 @@ require('lazy').setup({
                         return utils.root_has_file({ ".rubocop.yml" })
                     end
                 }),
+
+                -- Python
+                null_ls.builtins.diagnostics.flake8,
+                null_ls.builtins.formatting.isort,
+                null_ls.builtins.formatting.yapf,
             }
             null_ls.setup({
                 sources = sources,
