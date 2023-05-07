@@ -40,10 +40,12 @@ require('lazy').setup({
         "nvim-telescope/telescope.nvim",
         cmd = 'Telescope',
         dependencies = {
-            "nvim-lua/plenary.nvim"
+            "nvim-lua/plenary.nvim",
+            'delphinus/telescope-memo.nvim',
         },
         config = function()
-            require('telescope').setup {
+            local telescope = require('telescope')
+            telescope.setup {
                 defaults = {
                     mappings = {
                         i = {
@@ -68,6 +70,11 @@ require('lazy').setup({
             vim.keymap.set('n', '<leader>b', '<cmd>lua require("telescope.builtin").buffers()<CR>', {})
             vim.keymap.set('n', '<leader>g', '<cmd>lua require("telescope.builtin").git_bcommits()<CR>', {})
             vim.keymap.set('n', '<leader>h', '<cmd>lua require("telescope.builtin").oldfiles()<CR>', {})
+
+            -- telescope-memo
+            telescope.load_extension('memo')
+            vim.keymap.set('n', '<leader>ml', '<cmd>Telescope memo list<CR>')
+            vim.keymap.set('n', '<leader>mg', '<cmd>Telescope memo live_grep<CR>')
         end
     },
 
@@ -489,22 +496,14 @@ require('lazy').setup({
     {
         'glidenote/memolist.vim',
         config = function()
-            vim.g.memolist_path = '~/.memolist/memo'
+            vim.g.memolist_path = "~/.memolist/memo"
             vim.g.memolist_fzf = 1
             vim.g.memolist_memo_suffix = 'md'
-            vim.g.memolist_template_dir_path = '~/.memolist/memotemplates'
-        end
-    },
+            vim.g.memolist_template_dir_path = "~/.memolist/memotemplates"
 
-    {
-        'delphinus/telescope-memo.nvim',
-        config = function()
             vim.keymap.set('n', '<leader>mn', '<cmd>MemoNew<CR>')
-            vim.keymap.set('n', '<leader>ml', '<cmd>Telescope memo list<CR>')
-            vim.keymap.set('n', '<leader>mg', '<cmd>Telescope memo live_grep<CR>')
         end
     },
-
 })
 
 
