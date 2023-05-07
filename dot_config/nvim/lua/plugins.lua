@@ -265,6 +265,9 @@ require('lazy').setup({
             local nvim_lsp = require('lspconfig')
             require('mason-lspconfig').setup {
                 ensure_installed = {
+                    -- C
+                    'clangd',
+
                     -- Zig
                     'zls',
 
@@ -293,7 +296,6 @@ require('lazy').setup({
                     local bufopts = { noremap = true, silent = true, buffer = bufnr }
                     vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
                     vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
-                    -- vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
                     vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
                     vim.keymap.set('n', 'gt', '<cmd>lua vim.lsp.buf.type_definition()<CR>')
                     vim.keymap.set('n', 'ge', '<cmd>lua vim.diagnostic.open_float()<CR>')
@@ -322,6 +324,7 @@ require('lazy').setup({
 
             vim.keymap.set('n', 'gr', '<cmd>Lspsaga rename<CR>')
             vim.keymap.set('n', 'ga', '<cmd>Lspsaga code_action<CR>')
+            vim.keymap.set('n', 'gs', '<cmd>Lspsaga lsp_finder<CR>')
             vim.keymap.set('n', 'gp', '<cmd>Lspsaga peek_definition<CR>')
             vim.keymap.set('n', 'gd', '<cmd>Lspsaga goto_definition<CR>')
             vim.keymap.set('n', 'g]', '<cmd>Lspsaga diagnostic_jump_next<CR>')
@@ -332,9 +335,7 @@ require('lazy').setup({
             vim.keymap.set('n', '<leader>D', '<cmd>Lspsaga show_workspace_diagnostics<CR>')
             vim.keymap.set({ 'n', 't' }, '<C-j>', '<cmd>Lspsaga term_toggle<CR>')
         end,
-        dependencies = {
-            { 'nvim-tree/nvim-web-devicons' },
-            { 'nvim-treesitter/nvim-treesitter' },
+        dependencies = { { 'nvim-tree/nvim-web-devicons' }, { 'nvim-treesitter/nvim-treesitter' },
         },
     },
 
@@ -382,7 +383,7 @@ require('lazy').setup({
                     ["<C-n>"] = cmp.mapping.select_next_item(),
                     ["<C-f>"] = cmp.mapping.confirm { select = true },
                     ["<TAB>"] = cmp.mapping.confirm { select = true },
-                    ["<CR>"] = cmp.mapping.confirm { select = false },
+                    ["<CR>"]  = cmp.mapping.confirm { select = false },
                 }),
                 experimental = {
                     ghost_text = true,
@@ -424,26 +425,26 @@ require('lazy').setup({
             local sources = {
                 -- Ruby
                 null_ls.builtins.diagnostics.rubocop.with({
-                    prefer_local = "bundle_bin",
-                    condition = function(utils)
-                        return utils.root_has_file({ ".rubocop.yml" })
-                    end
+                    prefer_local = "bin"
                 }),
                 null_ls.builtins.formatting.rubocop.with({
-                    prefer_local = "bundle_bin",
-                    condition = function(utils)
-                        return utils.root_has_file({ ".rubocop.yml" })
-                    end
+                    prefer_local = "bin"
                 }),
 
                 -- Python
                 null_ls.builtins.diagnostics.flake8,
                 null_ls.builtins.formatting.isort,
                 null_ls.builtins.formatting.yapf,
+
+                -- Eslint
+                null_ls.builtins.diagnostics.eslint.with({
+                    prefer_local = "node_modules/.bin",
+                }),
+                null_ls.builtins.formatting.prettier,
             }
             null_ls.setup({
                 sources = sources,
-                debug = true,
+                debug   = false,
             })
         end
     },
@@ -460,13 +461,13 @@ require('lazy').setup({
                     },
 
                     external = {
-                        go = 'go run %',
+                        go       = 'go run %',
                         markdown = 'glow %',
-                        python = 'python %',
-                        ruby = 'ruby %',
-                        rust = 'cargo run %',
-                        sh = 'bash %',
-                        zig = 'zig build run',
+                        python   = 'python %',
+                        ruby     = 'ruby %',
+                        rust     = 'cargo run %',
+                        sh       = 'bash %',
+                        zig      = 'zig build run',
                     }
                 },
                 behavior = {
