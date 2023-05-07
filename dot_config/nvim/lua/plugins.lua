@@ -484,7 +484,26 @@ require('lazy').setup({
             }
             vim.keymap.set('n', '<leader>q', '<cmd>Jaq<CR>')
         end
-    }
+    },
+
+    {
+        'glidenote/memolist.vim',
+        config = function()
+            vim.g.memolist_path = '~/.memolist/memo'
+            vim.g.memolist_memo_suffix = 'md'
+            vim.g.memolist_fzf = 1
+            vim.g.memolist_template_dir_path = '~/.memolist/memotemplates'
+        end
+    },
+
+    {
+        'delphinus/telescope-memo.nvim',
+        config = function()
+            vim.keymap.set('n', '<leader>mn', '<cmd>MemoNew<CR>')
+            vim.keymap.set('n', '<leader>ml', '<cmd>Telescope memo list<CR>')
+            vim.keymap.set('n', '<leader>mg', '<cmd>Telescope memo live_grep<CR>')
+        end
+    },
 
 })
 

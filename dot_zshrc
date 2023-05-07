@@ -24,6 +24,10 @@ export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
 export PATH="/opt/homebrew/opt/php@8.0/bin:$PATH"
 export PATH="/opt/homebrew/opt/php@8.0/sbin:$PATH"
 
+# Go
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
+
 # nvm
 export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
