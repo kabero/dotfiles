@@ -1,8 +1,10 @@
 -- General
 vim.cmd("language C")
 vim.cmd("set encoding=utf-8")
-vim.cmd("let g:python3_host_prog = expand('/Users/ko_abe/.pyenv/versions/nvim3/bin/python')")
-vim.cmd("let g:ruby_host_prog = expand('~/.rbenv/versions/3.0.6/bin/ruby')")
+-- vim.cmd("let g:python3_host_prog = expand('/Users/ko_abe/.pyenv/versions/nvim3/bin/python')")
+vim.cmd("let g:python3_host_prog = system('type asdf &>/dev/null && echo -n $(asdf which python) || echo -n $(which python)')")
+vim.cmd("let g:ruby_host_prog = system('type asdf &>/dev/null && echo -n $(asdf which ruby) || echo -n $(which ruby)')")
+
 vim.opt.clipboard:append { 'unnamedplus' }
 vim.opt.mouse = 'a'
 vim.opt.fileformats = 'unix'
