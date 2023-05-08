@@ -1,0 +1,10 @@
+#!/bin/sh
+
+cd ~/.memolist
+
+git pull --no-edit
+git add .
+git commit -m "update"
+git push origin main
+
+cd -
