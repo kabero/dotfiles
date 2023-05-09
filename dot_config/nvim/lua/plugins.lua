@@ -310,6 +310,12 @@ require('lazy').setup({
                 nvim_lsp[server].setup(opts)
             end })
 
+            vim.diagnostic.config {
+                virtual_text = false,
+                signs = true,
+                underline = false,
+            }
+
             vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
                 vim.lsp.diagnostic.on_publish_diagnostics, { virtual_text = false }
             )
@@ -426,16 +432,16 @@ require('lazy').setup({
 
     {
         'jose-elias-alvarez/null-ls.nvim',
-        dependencies = { "neovim/nvim-lspconfig", "nvim-lua/plenary.nvim" },
+        dependencies = { "nvim-lua/plenary.nvim" },
         config = function()
             local null_ls = require("null-ls")
             local sources = {
                 -- Ruby
                 null_ls.builtins.diagnostics.rubocop.with({
-                    prefer_local = "bin"
+                    prefer_local = "bin",
                 }),
                 null_ls.builtins.formatting.rubocop.with({
-                    prefer_local = "bin"
+                    prefer_local = "bin",
                 }),
 
                 -- Python
@@ -443,15 +449,27 @@ require('lazy').setup({
                 null_ls.builtins.formatting.isort,
                 null_ls.builtins.formatting.yapf,
 
+                -- Go
+                null_ls.builtins.formatting.gofmt,
+
+                -- Rust
+                null_ls.builtins.formatting.rustfmt,
+
+                -- yaml
+                null_ls.builtins.diagnostics.yamllint,
+
                 -- Eslint
                 null_ls.builtins.diagnostics.eslint.with({
                     prefer_local = "node_modules/.bin",
                 }),
                 null_ls.builtins.formatting.prettier,
+
             }
             null_ls.setup({
                 sources = sources,
                 debug   = false,
+                defaults = {
+                }
             })
         end
     },
@@ -499,6 +517,7 @@ require('lazy').setup({
             vim.g.memolist_path = "~/.memolist/memo"
             vim.g.memolist_fzf = 1
             vim.g.memolist_memo_suffix = 'md'
+            vim.g.memolist_filename_prefix_none = 1
             vim.g.memolist_template_dir_path = "~/.memolist/memotemplates"
 
             vim.keymap.set('n', '<leader>mn', '<cmd>MemoNew<CR>')
