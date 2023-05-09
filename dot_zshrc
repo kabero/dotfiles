@@ -55,6 +55,7 @@ alias vim="nvim"
 alias view="nvim -R"
 alias ls="exa --sort=ext" 
 alias tree="exa -T"
+alias df="duf"
 
 # fish-like behavior
 source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
@@ -106,3 +107,5 @@ function jupyter-local() {
 
 # starship
 PYENV_VIRTUALENV_DISABLE_PROMPT=1
+
+eval $(thefuck --alias)
