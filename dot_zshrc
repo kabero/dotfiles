@@ -56,6 +56,7 @@ alias view="nvim -R"
 alias ls="exa --sort=ext" 
 alias tree="exa -T"
 alias df="duf"
+alias lg='lazygit'
 
 # fish-like behavior
 source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

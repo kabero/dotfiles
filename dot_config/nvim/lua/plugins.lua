@@ -542,6 +542,14 @@ require('lazy').setup({
             vim.keymap.set('n', '<leader>mn', '<cmd>MemoNew<CR>')
         end
     },
+
+    {
+        "kylechui/nvim-surround",
+        event = "VeryLazy",
+        config = function()
+            require("nvim-surround").setup({})
+        end
+    }
 })
 
 
