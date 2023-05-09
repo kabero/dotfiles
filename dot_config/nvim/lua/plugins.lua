@@ -44,7 +44,7 @@ require('lazy').setup({
             'delphinus/telescope-memo.nvim',
         },
         config = function()
-            local telescope = require('telescope')
+            local telescope = require("telescope")
             telescope.setup {
                 defaults = {
                     mappings = {
@@ -154,14 +154,30 @@ require('lazy').setup({
 
     { 'tpope/vim-commentary', lazy = false },
 
+    -- {
+    --     'akinsho/bufferline.nvim',
+    --     lazy = false,
+    --     version = '*',
+    --     dependencies = 'nvim-tree/nvim-web-devicons',
+    --     config = function()
+    --         require('bufferline').setup {}
+    --     end
+    -- },
+
     {
-        'akinsho/bufferline.nvim',
-        lazy = false,
-        version = '*',
-        dependencies = 'nvim-tree/nvim-web-devicons',
-        config = function()
-            require('bufferline').setup {}
-        end
+        'romgrk/barbar.nvim',
+        dependencies = {
+            'lewis6991/gitsigns.nvim',     -- OPTIONAL: for git status
+            'nvim-tree/nvim-web-devicons', -- OPTIONAL: for file icons
+        },
+        init = function() vim.g.barbar_auto_setup = false end,
+        opts = {
+            -- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
+            -- animation = true,
+            -- insert_at_start = true,
+            -- …etc.
+        },
+        version = '^1.0.0', -- optional: only update when a new 1.x version is released
     },
 
     {
@@ -208,6 +224,9 @@ require('lazy').setup({
                 },
                 autotag = {
                     enable = true,
+                },
+                indent = {
+                    enable = true
                 }
             }
         end
@@ -466,8 +485,8 @@ require('lazy').setup({
 
             }
             null_ls.setup({
-                sources = sources,
-                debug   = false,
+                sources  = sources,
+                debug    = false,
                 defaults = {
                 }
             })
