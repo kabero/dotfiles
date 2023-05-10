@@ -109,4 +109,5 @@ function jupyter-local() {
 # starship
 PYENV_VIRTUALENV_DISABLE_PROMPT=1
 
+# the fuck
 eval $(thefuck --alias)

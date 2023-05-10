@@ -16,12 +16,18 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- Restore last position of cursor
-vim.api.nvim_create_autocmd({ 'BufReadPost' }, {
-    pattern = { '*' },
-    callback = function()
-        vim.api.nvim_exec('silent! normal! g`"zv', false)
-    end,
-})
+vim.cmd[[augroup restore-cursor
+  autocmd!
+  autocmd BufReadPost *
+        \ : if line("'\"") >= 1 && line("'\"") <= line("$")
+        \ |   exe "normal! g`\""
+        \ | endif
+  autocmd BufWinEnter *
+        \ : if empty(&buftype) && line('.') > winheight(0) / 2
+        \ |   execute 'normal! zz'
+        \ | endif
+augroup END
+]]
 
 -- Avoid automatically commenting when adding a new line
 vim.cmd [[ autocmd FileType * setlocal formatoptions-=r ]]
