@@ -555,11 +555,15 @@ require('lazy').setup({
         "jackMort/ChatGPT.nvim",
         event = "VeryLazy",
         config = function()
-            require("chatgpt").setup ({
+            require("chatgpt").setup({
                 api_key_cmd = "gpg --decrypt ~/secret.txt.gpg 2>/dev/null",
-                popup_input = {},
                 openai_params = {
                     model = "gpt-3.5-turbo"
+                },
+                keymaps = {
+                },
+                popup_input = {
+                    submit = { "<S-Enter>", "<C-Enter>" }
                 }
             })
             vim.keymap.set('n', '<leader>l', '<cmd>ChatGPT<CR>')
