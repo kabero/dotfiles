@@ -45,7 +45,12 @@ selection:
   save_to_clipboard: true
      
 key_bindings:
+# https://stackoverflow.com/a/42461580
   - { key: Q, mods: Control, chars: "\x11" }
+  - { key: Return, mods: Shift,   chars: "\x1b[13;2u" }
+  - { key: Return, mods: Control, chars: "\x1b[13;5u" }
+  - { key: Space,  mods: Shift,   chars: "\x1b[32;2u" }
+  - { key: Space,  mods: Control, chars: "\x1b[32;5u" } 
 
 mouse:
   hide_when_typing: true
