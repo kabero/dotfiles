@@ -550,30 +550,6 @@ require('lazy').setup({
             require("nvim-surround").setup({})
         end
     },
-
-    {
-        "jackMort/ChatGPT.nvim",
-        event = "VeryLazy",
-        config = function()
-            require("chatgpt").setup({
-                api_key_cmd = "gpg --decrypt ~/secret.txt.gpg 2>/dev/null",
-                openai_params = {
-                    model = "gpt-3.5-turbo"
-                },
-                keymaps = {
-                },
-                popup_input = {
-                    submit = { "<S-Enter>", "<C-Enter>" }
-                }
-            })
-            vim.keymap.set('n', '<leader>l', '<cmd>ChatGPT<CR>')
-        end,
-        dependencies = {
-            "MunifTanjim/nui.nvim",
-            "nvim-lua/plenary.nvim",
-            "nvim-telescope/telescope.nvim"
-        }
-    }
 })
 
 
