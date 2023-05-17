@@ -19,8 +19,8 @@
 [diff]
     colorMoved = default
 [user]
-	name = kabe
-	email = q4bero@gmail.com
+	name = q4bero
+	email = 83853529+kabero@users.noreply.github.com
 
 [ghq]
 root = ~/ghq/github.com
@@ -29,3 +29,8 @@ root = ~/ghq/github.com
     s = switch
     lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     lga = log --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
