@@ -50,7 +50,7 @@ HISTSIZE=100000
 SAVEHIST=100000
 
 # aliases
-alias vi="nvim -u NONE"
+alias vi="nvim -u ~/.vimrc"
 alias vim="nvim"
 alias view="nvim -R"
 alias ls="exa --sort=ext" 

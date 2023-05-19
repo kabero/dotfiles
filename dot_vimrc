@@ -1,0 +1,5 @@
+set number
+nnoremap j gj
+nnoremap k gk
+nnoremap n nzz
+nnoremap N Nzz
