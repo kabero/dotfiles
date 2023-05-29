@@ -212,6 +212,7 @@ require('lazy').setup({
                     'scala',
                     'scss',
                     'sql',
+                    'terraform',
                     'tsx',
                     'typescript',
                     'vim',
