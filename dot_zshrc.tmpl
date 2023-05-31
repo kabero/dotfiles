@@ -93,6 +93,11 @@ eval "$(zoxide init zsh)"
 {{ if eq .chezmoi.os "darwin" }}
 source `brew --prefix`/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 {{ end }}
+{{ if eq .chezmoi.os "linux" }}
+. "$HOME/.asdf/asdf.sh"
+fpath=(${ASDF_DIR}/completions $fpath)
+autoload -Uz compinit && compinit
+{{ end }}
 
 # configs of fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
