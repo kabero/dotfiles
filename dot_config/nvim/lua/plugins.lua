@@ -552,13 +552,3 @@ require('lazy').setup({
         end
     },
 })
-
-
--- -- snippets
--- use({
---     "L3MON4D3/LuaSnip",
---     tag = "v1.*",
---     run = "make install_jsregexp"
--- })
--- Github copilot
--- use 'github/copilot.vim'
