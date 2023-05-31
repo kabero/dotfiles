@@ -15,23 +15,23 @@ bindkey -e
 eval "$(direnv hook zsh)"
 
 # asdf
-{{ if eq .chezmoi.os "darwin" - }}
+{{ if eq .chezmoi.os "darwin" }}
 . /opt/homebrew/opt/asdf/libexec/asdf.sh
 # fpath=(${ASDF_DIR}/completions $fpath)
 # autoload -Uz compinit && compinit
 source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
 {{ end }}
-{{ if eq .chezmoi.os "linux" - }}
+{{ if eq .chezmoi.os "linux" }}
 {{ end }}
 
 # Java
-{{ if eq .chezmoi.os "darwin" - }}
+{{ if eq .chezmoi.os "darwin" }}
 export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
 {{ end }}
 
 # PHP
-{{ if eq .chezmoi.os "darwin" - }}
+{{ if eq .chezmoi.os "darwin" }}
 export PATH="/opt/homebrew/opt/php@8.0/bin:$PATH"
 export PATH="/opt/homebrew/opt/php@8.0/sbin:$PATH"
 {{ end }}
@@ -41,7 +41,7 @@ export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 
 # nvm
-{{ if eq .chezmoi.os "darwin" - }}
+{{ if eq .chezmoi.os "darwin" }}
 export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
   [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
@@ -69,14 +69,14 @@ alias vim="nvim"
 alias view="nvim -R"
 alias ls="exa --sort=ext" 
 alias tree="exa -T"
-{{ if eq .chezmoi.os "darwin" - }}
+{{ if eq .chezmoi.os "darwin" }}
 alias df="duf"
 alias lg='lazygit'
 alias tl='tldr'
 {{ end }}
 
 # fish-like behavior
-{{ if eq .chezmoi.os "darwin" - }}
+{{ if eq .chezmoi.os "darwin"  }}
 source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 if type brew &>/dev/null; then
     FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
@@ -90,7 +90,7 @@ fi
 eval "$(zoxide init zsh)"
 
 # zsh-autosuggestions
-{{ if eq .chezmoi.os "darwin" - }}
+{{ if eq .chezmoi.os "darwin" }}
 source `brew --prefix`/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 {{ end }}
 
