@@ -292,6 +292,7 @@ require('lazy').setup({
             local nvim_lsp = require('lspconfig')
             require('mason-lspconfig').setup {
                 ensure_installed = {
+                    {{ if eq .chezmoi.os "darwin" }}
                     -- C
                     'clangd',
 
@@ -314,6 +315,7 @@ require('lazy').setup({
                     'html',
                     'emmet_ls',
                     'cssls',
+                    {{ end }}
                 }
             }
             mason_lspconfig.setup_handlers({ function(server)
