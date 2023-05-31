@@ -1,5 +1,9 @@
 eval "$(starship init zsh)"
 
+# starship
+PYENV_VIRTUALENV_DISABLE_PROMPT=1
+
+
 # general
 export EDITOR=nvim
 export LANG=C
@@ -11,27 +15,37 @@ bindkey -e
 eval "$(direnv hook zsh)"
 
 # asdf
+{{ if eq .chezmoi.os "darwin" - }}
 . /opt/homebrew/opt/asdf/libexec/asdf.sh
 # fpath=(${ASDF_DIR}/completions $fpath)
 # autoload -Uz compinit && compinit
 source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
+{{ end }}
+{{ if eq .chezmoi.os "linux" - }}
+{{ end }}
 
 # Java
+{{ if eq .chezmoi.os "darwin" - }}
 export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
+{{ end }}
 
 # PHP
+{{ if eq .chezmoi.os "darwin" - }}
 export PATH="/opt/homebrew/opt/php@8.0/bin:$PATH"
 export PATH="/opt/homebrew/opt/php@8.0/sbin:$PATH"
+{{ end }}
 
 # Go
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 
 # nvm
+{{ if eq .chezmoi.os "darwin" - }}
 export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
   [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+{{ end }}
 
 # options
 setopt print_eight_bit
@@ -55,11 +69,14 @@ alias vim="nvim"
 alias view="nvim -R"
 alias ls="exa --sort=ext" 
 alias tree="exa -T"
+{{ if eq .chezmoi.os "darwin" - }}
 alias df="duf"
 alias lg='lazygit'
 alias tl='tldr'
+{{ end }}
 
 # fish-like behavior
+{{ if eq .chezmoi.os "darwin" - }}
 source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 if type brew &>/dev/null; then
     FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
@@ -67,14 +84,17 @@ if type brew &>/dev/null; then
     autoload -Uz compinit
     compinit
 fi
+{{ end }}
 
 # zoxide
 eval "$(zoxide init zsh)"
 
 # zsh-autosuggestions
+{{ if eq .chezmoi.os "darwin" - }}
 source `brew --prefix`/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+{{ end }}
 
-# config of fzf
+# configs of fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
 export FZF_DEFAULT_OPTS="
@@ -106,9 +126,6 @@ bindkey '^g' _ghq_fzf
 function jupyter-local() {
     jupyter notebook --notebook-dir=. --ip='*' --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''
 }
-
-# starship
-PYENV_VIRTUALENV_DISABLE_PROMPT=1
 
 # the fuck
 eval $(thefuck --alias)
