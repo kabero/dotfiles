@@ -357,7 +357,7 @@ require('lazy').setup({
                 }
             })
 
-            vim.keymap.set('n', 'gr', '<cmd>Lspsaga rename<CR>')
+            vim.keymap.set('n', 'gr', '<cmd>Lspsaga rename ++project<CR>')
             vim.keymap.set('n', 'ga', '<cmd>Lspsaga code_action<CR>')
             vim.keymap.set('n', 'gs', '<cmd>Lspsaga lsp_finder<CR>')
             vim.keymap.set('n', 'gp', '<cmd>Lspsaga peek_definition<CR>')
