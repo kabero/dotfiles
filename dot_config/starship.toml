@@ -4,10 +4,10 @@ truncation_length = 100
 truncate_to_repo = true
 
 [hostname]
-ssh_only = false
+ssh_only = true
 format = "[$hostname]($style): "
 style = "green"
-disabled = true
+disabled = false
 
 [username]
 style_user = "green"
