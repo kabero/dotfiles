@@ -16,7 +16,7 @@ window:
   opacity: 1.00
 
 font:
-  size: 14
+  size: 15
   normal:
     family: 'FiraCode Nerd Font'
     style: Regular
