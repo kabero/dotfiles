@@ -294,27 +294,27 @@ require('lazy').setup({
                 ensure_installed = {
                     {{ if eq .chezmoi.os "darwin" }}
                     -- C
-                    'clangd',
+                    -- 'clangd',
 
                     -- Zig
-                    'zls',
+                    -- 'zls',
 
                     -- Ruby
                     'ruby_ls',
 
                     -- Rust
-                    'rust_analyzer',
+                    -- 'rust_analyzer',
 
                     -- Lua
                     'lua_ls',
 
                     -- Python
-                    'pyright',
+                    -- 'pyright',
 
                     -- HTML&CSS
-                    'html',
-                    'emmet_ls',
-                    'cssls',
+                    -- 'html',
+                    -- 'emmet_ls',
+                    -- 'cssls',
                     {{ end }}
                 }
             }
@@ -535,23 +535,15 @@ require('lazy').setup({
     },
 
     {
-        'glidenote/memolist.vim',
-        config = function()
-            vim.g.memolist_path = "~/.memolist/memo"
-            vim.g.memolist_fzf = 1
-            vim.g.memolist_memo_suffix = 'md'
-            vim.g.memolist_filename_prefix_none = 1
-            vim.g.memolist_template_dir_path = "~/.memolist/memotemplates"
-
-            vim.keymap.set('n', '<leader>mn', '<cmd>MemoNew<CR>')
-        end
-    },
-
-    {
         "kylechui/nvim-surround",
         event = "VeryLazy",
         config = function()
             require("nvim-surround").setup({})
         end
+    },
+
+    {
+        "tpope/vim-endwise",
+        event = "VeryLazy",
     },
 })
