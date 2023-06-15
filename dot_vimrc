@@ -1,5 +1,50 @@
-set number
 nnoremap j gj
 nnoremap k gk
 nnoremap n nzz
 nnoremap N Nzz
+
+language C"
+set encoding=utf-8"
+
+set clipboard+=unnamedplus
+set mouse=a
+set fileformats=unix
+set ambiwidth=single
+
+" Search
+set hlsearch
+set ignorecase
+set incsearch
+set smartcase
+set wrapscan
+
+" View
+set number
+set numberwidth=4
+set ruler
+set showmatch
+set signcolumn=yes
+set termguicolors
+set visualbell
+set wildmenu
+set wrap
+set showtabline=2
+
+" Edit
+set autoindent
+set expandtab
+set shiftround
+set shiftwidth=4
+set smartindent
+set tabstop=4
+
+" Others
+set noswapfile
+set updatetime=250
+set timeout
+set timeoutlen=300
+set hidden
+
+" Window
+set splitbelow
+set splitright
