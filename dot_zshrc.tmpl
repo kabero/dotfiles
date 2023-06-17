@@ -138,3 +138,13 @@ function jupyter-local() {
 
 # the fuck
 eval $(thefuck --alias)
+
+# cd today's sandbox
+today() {
+    local date="$(date -u +%m%d)"
+    local dirpath="$HOME/sandbox/daily/$date"
+    if [ ! -e $dirpath ]; then
+        mkdir -p $dirpath
+    fi
+    cd $dirpath
+}
