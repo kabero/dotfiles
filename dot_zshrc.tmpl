@@ -142,7 +142,7 @@ eval $(thefuck --alias)
 # cd today's sandbox
 today() {
     local date="$(date -u +%m%d)"
-    local dirpath="$HOME/sandbox/daily/$date"
+    local dirpath="$HOME/dev/sandbox/daily/$date"
     if [ ! -e $dirpath ]; then
         mkdir -p $dirpath
     fi
