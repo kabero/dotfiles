@@ -3,8 +3,8 @@ nnoremap k gk
 nnoremap n nzz
 nnoremap N Nzz
 
-language C"
-set encoding=utf-8"
+language C
+set encoding=utf-8
 
 set clipboard+=unnamedplus
 set mouse=a
