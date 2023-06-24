@@ -41,3 +41,6 @@ vim.api.nvim_set_keymap("n", "<leader>,", ":execute 'edit ' .. luaeval('GetNVimC
 
 -- Visual
 ------------------------------------
+
+-- Command
+------------------------------------

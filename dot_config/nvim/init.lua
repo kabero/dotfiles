@@ -36,8 +36,8 @@ vim.cmd [[ autocmd FileType * setlocal formatoptions-=o ]]
 -- Highlight ideographic space
 vim.cmd [[
 augroup highlightIdegraphicSpace
-  autocmd!
-  autocmd Colorscheme * highlight IdeographicSpace term=underline ctermbg=DarkGreen guibg=DarkGreen
-  autocmd VimEnter,WinEnter * match IdeographicSpace /　/
+    autocmd!
+    autocmd Colorscheme * highlight IdeographicSpace term=underline ctermbg=DarkGreen guibg=DarkGreen
+    autocmd VimEnter,WinEnter * match IdeographicSpace /　/
 augroup END
 ]]
