@@ -109,44 +109,7 @@ require('lazy').setup({
         },
         config = function()
             require('lualine').setup {
-                options = {
-                    icons_enabled = true,
-                    theme = 'auto',
-                    component_separators = { left = '', right = '' },
-                    section_separators = { left = '', right = '' },
-                    disabled_filetypes = {
-                        statusline = {},
-                        winbar = {},
-                    },
-                    ignore_focus = {},
-                    always_divide_middle = true,
-                    globalstatus = false,
-                    refresh = {
-                        statusline = 1000,
-                        tabline = 1000,
-                        winbar = 1000,
-                    }
-                },
-                sections = {
-                    lualine_a = { 'mode' },
-                    lualine_b = { 'branch', 'diff', 'diagnostics' },
-                    lualine_c = { { 'filename', file_status = true, path = 1 } },
-                    lualine_x = { 'encoding', 'fileformat', 'filetype' },
-                    lualine_y = { 'progress' },
-                    lualine_z = { 'location' }
-                },
-                inactive_sections = {
-                    lualine_a = {},
-                    lualine_b = {},
-                    lualine_c = { 'filename' },
-                    lualine_x = { 'location' },
-                    lualine_y = {},
-                    lualine_z = {}
-                },
-                tabline = {},
-                winbar = {},
-                inactive_winbar = {},
-                extensions = {}
+                require("plugin_configs/_lualine")
             }
         end
     },
@@ -160,16 +123,6 @@ require('lazy').setup({
     },
 
     { 'tpope/vim-commentary', lazy = false },
-
-    -- {
-    --     'akinsho/bufferline.nvim',
-    --     lazy = false,
-    --     version = '*',
-    --     dependencies = 'nvim-tree/nvim-web-devicons',
-    --     config = function()
-    --         require('bufferline').setup {}
-    --     end
-    -- },
 
     {
         'nvim-treesitter/nvim-treesitter',
@@ -284,28 +237,8 @@ require('lazy').setup({
             require('mason-lspconfig').setup {
                 ensure_installed = {
                     {{ if eq .chezmoi.os "darwin" }}
-                    -- C
-                    -- 'clangd',
-
-                    -- Zig
-                    -- 'zls',
-
-                    -- Ruby
-                    'ruby_ls',
-
-                    -- Rust
-                    -- 'rust_analyzer',
-
                     -- Lua
                     'lua_ls',
-
-                    -- Python
-                    -- 'pyright',
-
-                    -- HTML&CSS
-                    -- 'html',
-                    -- 'emmet_ls',
-                    -- 'cssls',
                     {{ end }}
                 }
             }
@@ -316,7 +249,7 @@ require('lazy').setup({
                     local bufopts = { noremap = true, silent = true, buffer = bufnr }
                     vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
                     vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
-                    vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
+                    -- vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
                     vim.keymap.set('n', 'gt', '<cmd>lua vim.lsp.buf.type_definition()<CR>')
                     vim.keymap.set('n', 'ge', '<cmd>lua vim.diagnostic.open_float()<CR>')
                 end
@@ -353,8 +286,8 @@ require('lazy').setup({
             vim.keymap.set('n', 'gs', '<cmd>Lspsaga lsp_finder<CR>')
             vim.keymap.set('n', 'gp', '<cmd>Lspsaga peek_definition<CR>')
             vim.keymap.set('n', 'gd', '<cmd>Lspsaga goto_definition<CR>')
-            vim.keymap.set('n', 'g]', '<cmd>Lspsaga diagnostic_jump_next<CR>')
-            vim.keymap.set('n', 'g[', '<cmd>Lspsaga diagnostic_jump_prev<CR>')
+            vim.keymap.set('n', '[g', '<cmd>Lspsaga diagnostic_jump_next<CR>')
+            vim.keymap.set('n', ']g', '<cmd>Lspsaga diagnostic_jump_prev<CR>')
             vim.keymap.set('n', 'K', '<cmd>Lspsaga hover_doc<CR>')
             vim.keymap.set('n', 'gh', '<cmd>Lspsaga hover_doc<CR>')
             vim.keymap.set('n', '<leader>o', '<cmd>Lspsaga outline<CR>')
@@ -505,19 +438,23 @@ require('lazy').setup({
                         python   = 'python %',
                         ruby     = 'ruby %',
                         rust     = 'cargo run %',
-                        sh       = 'bash %',
+                        sh       = 'sh %',
                         zig      = 'zig build run',
                     }
                 },
                 behavior = {
-                    default = 'float',
-                    startinsert = true,
+                    default = 'quickfix',
+                    startinsert = false,
                     wincmd = false,
-                    autosave = false,
+                    autosave = true,
                 },
                 ui = {
                     float = {
                         border = 'single'
+                    }, 
+                    quickfix = {
+                        postion = 'bot',
+                        size = 10,
                     }
                 }
             }
