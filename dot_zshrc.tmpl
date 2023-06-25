@@ -80,7 +80,7 @@ alias lg='lazygit'
 {{ end }}
 
 # fish-like behavior
-{{ if eq .chezmoi.os "darwin"  }}
+# {{ if eq .chezmoi.os "darwin"  }}
 source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 if type brew &>/dev/null; then
     FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
@@ -88,7 +88,7 @@ if type brew &>/dev/null; then
     autoload -Uz compinit
     compinit
 fi
-{{ end }}
+# {{ end }}
 
 # zoxide
 eval "$(zoxide init zsh)"
