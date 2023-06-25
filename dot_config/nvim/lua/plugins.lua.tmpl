@@ -27,16 +27,6 @@ require('lazy').setup({
     },
 
     {
-        "folke/which-key.nvim",
-        config = function()
-            vim.opt.timeout = true
-            vim.opt.timeoutlen = 300
-            require("which-key").setup({})
-            vim.api.nvim_set_keymap("n", "<leader>w", ":WhichKey<CR>", { noremap = true, silent = true })
-        end
-    },
-
-    {
         "nvim-telescope/telescope.nvim",
         cmd = 'Telescope',
         dependencies = {
@@ -353,7 +343,7 @@ require('lazy').setup({
             vim.keymap.set('n', '<leader>o', '<cmd>Lspsaga outline<CR>')
             vim.keymap.set('n', '<leader>d', '<cmd>Lspsaga show_buf_diagnostics<CR>')
             vim.keymap.set('n', '<leader>D', '<cmd>Lspsaga show_workspace_diagnostics<CR>')
-            vim.keymap.set({ 'n', 't' }, '<C-j>', '<cmd>Lspsaga term_toggle<CR>')
+            -- vim.keymap.set({ 'n', 't' }, '<C-j>', '<cmd>Lspsaga term_toggle<CR>')
         end,
         dependencies = { { 'nvim-tree/nvim-web-devicons' }, { 'nvim-treesitter/nvim-treesitter' },
         },
@@ -417,23 +407,23 @@ require('lazy').setup({
                 }
             })
 
-            cmp.setup.cmdline({ '/', '?' }, {
-                mapping = cmp.mapping.preset.cmdline(),
-                sources = cmp.config.sources({
-                    { name = 'nvim_lsp_document_symbol' }
-                }, {
-                    { name = 'buffer' }
-                })
-            })
+            -- cmp.setup.cmdline({ '/', '?' }, {
+            --     mapping = cmp.mapping.preset.cmdline(),
+            --     sources = cmp.config.sources({
+            --         { name = 'nvim_lsp_document_symbol' }
+            --     }, {
+            --         { name = 'buffer' }
+            --     })
+            -- })
 
-            cmp.setup.cmdline(":", {
-                mapping = cmp.mapping.preset.cmdline(),
-                sources = cmp.config.sources({
-                    { name = "path" },
-                }, {
-                    { name = "cmdline", keyword_length = 2 },
-                }),
-            })
+            -- cmp.setup.cmdline(":", {
+            --     mapping = cmp.mapping.preset.cmdline(),
+            --     sources = cmp.config.sources({
+            --         { name = "path" },
+            --     }, {
+            --         { name = "cmdline", keyword_length = 2 },
+            --     }),
+            -- })
         end
     },
 

@@ -29,6 +29,7 @@ vim.opt.signcolumn = 'yes'
 vim.opt.termguicolors = true
 vim.opt.visualbell = false
 vim.opt.wildmenu = true
+vim.opt.wildmode = "full"
 vim.opt.wrap = true
 vim.opt.showtabline = 2
 
@@ -48,6 +49,8 @@ vim.opt.timeoutlen = 300
 vim.opt.hidden = true
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath('cache') .. '/undo'
+vim.opt.compatible = false
+vim.api.nvim_command('filetype plugin indent on')
 
 -- Window
 vim.opt.splitbelow = true
