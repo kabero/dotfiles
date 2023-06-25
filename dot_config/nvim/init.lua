@@ -41,3 +41,12 @@ augroup highlightIdegraphicSpace
     autocmd VimEnter,WinEnter * match IdeographicSpace /　/
 augroup END
 ]]
+
+-- Highlight chezmoi template files
+vim.cmd [[
+augroup highlightTmplFile
+    autocmd!   
+    autocmd BufRead *.tmpl let &filetype=expand('%:t:r:e')
+augroup END
+]]
+
