@@ -58,9 +58,11 @@ vim.cmd [[
     augroup END
 ]]
 
--- Enter insert mode when entering terminal 
+-- Terminal
 vim.cmd [[
-    autocmd TermOpen * startinsert
-    " autocmd BufWinEnter,WinEnter term://* startinsert
+    " Enter insert mode when entering terminal 
+    autocmd BufWinEnter,WinEnter,TermOpen term://* startinsert
+    autocmd TermOpen * setlocal norelativenumber
+    autocmd TermOpen * setlocal nonumber
 ]]
 
