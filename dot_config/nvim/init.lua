@@ -60,6 +60,7 @@ vim.cmd [[
 
 -- Enter insert mode when entering terminal 
 vim.cmd [[
-    autocmd BufWinEnter,WinEnter term://* startinsert
+    autocmd TermOpen * startinsert
+    -- autocmd BufWinEnter,WinEnter term://* startinsert
 ]]
 
