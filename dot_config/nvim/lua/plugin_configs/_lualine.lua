@@ -39,6 +39,7 @@ local config = {
         -- Disable sections and component separators
         component_separators = '',
         section_separators = '',
+        globalstatus = true,
         theme = {
             -- We are going to use lualine_c an lualine_x as left and
             -- right section. Both are highlighted by c theme .  So we
@@ -121,24 +122,53 @@ ins_left {
 }
 
 ins_left {
-    -- filesize component
-    'filesize',
-    cond = conditions.buffer_not_empty,
+    'hostname',
+    color = { fg = colors.blue, gui = 'bold'}
 }
 
 ins_left {
-    'filename',
-    filestatus = true,
-    path = 1,
-    cond = conditions.buffer_not_empty,
-    color = { fg = colors.magenta, gui = 'bold' },
+    function()
+        return vim.fn.fnamemodify(vim.fn.getcwd(), ':t')
+    end,
+    color = { fg = colors.green, gui = 'bold'}
 }
 
--- ins_left { 'location' }
+ins_left {
+    function()
+        return '|'
+    end,
+}
 
--- ins_left { 'progress', color = { fg = colors.fg, gui = 'bold' } }
+-- ins_left {
+--     'filename',
+--     filestatus = true,
+--     path = 0,
+--     cond = conditions.buffer_not_empty,
+--     color = { fg = colors.magenta, gui = 'bold' },
+-- }
+
+-- ins_left {
+--   function()
+--     return '%='
+--   end,
+-- }
 
 ins_left {
+    'buffers',
+    mode = 4,
+    buffers_color = {
+        active = { fg = colors.magenta, gui = 'bold' },
+        inactive = { fg = colors.fg },
+    },
+    show_modified_status = true,
+    symbols = {
+        modified = ' ●',      -- Text to show when the buffer is modified
+        alternate_file = '', -- Text to show to identify the alternate file
+        directory =  '',     -- Text to show when the buffer is a directory
+    },
+}
+
+ins_right {
     'diagnostics',
     sources = { 'nvim_diagnostic' },
     symbols = { error = ' ', warn = ' ', info = ' ' },
@@ -149,15 +179,7 @@ ins_left {
     },
 }
 
--- Insert mid section. You can make any number of sections in neovim :)
--- for lualine it's any number greater then 2
-ins_left {
-    function()
-        return '%='
-    end,
-}
-
-ins_left {
+ins_right {
     -- Lsp server name .
     function()
         local msg = 'No Active Lsp'
@@ -168,14 +190,15 @@ ins_left {
         end
         for _, client in ipairs(clients) do
             local filetypes = client.config.filetypes
-            if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then
+            if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 and client.name ~= "null-ls" then
                 return client.name
             end
         end
         return msg
     end,
-    icon = ' LSP:',
-    color = { fg = '#ffffff', gui = 'bold' },
+    -- icon = ' LSP:',
+    icon = 'LSP:',
+    color = { fg = colors.magenta, gui = 'bold' },
 }
 
 -- Add components to right sections
@@ -191,6 +214,12 @@ ins_right {
     fmt = string.upper,
     icons_enabled = false, -- I think icons are cool but Eviline doesn't have them. sigh
     color = { fg = colors.green, gui = 'bold' },
+}
+
+ins_right {
+    -- filesize component
+    'filesize',
+    cond = conditions.buffer_not_empty,
 }
 
 ins_right {
