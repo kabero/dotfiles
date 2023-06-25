@@ -22,66 +22,13 @@ require('lazy').setup({
     },
 
     {
-        'nvim-treesitter/nvim-treesitter',
-        lazy = false,
-    },
-
-    {
         "nvim-telescope/telescope.nvim",
         cmd = 'Telescope',
         dependencies = {
             "nvim-lua/plenary.nvim",
         },
         config = function()
-            local telescope = require("telescope")
-            telescope.setup {
-                defaults = {
-                    mappings = {
-                        i = {
-                            ['<C-u>'] = false,
-                            ['<C-d>'] = false,
-                            -- Only use in insert mode
-                            ['<C-]>'] = require("telescope.actions").close,
-                            ['<ESC>'] = require("telescope.actions").close,
-                        },
-                        n = { 
-                            ["q"] = require("telescope.actions").close 
-                        },
-                    },
-                    prompt_prefix = "   ",
-                    selection_caret = "  ",
-                    borderchars = { "─", "│", "─", "│", "┌", "┐", "┘", "└" },
-                    layout_config = { 
-                        horizontal = {
-                            prompt_position = "top" ,
-                            preview_width = 0.55,
-                            result_width = 0.8,
-                        },
-                        vertical = {
-                            mirror = false,
-                        },
-                        width = 0.87,
-                        height = 0.80,
-                        preview_cutoff = 120,
-                    },
-                    layout_strategy = "horizontal",
-                    sorting_strategy = "ascending",
-                    winblend = 0,
-                    border = {},
-                    set_env = { ["COLORTERM"] = "truecolor" },
-                },
-                pickers = {
-                    find_files = {
-                        hidden = false
-                    }
-                }
-            }
-
-            vim.keymap.set('n', '<leader>f', '<cmd>lua require("telescope.builtin").find_files()<CR>', {})
-            vim.keymap.set('n', '<leader>r', '<cmd>lua require("telescope.builtin").live_grep()<CR>', {})
-            vim.keymap.set('n', '<leader>b', '<cmd>lua require("telescope.builtin").buffers()<CR>', {})
-            vim.keymap.set('n', '<leader>g', '<cmd>lua require("telescope.builtin").git_bcommits()<CR>', {})
-            vim.keymap.set('n', '<leader>h', '<cmd>lua require("telescope.builtin").oldfiles()<CR>', {})
+            require('plugin_configs/_telescope')
         end
     },
 
@@ -99,6 +46,14 @@ require('lazy').setup({
                 { noremap = true }
             )
         end
+    },
+
+    {
+        "nvim-telescope/telescope-frecency.nvim",
+        config = function()
+            require"telescope".load_extension("frecency")
+        end,
+        dependencies = {"kkharji/sqlite.lua"}
     },
 
     {
@@ -129,51 +84,7 @@ require('lazy').setup({
         lazy = false,
         dependencies = 'windwp/nvim-ts-autotag',
         config = function()
-            require('nvim-treesitter.configs').setup {
-                ensure_installed = {
-                    'bash',
-                    'c',
-                    'cpp',
-                    'css',
-                    'dockerfile',
-                    'gitcommit',
-                    'gitignore',
-                    'go',
-                    'graphql',
-                    'html',
-                    'javascript',
-                    'jq',
-                    'json',
-                    'json5',
-                    'lua',
-                    'markdown',
-                    'markdown_inline',
-                    'php',
-                    'python',
-                    'regex',
-                    'ruby',
-                    'rust',
-                    'scala',
-                    'scss',
-                    'sql',
-                    'terraform',
-                    'tsx',
-                    'typescript',
-                    'vim',
-                    'vue',
-                    'yaml',
-                    'zig',
-                },
-                highlight = {
-                    enable = true,
-                },
-                autotag = {
-                    enable = true,
-                },
-                indent = {
-                    enable = true
-                }
-            }
+            require("plugin_configs/_nvim_treesitter")
         end
     },
 
@@ -198,14 +109,6 @@ require('lazy').setup({
     {
         'neovim/nvim-lspconfig',
         event = 'InsertEnter',
-        -- config = function()
-        --     require 'lspconfig'.efm.setup {
-        --         filetypes = { 'python' },
-        --         default_config = {
-        --             cmd = { 'efm-langserver', '-c', '$HOME/.config/efm-langserver/config.yaml'}
-        --         }
-        --     }
-        -- end
     },
 
     { 'mfussenegger/nvim-dap', lazy = false },
@@ -238,7 +141,7 @@ require('lazy').setup({
                 ensure_installed = {
                     {{ if eq .chezmoi.os "darwin" }}
                     -- Lua
-                    'lua_ls',
+                    -- 'lua_ls',
                     {{ end }}
                 }
             }
@@ -306,13 +209,12 @@ require('lazy').setup({
             'hrsh7th/cmp-nvim-lsp',
             'hrsh7th/cmp-path',
             'hrsh7th/cmp-buffer',
-            { 'hrsh7th/cmp-cmdline', event = 'ModeChanged' },
+            'hrsh7th/cmp-cmdline',
             'hrsh7th/cmp-vsnip',
             'hrsh7th/cmp-nvim-lsp-signature-help',
             'hrsh7th/cmp-nvim-lsp-document-symbol',
             'onsails/lspkind.nvim',
             'hrsh7th/vim-vsnip',
-            'onsails/lspkind.nvim',
         },
         config = function()
             local cmp = require('cmp')
@@ -331,9 +233,9 @@ require('lazy').setup({
                     end,
                 },
                 sources = cmp.config.sources({
+                    { name = "path" },
                     { name = "nvim_lsp" },
                     { name = "vsnip" },
-                    { name = "path" },
                     { name = "nvim_lsp_signature_help" },
                 }, {
                     { name = "buffer", keyword_length = 2 }
@@ -474,4 +376,13 @@ require('lazy').setup({
         "tpope/vim-endwise",
         event = "VeryLazy",
     },
+
+    {
+        'ojroques/nvim-osc52',
+        config = function()
+            vim.keymap.set('n', '<leader>c', require('osc52').copy_operator, {expr = true})
+            vim.keymap.set('n', '<leader>cc', '<leader>c_', {remap = true})
+            vim.keymap.set('v', '<leader>c', require('osc52').copy_visual)
+        end
+    }
 })
