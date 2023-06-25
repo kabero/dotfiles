@@ -2,9 +2,12 @@ nnoremap j gj
 nnoremap k gk
 nnoremap n nzz
 nnoremap N Nzz
+nnoremap ]b :<c-u>bnext<CR>
+nnoremap [b :<c-u>bprev<CR>
 
 language C
 set encoding=utf-8
+filetype plugin indent on
 
 set clipboard+=unnamedplus
 set mouse=a
@@ -27,6 +30,7 @@ set signcolumn=yes
 set termguicolors
 set visualbell
 set wildmenu
+set wildmode=full
 set wrap
 set showtabline=2
 
