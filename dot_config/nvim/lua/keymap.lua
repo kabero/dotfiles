@@ -33,9 +33,6 @@ vim.api.nvim_set_keymap("n", "k", "gk", opts)
 vim.api.nvim_set_keymap("n", "]b", ":<c-u>bnext<CR>", opts)
 vim.api.nvim_set_keymap("n", "[b", ":<c-u>bprev<CR>", opts)
 
--- vim.api.nvim_set_keymap("n", "n", "nzz", opts)
--- vim.api.nvim_set_keymap("n", "N", "Nzz", opts)
-
 -- open init.vim in chezmoi dir
 vim.api.nvim_set_keymap("n", "<leader>,", ":execute 'edit ' .. luaeval('GetNVimConfigPath()')<CR> :execute 'lcd ' .. luaeval('GetChezmoiDir()')<CR>", opts)
 
@@ -47,3 +44,10 @@ vim.api.nvim_set_keymap("n", "<leader>,", ":execute 'edit ' .. luaeval('GetNVimC
 
 -- Command
 ------------------------------------
+
+-- Terminal
+------------------------------------
+vim.cmd [[
+    tnoremap <Esc> <C-\><C-n>
+    tnoremap <c-[> <C-\><C-n>
+]]
