@@ -30,6 +30,9 @@ vim.g.mapleader = " "
 vim.api.nvim_set_keymap("n", "j", "gj", opts)
 vim.api.nvim_set_keymap("n", "k", "gk", opts)
 
+vim.api.nvim_set_keymap("n", "]b", ":<c-u>bnext<CR>", opts)
+vim.api.nvim_set_keymap("n", "[b", ":<c-u>bprev<CR>", opts)
+
 -- vim.api.nvim_set_keymap("n", "n", "nzz", opts)
 -- vim.api.nvim_set_keymap("n", "N", "Nzz", opts)
 
