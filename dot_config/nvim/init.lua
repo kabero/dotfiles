@@ -35,26 +35,31 @@ vim.cmd [[ autocmd FileType * setlocal formatoptions-=o ]]
 
 -- Highlight ideographic space
 vim.cmd [[
-augroup highlightIdegraphicSpace
-    autocmd!
-    autocmd Colorscheme * highlight IdeographicSpace term=underline ctermbg=DarkGreen guibg=DarkGreen
-    autocmd VimEnter,WinEnter * match IdeographicSpace /　/
-augroup END
+    augroup highlightIdegraphicSpace
+        autocmd!
+        autocmd Colorscheme * highlight IdeographicSpace term=underline ctermbg=DarkGreen guibg=DarkGreen
+        autocmd VimEnter,WinEnter * match IdeographicSpace /　/
+    augroup END
 ]]
 
 -- Highlight chezmoi template files
 vim.cmd [[
-augroup highlightTmplFile
-    autocmd!   
-    autocmd BufRead *.tmpl call g:DetermineExtOfTmpl()
-    function! g:DetermineExtOfTmpl()
-        let fname_without_tmpl = expand('%:t:r')
-        if fname_without_tmpl == "dot_zshrc"
-            let &filetype="zsh"
-        else
-            let &filetype=expand('%:t:r:e')
-        endif
-    endfunction
-augroup END
+    augroup highlightTmplFile
+        autocmd!   
+        autocmd BufRead *.tmpl call g:DetermineExtOfTmpl()
+        function! g:DetermineExtOfTmpl()
+            let fname_without_tmpl = expand('%:t:r')
+            if fname_without_tmpl == "dot_zshrc"
+                let &filetype="zsh"
+            else
+                let &filetype=expand('%:t:r:e')
+            endif
+        endfunction
+    augroup END
+]]
+
+-- Enter insert mode when entering terminal 
+vim.cmd [[
+    autocmd BufWinEnter,WinEnter term://* startinsert
 ]]
 
