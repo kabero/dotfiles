@@ -31,6 +31,8 @@ vim.api.nvim_set_keymap("n", "j", "gj", opts)
 vim.api.nvim_set_keymap("n", "k", "gk", opts)
 vim.api.nvim_set_keymap("n", "]b", ":<c-u>bnext<CR>", opts)
 vim.api.nvim_set_keymap("n", "[b", ":<c-u>bprev<CR>", opts)
+vim.api.nvim_set_keymap("n", "]q", ":<c-u>cnext<CR>", opts)
+vim.api.nvim_set_keymap("n", "[q", ":<c-u>cprev<CR>", opts)
 vim.api.nvim_set_keymap("n", "<c-l>", ":<c-u>noh<CR><c-l>", opts)
 
 -- open init.vim in chezmoi dir
