@@ -59,10 +59,10 @@ vim.cmd [[
 ]]
 
 -- Terminal
-vim.cmd [[
-    " Enter insert mode when entering terminal 
-    autocmd BufWinEnter,WinEnter,TermOpen term://* startinsert
-    autocmd TermOpen * setlocal norelativenumber
-    autocmd TermOpen * setlocal nonumber
-]]
+-- vim.cmd [[
+--     " Enter insert mode when entering terminal 
+--     autocmd BufWinEnter,WinEnter,TermOpen term://* startinsert
+--     autocmd TermOpen * setlocal norelativenumber
+--     autocmd TermOpen * setlocal nonumber
+-- ]]
 
