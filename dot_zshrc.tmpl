@@ -98,7 +98,7 @@ eval "$(zoxide init zsh)"
 source `brew --prefix`/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 {{ end }}
 {{ if eq .chezmoi.os "linux" }}
-. "$HOME/.asdf/asdf.sh"
+source `brew --prefix`/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fpath=(${ASDF_DIR}/completions $fpath)
 autoload -Uz compinit && compinit
 {{ end }}
