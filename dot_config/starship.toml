@@ -1,16 +1,48 @@
+# Default config
+# https://starship.rs/config/#prompt
+
 format = """
+$username\
 $hostname\
+$localip\
+$shlvl\
+$singularity\
+$kubernetes\
 $directory\
+$vcsh\
+$fossil_branch\
 $git_branch\
 $git_commit\
 $git_state\
 $git_metrics\
 $git_status\
+$hg_branch\
+$pijul_channel\
+$docker_context\
+$buf\
+$nix_shell\
+$conda\
+$meson\
+$spack\
+$memory_usage\
 $aws\
+$gcloud\
+$openstack\
+$azure\
+$env_var\
+$crystal\
+$custom\
+$sudo\
 $cmd_duration\
 $line_break\
-$character\
-"""
+$jobs\
+$battery\
+$time\
+$status\
+$os\
+$container\
+$shell\
+$character"""
 
 [directory]
 read_only = " "
@@ -31,71 +63,71 @@ disabled = true
 [aws]
 symbol = "  "
 
-# [buf]
-# symbol = " "
+[buf]
+symbol = " "
 
-# [c]
-# symbol = " "
+[c]
+symbol = " "
 
-# [conda]
-# symbol = " "
+[conda]
+symbol = " "
 
-# [dart]
-# symbol = " "
+[dart]
+symbol = " "
 
-# [docker_context]
-# symbol = " "
+[docker_context]
+symbol = " "
 
-# [elixir]
-# symbol = " "
+[elixir]
+symbol = " "
 
-# [elm]
-# symbol = " "
+[elm]
+symbol = " "
 
-# [fossil_branch]
-# symbol = " "
+[fossil_branch]
+symbol = " "
 
-# [git_branch]
-# symbol = " "
+[git_branch]
+symbol = " "
 
-# [golang]
-# symbol = " "
+[golang]
+symbol = " "
 
-# [guix_shell]
-# symbol = " "
+[guix_shell]
+symbol = " "
 
-# [haskell]
-# symbol = " "
+[haskell]
+symbol = " "
 
-# [haxe]
-# symbol = "⌘ "
+[haxe]
+symbol = "⌘ "
 
-# [hg_branch]
-# symbol = " "
+[hg_branch]
+symbol = " "
 
-# [java]
-# symbol = " "
+[java]
+symbol = " "
 
-# [julia]
-# symbol = " "
+[julia]
+symbol = " "
 
-# [lua]
-# symbol = " "
+[lua]
+symbol = " "
 
-# [memory_usage]
-# symbol = " "
+[memory_usage]
+symbol = " "
 
-# [meson]
-# symbol = "喝 "
+[meson]
+symbol = "喝 "
 
-# [nim]
-# symbol = " "
+[nim]
+symbol = " "
 
-# [nix_shell]
-# symbol = " "
+[nix_shell]
+symbol = " "
 
-# [nodejs]
-# symbol = " "
+[nodejs]
+symbol = " "
 
 [os.symbols]
 Alpine = " "
@@ -135,26 +167,26 @@ Ubuntu = " "
 Unknown = " "
 Windows = " "
 
-# [package]
-# symbol = " "
+[package]
+symbol = " "
 
-# [pijul_channel]
-# symbol = "🪺 "
+[pijul_channel]
+symbol = "🪺 "
 
-# [python]
-# symbol = " "
+[python]
+symbol = " "
 
-# [rlang]
-# symbol = "ﳒ "
+[rlang]
+symbol = "ﳒ "
 
-# [ruby]
-# symbol = " "
+[ruby]
+symbol = " "
 
-# [rust]
-# symbol = " "
+[rust]
+symbol = " "
 
-# [scala]
-# symbol = " "
+[scala]
+symbol = " "
 
-# [spack]
-# symbol = "🅢 "
+[spack]
+symbol = "🅢 "
