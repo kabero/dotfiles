@@ -148,3 +148,26 @@ today() {
     fi
     cd $dirpath
 }
+
+# open repository in browser
+repo() {
+    if [ -x "$(command -v open)" ]; then
+        local remote_name=''
+        if [ -z "$1" ]; then
+            remote_name=origin
+        else
+            remote_name=$1
+        fi
+        local repo_url=$(git remote -vv | awk -v pattern="$remote_name" '$1 == pattern && $3 == "(fetch)" {print $2}')
+        
+        if [ -z "$repo_url" ]; then
+            echo "$1 is an invalid remote repo's name."
+        else
+            echo $repo_url
+            open -a "Google Chrome" $repo_url
+        fi
+    else
+        echo "open command is not found"
+    echo repo_url
+    fi
+}
