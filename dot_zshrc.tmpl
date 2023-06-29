@@ -90,9 +90,6 @@ if type brew &>/dev/null; then
     compinit
 fi
 
-# zoxide
-eval "$(zoxide init zsh)"
-
 # zsh-autosuggestions
 {{ if eq .chezmoi.os "darwin" }}
 source `brew --prefix`/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -118,6 +115,9 @@ export FZF_CTRL_T_OPTS="
     --preview-window=right:60%
 "
 
+# zoxide
+eval "$(zoxide init zsh)"
+
 # ghq + fzf
 function _ghq_fzf() {
   local src=$(ghq list | fzf --preview "ls -laTp $(ghq root)/{} | tail -n+4 | awk '{print \$9\"/\"\$6\"/\"\$7 \" \" \$10}'")
@@ -129,12 +129,6 @@ function _ghq_fzf() {
 }
 zle -N _ghq_fzf
 bindkey '^g' _ghq_fzf
-
-
-# jupyter
-function jupyter-local() {
-    jupyter notebook --notebook-dir=. --ip='*' --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''
-}
 
 # the fuck
 eval $(thefuck --alias)
