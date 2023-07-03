@@ -17,7 +17,30 @@ require('lazy').setup({
         lazy = false,
         priority = 1000,
         config = function()
-            vim.cmd([[colorscheme tokyonight-night]])
+        end,
+    },
+
+    { 
+        "ellisonleao/gruvbox.nvim",
+        priority = 1000,
+        config = function()
+            require("gruvbox").setup({
+            undercurl = true,
+            underline = false,
+            bold = true,
+            italic = {
+                strings = false,
+                comments = false,
+                operators = false,
+                folds = false,
+            },
+            inverse = true,
+            contrast = "hard", -- can be "hard", "soft" or empty string
+            palette_overrides = {},
+            overrides = {},
+            dim_inactive = false,
+            transparent_mode = false,
+            })
         end,
     },
 
