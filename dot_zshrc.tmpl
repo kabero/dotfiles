@@ -100,35 +100,68 @@ fpath=(${ASDF_DIR}/completions $fpath)
 autoload -Uz compinit && compinit
 {{ end }}
 
-# configs of fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
-export FZF_DEFAULT_OPTS="
-    --height 40% --reverse --border=sharp --margin=0,1
-    --prompt='> ' --color=dark
-"
-
-# for finding files in current directories
-export FZF_CTRL_T_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
-export FZF_CTRL_T_OPTS="
-    --preview 'bat  --color=always --style=header,grid {}'
-    --preview-window=right:60%
-"
-
 # zoxide
 eval "$(zoxide init zsh)"
 
-# ghq + fzf
+# configs of fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
+export FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='? '"
+
+# for finding files in current directories
+export FZF_CTRL_T_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
+export FZF_CTRL_T_OPTS=""
+
+# fghq (ghq)
 function _ghq_fzf() {
-  local src=$(ghq list | fzf --preview "ls -laTp $(ghq root)/{} | tail -n+4 | awk '{print \$9\"/\"\$6\"/\"\$7 \" \" \$10}'")
-  if [ -n "$src" ]; then
-    BUFFER="cd $(ghq root)/$src"
-    zle accept-line
-  fi
-  zle -R -c
+    local src=$(ghq list | fzf)
+    if [ -n "$src" ]; then
+        BUFFER="cd $(ghq root)/$src"
+        zle accept-line
+    fi
+    zle -R -c
 }
 zle -N _ghq_fzf
 bindkey '^g' _ghq_fzf
+
+# fco (git checkout) - checkout git branch including remote branches
+# ref: https://qiita.com/kamykn/items/aa9920f07487559c0c7e
+fco() {
+    local branches branch
+    branches=$(git branch --all | grep -v HEAD) &&
+    branch=$(echo "$branches" |
+            fzf -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
+    git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+}
+
+# flog - git commit browser
+# ref: https://qiita.com/kamykn/items/aa9920f07487559c0c7e
+flog() {
+    git log --graph --color=always \
+        --format="%C(auto)%h%d %s %C(#C0C0C0)%C(bold)%cr" "$@" |
+    fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+        --bind "ctrl-m:execute:
+              (grep -o '[a-f0-9]\{7\}' | head -1 |
+              xargs -I % sh -c 'git diff %') << 'FZF-EOF'
+              {}
+FZF-EOF"
+}
+
+# Enter docker containers with fzf
+# ref: https://momozo.tech/2021/03/10/fzf%E3%81%A7zsh%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB%E4%BD%9C%E6%A5%AD%E3%82%92%E5%8A%B9%E7%8E%87%E5%8C%96/
+fcon() {
+    local cid
+    cid=$(docker ps | sed 1d | fzf -q "$1" | awk '{print $1}')
+    [ -n "$cid" ] && docker exec -it "$cid" /bin/bash
+}
+
+# Show docker logs with fzf
+# ref: https://momozo.tech/2021/03/10/fzf%E3%81%A7zsh%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB%E4%BD%9C%E6%A5%AD%E3%82%92%E5%8A%B9%E7%8E%87%E5%8C%96/
+fdl() {
+    local cid
+    cid=$(docker ps -a | sed 1d | fzf -q "$1" | awk '{print $1}')
+    [ -n "$cid" ] && docker logs -f --tail=200 "$cid"
+}
 
 # the fuck
 eval $(thefuck --alias)
