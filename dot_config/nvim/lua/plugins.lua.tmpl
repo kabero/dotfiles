@@ -429,6 +429,10 @@ require('lazy').setup({
     },
 
     {
+        "tpope/vim-sleuth"
+    },
+
+    {
         'ojroques/nvim-osc52',
         config = function()
             vim.keymap.set('n', '<leader>y', require('osc52').copy_operator, {expr = true})
