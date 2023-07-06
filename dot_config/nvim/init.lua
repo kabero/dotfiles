@@ -58,6 +58,9 @@ vim.cmd [[
     augroup END
 ]]
 
+-- Close help by pressing q
+vim.cmd [[ autocmd FileType help nnoremap <buffer> q <C-w>c ]] 
+
 -- Terminal
 vim.cmd [[
     autocmd TermOpen * setlocal norelativenumber

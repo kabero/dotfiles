@@ -189,13 +189,10 @@ require('lazy').setup({
             mason_lspconfig.setup_handlers({ function(server)
                 local opts = {}
                 opts.on_attach = function(_, bufnr)
-                    -- Keybindings
+
+                    -- keymap for formatting
                     local bufopts = { noremap = true, silent = true, buffer = bufnr }
                     vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
-                    vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
-                    -- vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
-                    vim.keymap.set('n', 'gt', '<cmd>lua vim.lsp.buf.type_definition()<CR>')
-                    vim.keymap.set('n', 'ge', '<cmd>lua vim.diagnostic.open_float()<CR>')
                 end
                 nvim_lsp[server].setup(opts)
             end })
@@ -220,24 +217,52 @@ require('lazy').setup({
                 symbol_in_winbar = {
                     enable = false,
                 },
-                ui = {
-                    code_action = "",
-                }
             })
 
-            vim.keymap.set('n', 'gr', '<cmd>Lspsaga rename ++project<CR>')
+            -- hover_doc
+            vim.keymap.set('n', 'K', '<cmd>Lspsaga hover_doc ++quiet<CR>')
+
+            -- lsp_finder
+            vim.keymap.set('n', 'gh', '<cmd>Lspsaga lsp_finder<CR>')
+
+            -- code_action
             vim.keymap.set('n', 'ga', '<cmd>Lspsaga code_action<CR>')
-            vim.keymap.set('n', 'gs', '<cmd>Lspsaga lsp_finder<CR>')
-            vim.keymap.set('n', 'gp', '<cmd>Lspsaga peek_definition<CR>')
+
+            -- goto_definition
             vim.keymap.set('n', 'gd', '<cmd>Lspsaga goto_definition<CR>')
+
+            -- peek_definition
+            vim.keymap.set('n', 'gp', '<cmd>Lspsaga peek_definition<CR>')
+
+            -- peek type definition
+            vim.keymap.set('n', 'gt', '<cmd>lua vim.lsp.buf.type_definition()<CR>')
+
+            -- peek type declaration
+            vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
+
+            -- go to implementation
+            vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
+
+            -- open diagnostic
+            vim.keymap.set('n', 'ge', '<cmd>lua vim.diagnostic.open_float()<CR>')
+
+            -- call hierarchy (incoming, outgoing)
+            vim.keymap.set("n", "<Leader>ci", "<cmd>Lspsaga incoming_calls<CR>")
+            vim.keymap.set("n", "<Leader>co", "<cmd>Lspsaga outgoing_calls<CR>")
+
+            -- rename (entire file)
+            vim.keymap.set('n', 'gr', '<cmd>Lspsaga rename<CR>')
+
+            -- navigate between diagnostics
             vim.keymap.set('n', '[g', '<cmd>Lspsaga diagnostic_jump_next<CR>')
             vim.keymap.set('n', ']g', '<cmd>Lspsaga diagnostic_jump_prev<CR>')
-            vim.keymap.set('n', 'K', '<cmd>Lspsaga hover_doc<CR>')
-            vim.keymap.set('n', 'gh', '<cmd>Lspsaga hover_doc<CR>')
-            vim.keymap.set('n', '<leader>o', '<cmd>Lspsaga outline<CR>')
+
+            -- show all diagnostics (buffer, workspace)
             vim.keymap.set('n', '<leader>d', '<cmd>Lspsaga show_buf_diagnostics<CR>')
             vim.keymap.set('n', '<leader>D', '<cmd>Lspsaga show_workspace_diagnostics<CR>')
-            -- vim.keymap.set({ 'n', 't' }, '<C-j>', '<cmd>Lspsaga term_toggle<CR>')
+
+            -- toggle outline
+            vim.keymap.set('n', '<leader>0', '<cmd>Lspsaga outline<CR>')
         end,
         dependencies = { { 'nvim-tree/nvim-web-devicons' }, { 'nvim-treesitter/nvim-treesitter' },
         },
@@ -374,7 +399,6 @@ require('lazy').setup({
                         lua = 'luafile %',
                         vim = 'source %',
                     },
-
                     external = {
                         go       = 'go run %',
                         markdown = 'glow %',
