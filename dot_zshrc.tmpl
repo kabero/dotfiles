@@ -13,6 +13,7 @@ export HISTFILE="$HOME/.zsh_history"
 autoload -Uz colors
 colors
 bindkey -e
+zstyle ':completion:*' completer _complete _approximate _prefix
 
 # direnv
 eval "$(direnv hook zsh)"
