@@ -386,7 +386,7 @@ require('lazy').setup({
                     }
                 },
                 behavior = {
-                    default = 'quickfix',
+                    default = 'bang',
                     startinsert = false,
                     wincmd = false,
                     autosave = true,
@@ -435,9 +435,15 @@ require('lazy').setup({
     {
         'ojroques/nvim-osc52',
         config = function()
-            vim.keymap.set('n', '<leader>y', require('osc52').copy_operator, {expr = true})
-            vim.keymap.set('n', '<leader>yy', '<leader>c_', {remap = true})
-            vim.keymap.set('v', '<leader>y', require('osc52').copy_visual)
+            if vim.fn.has('unix') == 1 and vim.fn.exists('$SSH_CLIENT') == 1 then
+                function copy()
+                    if vim.v.event.operator == 'y' and vim.v.event.regname == '+' then
+                        require('osc52').copy_register('+')
+                    end
+                end
+
+                vim.api.nvim_create_autocmd('TextYankPost', {callback = copy})
+            end
         end
     }
 })
