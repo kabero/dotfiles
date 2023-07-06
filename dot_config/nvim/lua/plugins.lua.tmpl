@@ -437,8 +437,8 @@ require('lazy').setup({
         config = function()
             if vim.fn.has('unix') == 1 and vim.fn.exists('$SSH_CLIENT') == 1 then
                 function copy()
-                    if vim.v.event.operator == 'y' and vim.v.event.regname == '+' then
-                        require('osc52').copy_register('+')
+                    if vim.v.event.operator == 'y' then
+                        require('osc52').copy_register('0')
                     end
                 end
 
