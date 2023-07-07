@@ -179,12 +179,7 @@ require('lazy').setup({
             local mason_lspconfig = require('mason-lspconfig')
             local nvim_lsp = require('lspconfig')
             require('mason-lspconfig').setup {
-                ensure_installed = {
-                    {{ if eq .chezmoi.os "darwin" }}
-                    -- Lua
-                    -- 'lua_ls',
-                    {{ end }}
-                }
+                ensure_installed = {}
             }
             mason_lspconfig.setup_handlers({ function(server)
                 local opts = {}
@@ -198,14 +193,37 @@ require('lazy').setup({
             end })
 
             vim.diagnostic.config {
-                virtual_text = false,
+                virtual_text = {
+                    format = function(diagnostic)
+                        return string.format("%s (%s: %s)", diagnostic.message, diagnostic.source, diagnostic.code)
+                    end,
+                },
                 signs = true,
-                underline = false,
+                underline = true,
             }
 
+
             vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-                vim.lsp.diagnostic.on_publish_diagnostics, { virtual_text = false }
+                vim.lsp.diagnostic.on_publish_diagnostics, {
+                    update_in_insert = false,
+                    -- virtual_text = {
+                    --     format = function(diagnostic)
+                    --         return string.format("%s (%s: %s)", diagnostic.message, diagnostic.source, diagnostic.code)
+                    --     end,
+                    -- },
+                }
             )
+
+            function ToggleDisplayDiagnostic()
+                is_shown = not is_shown
+                if is_shown then
+                    vim.diagnostic.show()
+                else
+                    vim.diagnostic.hide()
+                end
+            end
+
+            vim.keymap.set('n', '<leader>9', '<cmd>lua ToggleDisplayDiagnostic()<CR>', { noremap = true, silent = true })
         end
     },
 
@@ -352,12 +370,12 @@ require('lazy').setup({
             local null_ls = require("null-ls")
             local sources = {
                 -- Ruby
-                null_ls.builtins.diagnostics.rubocop.with({
-                    prefer_local = "bin",
-                }),
-                null_ls.builtins.formatting.rubocop.with({
-                    prefer_local = "bin",
-                }),
+                -- null_ls.builtins.diagnostics.rubocop.with({
+                --     prefer_local = "bin",
+                -- }),
+                -- null_ls.builtins.formatting.rubocop.with({
+                --     prefer_local = "bin",
+                -- }),
 
                 -- Python
                 null_ls.builtins.diagnostics.flake8,
@@ -381,6 +399,7 @@ require('lazy').setup({
 
             }
             null_ls.setup({
+             	diagnostics_format = "#{m} (#{s}: #{c})",
                 sources  = sources,
                 debug    = false,
                 defaults = {
@@ -403,7 +422,7 @@ require('lazy').setup({
                         go       = 'go run %',
                         markdown = 'glow %',
                         python   = 'python %',
-                        ruby     = 'ruby %',
+                        ruby     = '[ -d .bundle ] && bundle exec ruby % || ruby %',
                         rust     = 'cargo run %',
                         sh       = 'sh %',
                         zig      = 'zig build run',
