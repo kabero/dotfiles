@@ -1,0 +1,9 @@
+# dotfiles
+- alacritty
+- asdf
+- git
+- neovim
+- starship
+- tmux
+- vim
+- zsh
