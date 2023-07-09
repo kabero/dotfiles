@@ -7,13 +7,13 @@ require "plugins"
 
 -- [[ Highlight on yank ]]
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
-vim.api.nvim_create_autocmd('TextYankPost', {
+vim.api.nvim_create_autocmd({
     callback = function()
         vim.highlight.on_yank()
     end,
     group = highlight_group,
     pattern = '*',
-})
+}, 'TextYankPost')
 
 -- Restore last position of cursor
 vim.cmd[[augroup restore-cursor
@@ -59,7 +59,7 @@ vim.cmd [[
 ]]
 
 -- Close help by pressing q
-vim.cmd [[ autocmd FileType help nnoremap <buffer> q <C-w>c ]] 
+vim.cmd [[ autocmd FileType help nnoremap <buffer> q <C-w>c ]]
 
 -- Terminal
 vim.cmd [[
