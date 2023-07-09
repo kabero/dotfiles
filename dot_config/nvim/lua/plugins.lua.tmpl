@@ -20,26 +20,26 @@ require('lazy').setup({
         end,
     },
 
-    { 
+    {
         "ellisonleao/gruvbox.nvim",
         priority = 1000,
         config = function()
             require("gruvbox").setup({
-            undercurl = true,
-            underline = false,
-            bold = true,
-            italic = {
-                strings = false,
-                comments = false,
-                operators = false,
-                folds = false,
-            },
-            inverse = true,
-            contrast = "hard", -- can be "hard", "soft" or empty string
-            palette_overrides = {},
-            overrides = {},
-            dim_inactive = false,
-            transparent_mode = false,
+                undercurl = true,
+                underline = false,
+                bold = true,
+                italic = {
+                    strings = false,
+                    comments = false,
+                    operators = false,
+                    folds = false,
+                },
+                inverse = true,
+                contrast = "hard", -- can be "hard", "soft" or empty string
+                palette_overrides = {},
+                overrides = {},
+                dim_inactive = false,
+                transparent_mode = false,
             })
         end,
     },
@@ -73,9 +73,9 @@ require('lazy').setup({
     {
         "nvim-telescope/telescope-frecency.nvim",
         config = function()
-            require"telescope".load_extension("frecency")
+            require "telescope".load_extension("frecency")
         end,
-        dependencies = {"kkharji/sqlite.lua"}
+        dependencies = { "kkharji/sqlite.lua" }
     },
 
     {
@@ -125,13 +125,13 @@ require('lazy').setup({
             require('gitsigns').setup {
                 on_attach = function(bufnr)
                     local function map(mode, lhs, rhs, opts)
-                        opts = vim.tbl_extend('force', {noremap = true, silent = true}, opts or {})
+                        opts = vim.tbl_extend('force', { noremap = true, silent = true }, opts or {})
                         vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, opts)
                     end
 
                     -- Navigation
-                    map('n', ']c', "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", {expr=true})
-                    map('n', '[c', "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", {expr=true})
+                    map('n', ']c', "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", { expr = true })
+                    map('n', '[c', "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", { expr = true })
 
                     -- Actions
                     map('n', '<leader>aj', '<cmd>Gitsigns preview_hunk<CR>')
@@ -184,7 +184,6 @@ require('lazy').setup({
             mason_lspconfig.setup_handlers({ function(server)
                 local opts = {}
                 opts.on_attach = function(_, bufnr)
-
                     -- keymap for formatting
                     local bufopts = { noremap = true, silent = true, buffer = bufnr }
                     vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
@@ -399,10 +398,10 @@ require('lazy').setup({
 
             }
             null_ls.setup({
-             	diagnostics_format = "#{m} (#{s}: #{c})",
-                sources  = sources,
-                debug    = false,
-                defaults = {
+                diagnostics_format = "#{m} (#{s}: #{c})",
+                sources            = sources,
+                debug              = false,
+                defaults           = {
                 }
             })
         end
@@ -437,7 +436,7 @@ require('lazy').setup({
                 ui = {
                     float = {
                         border = 'single'
-                    }, 
+                    },
                     quickfix = {
                         postion = 'bot',
                         size = 10,
@@ -485,7 +484,7 @@ require('lazy').setup({
                     end
                 end
 
-                vim.api.nvim_create_autocmd('TextYankPost', {callback = copy})
+                vim.api.nvim_create_autocmd('TextYankPost', { callback = copy })
             end
         end
     }
