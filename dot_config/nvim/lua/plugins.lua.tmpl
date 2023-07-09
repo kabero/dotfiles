@@ -213,16 +213,16 @@ require('lazy').setup({
                 }
             )
 
-            function ToggleDisplayDiagnostic()
-                is_shown = not is_shown
-                if is_shown then
+            function ToggleDisplayDiagnostics()
+                ShowingDiagnostics = not ShowingDiagnostics
+                if ShowingDiagnostics then
                     vim.diagnostic.show()
                 else
                     vim.diagnostic.hide()
                 end
             end
 
-            vim.keymap.set('n', '<leader>9', '<cmd>lua ToggleDisplayDiagnostic()<CR>', { noremap = true, silent = true })
+            vim.keymap.set('n', '<leader>9', '<cmd>lua ToggleDisplayDiagnostics()<CR>', { noremap = true, silent = true })
         end
     },
 
@@ -478,7 +478,7 @@ require('lazy').setup({
         'ojroques/nvim-osc52',
         config = function()
             if vim.fn.has('unix') == 1 and vim.fn.exists('$SSH_CLIENT') == 1 then
-                function copy()
+                local function copy()
                     if vim.v.event.operator == 'y' then
                         require('osc52').copy_register('0')
                     end
