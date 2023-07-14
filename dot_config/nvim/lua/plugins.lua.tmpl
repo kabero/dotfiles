@@ -13,11 +13,16 @@ vim.opt.runtimepath:prepend(lazypath)
 
 require('lazy').setup({
     {
+        "sainnhe/everforest",
+        config = function()
+            vim.cmd[[let g:everforest_background = 'hard']]
+        end
+    },
+
+    {
         "folke/tokyonight.nvim",
         lazy = false,
         priority = 1000,
-        config = function()
-        end,
     },
 
     {
@@ -478,6 +483,17 @@ require('lazy').setup({
 
     {
         "tpope/vim-sleuth"
+    },
+    
+    {
+        "mechatroner/rainbow_csv"
+    },
+
+    {
+        "easymotion/vim-easymotion",
+        config = function()
+            vim.api.nvim_set_keymap("n", "<leader>s", "<Plug>(easymotion-overwin-w)", { noremap = true, silent = true })
+        end
     },
 
     {
