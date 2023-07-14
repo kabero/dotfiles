@@ -72,4 +72,4 @@ vim.cmd [[
 --     autocmd BufWinEnter,WinEnter,TermOpen term://* startinsert
 -- ]]
 
-vim.cmd([[colorscheme gruvbox]])
+vim.cmd([[colorscheme everforest]])
