@@ -62,6 +62,7 @@ disabled = true
 
 [aws]
 symbol = "  "
+force_display = true
 
 [buf]
 symbol = " "
