@@ -42,6 +42,9 @@ export PATH="/opt/homebrew/opt/php@8.0/sbin:$PATH"
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 
+# flutter
+export PATH="$PATH:$HOME/dev/flutter/bin"
+
 # nvm
 {{ if eq .chezmoi.os "darwin" }}
 export NVM_DIR="$HOME/.nvm"
