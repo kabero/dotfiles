@@ -118,6 +118,7 @@ require('lazy').setup({
     {
         'j-hui/fidget.nvim',
         event = 'LspAttach',
+        tag = 'legacy',
         config = function()
             require('fidget').setup({})
         end
@@ -238,15 +239,14 @@ require('lazy').setup({
     },
 
     {
+        "nvim-tree/nvim-web-devicons"
+    },
+
+    {
         'glepnir/lspsaga.nvim',
         event = 'LspAttach',
         config = function()
-            require('lspsaga').setup({
-                symbol_in_winbar = {
-                    enable = false,
-                },
-            })
-
+            require('lspsaga').setup({})
             -- hover_doc
             vim.keymap.set('n', 'K', '<cmd>Lspsaga hover_doc ++quiet<CR>')
 
@@ -292,8 +292,7 @@ require('lazy').setup({
             -- toggle outline
             vim.keymap.set('n', '<leader>0', '<cmd>Lspsaga outline<CR>')
         end,
-        dependencies = { { 'nvim-tree/nvim-web-devicons' }, { 'nvim-treesitter/nvim-treesitter' },
-        },
+        dependencies = { { 'nvim-tree/nvim-web-devicons' }, { 'nvim-treesitter/nvim-treesitter' } },
     },
 
     {
@@ -429,6 +428,8 @@ require('lazy').setup({
                         vim = 'source %',
                     },
                     external = {
+                        c        = 'gcc %; ./a.out; rm a.out',
+                        cpp      = 'g++ %; ./a.out; rm a.out',
                         go       = 'go run %',
                         markdown = 'glow %',
                         python   = 'python %',
