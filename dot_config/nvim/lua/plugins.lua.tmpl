@@ -246,7 +246,14 @@ require('lazy').setup({
         'glepnir/lspsaga.nvim',
         event = 'LspAttach',
         config = function()
-            require('lspsaga').setup({})
+            require('lspsaga').setup({
+                lightbulb = {
+                    virtual_text = false,
+                },
+                ui = {
+                    code_action = "💎"
+                },
+            })
             -- hover_doc
             vim.keymap.set('n', 'K', '<cmd>Lspsaga hover_doc ++quiet<CR>')
 
