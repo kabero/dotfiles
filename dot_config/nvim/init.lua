@@ -5,7 +5,7 @@ require "filetype"
 require "plugins"
 
 
--- [[ Highlight on yank ]]
+-- Highlight on yank
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
 vim.api.nvim_create_autocmd('TextYankPost', {
     callback = function()
@@ -67,9 +67,17 @@ vim.cmd [[
     autocmd TermOpen * setlocal nonumber
 ]]
 
--- vim.cmd [[
---     " Enter insert mode when entering terminal 
---     autocmd BufWinEnter,WinEnter,TermOpen term://* startinsert
--- ]]
-
+-- Highlighting
+vim.cmd [[
+    augroup myHighlighting
+        autocmd!
+        autocmd Colorscheme * highlight EndOfBuffer ctermbg=none guibg=none
+        autocmd Colorscheme * highlight Folded ctermbg=none guibg=none
+        autocmd Colorscheme * highlight LineNr ctermbg=none guibg=none
+        autocmd Colorscheme * highlight NonText ctermbg=none guibg=none
+        autocmd Colorscheme * highlight Normal ctermbg=none guibg=none
+        autocmd Colorscheme * highlight NormalNC ctermbg=none guibg=none
+        autocmd Colorscheme * highlight TabLineFill ctermbg=none guibg=none
+    augroup END
+]]
 vim.cmd([[colorscheme everforest]])
