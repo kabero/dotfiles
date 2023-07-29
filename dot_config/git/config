@@ -3,6 +3,7 @@
 
 [interactive]
     diffFilter = delta --color-only
+
 [add.interactive]
     useBuiltin = false # required for git 2.37.0
 
@@ -18,9 +19,10 @@
 
 [diff]
     colorMoved = default
+
 [user]
-	name = q4bero
-	email = 83853529+kabero@users.noreply.github.com
+    name = q4bero
+    email = 83853529+kabero@users.noreply.github.com
 
 [ghq]
 root = ~/ghq/github.com
@@ -31,8 +33,9 @@ root = ~/ghq/github.com
     lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     lga = log --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     firstcommit = commit --allow-empty
+
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
