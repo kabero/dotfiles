@@ -226,12 +226,18 @@ require('lazy').setup({
             )
 
             function ToggleDisplayDiagnostics()
-                ShowingDiagnostics = not ShowingDiagnostics
-                if ShowingDiagnostics then
-                    vim.diagnostic.show()
-                else
-                    vim.diagnostic.hide()
+                if ShowingDiagnostics == nil then
+                    ShowingDiagnostics = true
                 end
+
+                if ShowingDiagnostics then
+                    vim.diagnostic.disable()
+                    print("Diagnostics disabled")
+                else
+                    vim.diagnostic.enable()
+                    print("Diagnostics enabled")
+                end
+                ShowingDiagnostics = not ShowingDiagnostics
             end
 
             vim.keymap.set('n', '<leader>9', '<cmd>lua ToggleDisplayDiagnostics()<CR>', { noremap = true, silent = true })
@@ -251,7 +257,7 @@ require('lazy').setup({
                     virtual_text = false,
                 },
                 ui = {
-                    code_action = "💎"
+                    code_action = "C"
                 },
             })
             -- hover_doc
@@ -368,14 +374,17 @@ require('lazy').setup({
             --     })
             -- })
 
-            -- cmp.setup.cmdline(":", {
-            --     mapping = cmp.mapping.preset.cmdline(),
-            --     sources = cmp.config.sources({
-            --         { name = "path" },
-            --     }, {
-            --         { name = "cmdline", keyword_length = 2 },
-            --     }),
-            -- })
+            cmp.setup.cmdline(":", {
+                mapping = cmp.mapping.preset.cmdline(),
+                sources = cmp.config.sources({
+                    { name = "path" },
+                }, {
+                    { name = "cmdline", keyword_length = 2 },
+                }),
+                performance = {
+                    max_view_entries = 30
+                }
+            })
         end
     },
 
