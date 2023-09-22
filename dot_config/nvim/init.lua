@@ -16,7 +16,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- Restore last position of cursor
-vim.cmd[[augroup restore-cursor
+vim.cmd[[
+augroup restore-cursor
   autocmd!
   autocmd BufReadPost *
         \ : if line("'\"") >= 1 && line("'\"") <= line("$")

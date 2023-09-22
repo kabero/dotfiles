@@ -48,5 +48,5 @@ vim.keymap.set('n', '<leader>r', '<cmd>lua require("telescope.builtin").live_gre
 vim.keymap.set('n', '<leader>b', '<cmd>lua require("telescope.builtin").buffers()<CR>', opts)
 vim.keymap.set('n', '<leader>g', '<cmd>lua require("telescope.builtin").git_bcommits()<CR>', opts)
 vim.keymap.set('n', '<leader>h', '<cmd>lua require("telescope.builtin").oldfiles()<CR>', opts)
-vim.keymap.set('n', '<leader>k', "<Cmd>lua require('telescope').extensions.frecency.frecency()<CR>", opts)
 vim.keymap.set('n', '<leader>l', "<Cmd>lua require('telescope').extensions.frecency.frecency({ workspace = 'CWD' })<CR>", opts)
+vim.keymap.set('n', '<leader>k', '<cmd>lua require("telescope.builtin").grep_string()<CR>', opts)
