@@ -69,7 +69,7 @@ require('lazy').setup({
             vim.api.nvim_set_keymap(
                 "n",
                 "<leader>fn",
-                ":Telescope file_browser path=%:p:h select_buffer=true hidden=true<CR>",
+                ":Telescope file_browser theme=ivy path=%:p:h select_buffer=true hidden=true<CR>",
                 { noremap = true }
             )
         end
