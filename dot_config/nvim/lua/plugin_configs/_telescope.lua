@@ -57,24 +57,82 @@ telescope.setup {
         set_env = { ["COLORTERM"] = "truecolor" },
     },
     pickers = {
+        oldfiles = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
         find_files = {
+            theme = "ivy",
             hidden = false,
-            no_ignore = true
-        }
+            no_ignore = true,
+            layout_config = {
+                height = 30
+            }
+        },
+        live_grep = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
+        grep_string = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
+        jumplist = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
+        diagnostics = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
+        buffers = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
+        git_commits = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
+        git_bcommits = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
+        git_status = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
     }
 }
 
 local opts = { noremap = true, silent = true }
 -- Finder
-vim.keymap.set('n', '<leader>fh', ':Telescope oldfiles theme=ivy<CR>', opts)
-vim.keymap.set('n', '<leader>fj', ':Telescope find_files theme=ivy<CR>', opts)
-vim.keymap.set('n', '<leader>fk', ':Telescope live_grep theme=ivy<CR>', opts)
-vim.keymap.set('n', '<leader>fl', ':Telescope grep_string theme=ivy<CR>', opts)
-vim.keymap.set('n', '<leader>fi', ':Telescope jumplist theme=ivy show_line=false<CR>', opts)
-vim.keymap.set('n', '<leader>fo', ':Telescope diagnostics theme=ivy<CR>', opts)
-vim.keymap.set('n', '<leader>fb', ':Telescope buffers theme=ivy<CR>', opts)
+vim.keymap.set('n', '<leader>fh', ':Telescope oldfiles<CR>', opts)
+vim.keymap.set('n', '<leader>fj', ':Telescope find_files<CR>', opts)
+vim.keymap.set('n', '<leader>fk', ':Telescope live_grep<CR>', opts)
+vim.keymap.set('n', '<leader>fl', ':Telescope grep_string<CR>', opts)
+vim.keymap.set('n', '<leader>fi', ':Telescope jumplist show_line=false<CR>', opts)
+vim.keymap.set('n', '<leader>fo', ':Telescope diagnostics<CR>', opts)
+vim.keymap.set('n', '<leader>fb', ':Telescope buffers<CR>', opts)
 
 -- Git
-vim.keymap.set('n', '<leader>dj', ':Telescope git_commits theme=ivy<CR>', opts)
-vim.keymap.set('n', '<leader>dk', ':Telescope git_bcommits theme=ivy<CR>', opts)
-vim.keymap.set('n', '<leader>dl', ':Telescope git_status theme=ivy<CR>', opts)
+vim.keymap.set('n', '<leader>dj', ':Telescope git_commits<CR>', opts)
+vim.keymap.set('n', '<leader>dk', ':Telescope git_bcommits<CR>', opts)
+vim.keymap.set('n', '<leader>dl', ':Telescope git_status<CR>', opts)
