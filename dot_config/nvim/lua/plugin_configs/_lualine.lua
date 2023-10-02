@@ -83,7 +83,7 @@ ins_left {
     function()
         return '▊'
     end,
-    color = { fg = colors.blue },    -- Sets highlighting of component
+    color = { fg = colors.blue },      -- Sets highlighting of component
     padding = { left = 0, right = 1 }, -- We don't need space before this
 }
 
@@ -123,14 +123,14 @@ ins_left {
 
 ins_left {
     'hostname',
-    color = { fg = colors.blue, gui = 'bold'}
+    color = { fg = colors.blue, gui = 'bold' }
 }
 
 ins_left {
     function()
         return vim.fn.fnamemodify(vim.fn.getcwd(), ':t')
     end,
-    color = { fg = colors.green, gui = 'bold'}
+    color = { fg = colors.green, gui = 'bold' }
 }
 
 ins_left {
@@ -139,34 +139,19 @@ ins_left {
     end,
 }
 
--- ins_left {
---     'filename',
---     filestatus = true,
---     path = 0,
---     cond = conditions.buffer_not_empty,
---     color = { fg = colors.magenta, gui = 'bold' },
--- }
+ins_left {
+    'filename',
+    filestatus = true,
+    path = 1,
+    cond = conditions.buffer_not_empty,
+    color = { fg = colors.magenta, gui = 'bold' },
+}
 
 -- ins_left {
 --   function()
 --     return '%='
 --   end,
 -- }
-
-ins_left {
-    'buffers',
-    mode = 4,
-    buffers_color = {
-        active = { fg = colors.magenta, gui = 'bold' },
-        inactive = { fg = colors.fg },
-    },
-    show_modified_status = true,
-    symbols = {
-        modified = ' ●',      -- Text to show when the buffer is modified
-        alternate_file = '', -- Text to show to identify the alternate file
-        directory =  '',     -- Text to show when the buffer is a directory
-    },
-}
 
 ins_right {
     'diagnostics',
@@ -203,7 +188,7 @@ ins_right {
 
 -- Add components to right sections
 ins_right {
-    'o:encoding',     -- option component same as &encoding in viml
+    'o:encoding',       -- option component same as &encoding in viml
     fmt = string.upper, -- I'm not sure why it's upper case either ;)
     cond = conditions.hide_in_width,
     color = { fg = colors.green, gui = 'bold' },
