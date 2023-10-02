@@ -13,9 +13,13 @@ vim.opt.runtimepath:prepend(lazypath)
 
 require('lazy').setup({
     {
+        "LazyVim/LazyVim",
+    },
+
+    {
         "sainnhe/everforest",
         config = function()
-            vim.cmd[[let g:everforest_background = 'hard']]
+            vim.cmd [[let g:everforest_background = 'hard']]
         end
     },
 
@@ -270,7 +274,9 @@ require('lazy').setup({
             vim.keymap.set('n', 'ga', '<cmd>Lspsaga code_action<CR>')
 
             -- goto_definition
-            vim.keymap.set('n', 'gd', '<cmd>Lspsaga goto_definition<CR>')
+            -- Due to issues with <c-i> and <c-o>, use vim.lsp.buf.definition
+            -- vim.keymap.set('n', 'gd', '<cmd>Lspsaga goto_definition<CR>')
+            vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>zz')
 
             -- peek_definition
             vim.keymap.set('n', 'gp', '<cmd>Lspsaga peek_definition<CR>')
@@ -444,15 +450,15 @@ require('lazy').setup({
                         vim = 'source %',
                     },
                     external = {
-                        c        = 'gcc %; ./a.out; rm a.out',
-                        cpp      = 'g++ %; ./a.out; rm a.out',
-                        go       = 'go run %',
-                        markdown = 'glow %',
-                        python   = 'python %',
-                        ruby     = '[ -d .bundle ] && bundle exec ruby % || ruby %',
-                        rust     = 'cargo run %',
-                        sh       = 'sh %',
-                        zig      = 'zig build run',
+                        c          = 'gcc %; ./a.out; rm a.out',
+                        cpp        = 'g++ %; ./a.out; rm a.out',
+                        go         = 'go run %',
+                        markdown   = 'glow %',
+                        python     = 'python %',
+                        ruby       = '[ -d .bundle ] && bundle exec ruby % || ruby %',
+                        rust       = 'cargo run %',
+                        sh         = 'sh %',
+                        zig        = 'zig build run',
                         javascript = 'node %'
                     }
                 },
@@ -528,5 +534,30 @@ require('lazy').setup({
 
     {
         'slim-template/vim-slim'
-    }
+    },
+
+    -- {
+    --     'glepnir/dashboard-nvim',
+    --     event = 'VimEnter',
+    --     config = function()
+    --         require('dashboard').setup {
+    --             theme = 'doom',
+    --             config = {
+    --                 center = {
+    --                     {
+    --                         icon = '',
+    --                         icon_hl = 'group',
+    --                         desc = 'description',
+    --                         desc_hl = 'group',
+    --                         key = 'shortcut key in dashboard buffer not keymap !!',
+    --                         key_hl = 'group',
+    --                         action = '',
+    --                     },
+    --                 },
+    --                 footer = {},
+    --             }
+    --         }
+    --     end,
+    --     dependencies = { {'nvim-tree/nvim-web-devicons'}}
+    -- }
 })
