@@ -60,7 +60,7 @@ vim.cmd [[
 ]]
 
 -- Close help by pressing q
-vim.cmd [[ autocmd FileType help nnoremap <buffer> q <C-w>c ]] 
+vim.cmd [[ autocmd FileType help nnoremap <buffer> q <C-w>c ]]
 
 -- Terminal
 vim.cmd [[
