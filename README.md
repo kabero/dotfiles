@@ -1,4 +1,4 @@
 # dotfiles
-alacritty, asdf, git, neovim, starship, tmux, vim, zsh
+alacritty, asdf, git, neovim, starship, tmux, vim, zsh, chezmoi, obsidian
 
-Update the labels of which-key when modifying the key mappings.
+Update the labels of which-key when modifying the vim key mappings.
