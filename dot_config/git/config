@@ -1,5 +1,5 @@
 [core]
-    pager = delta
+    ; pager = delta
 
 [interactive]
     diffFilter = delta --color-only
@@ -29,7 +29,7 @@ root = ~/ghq/github.com
 
 [alias]
     s = status
-    d = diff
+    d = "!git diff | delta"
     lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     lga = log --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     firstcommit = commit --allow-empty

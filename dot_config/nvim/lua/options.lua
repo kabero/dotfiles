@@ -53,3 +53,6 @@ vim.opt.updatetime = 250
 -- Window
 vim.opt.splitbelow = true
 vim.opt.splitright = true
+
+-- Invisible characters
+vim.opt.listchars = "tab:»-,trail:-,extends:»,precedes:«,nbsp:%,eol:↲"
