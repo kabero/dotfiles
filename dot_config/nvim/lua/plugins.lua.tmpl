@@ -19,7 +19,9 @@ require('lazy').setup({
     {
         "sainnhe/everforest",
         config = function()
-            vim.cmd [[let g:everforest_background = 'hard']]
+            vim.cmd [[ let g:everforest_background = 'hard' ]]
+            -- use the blue defined in everforest for highlighting constants
+            vim.cmd [[ autocmd Colorscheme * highlight @constant guifg=#7fbbb3 ]]
         end
     },
 
@@ -433,8 +435,7 @@ require('lazy').setup({
                 diagnostics_format = "#{m} (#{s}: #{c})",
                 sources            = sources,
                 debug              = false,
-                defaults           = {
-                }
+                defaults           = {}
             })
         end
     },
