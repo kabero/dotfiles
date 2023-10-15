@@ -449,12 +449,13 @@ require('lazy').setup({
                     internal = {
                         lua = 'luafile %',
                         vim = 'source %',
+                        markdown = 'PreviewMarkdown'
                     },
                     external = {
                         c          = 'gcc %; ./a.out; rm a.out',
                         cpp        = 'g++ %; ./a.out; rm a.out',
                         go         = 'go run %',
-                        markdown   = 'glow %',
+                        -- markdown   = 'glow %',
                         python     = 'python %',
                         ruby       = '[ -d .bundle ] && bundle exec ruby % || ruby %',
                         rust       = 'cargo run %',
@@ -493,7 +494,15 @@ require('lazy').setup({
 
     {
         "folke/which-key.nvim",
+        lazy = true,
+        cmd = {
+            "WhichKey"
+        },
+        keys = {
+            { '<leader>w',  mode='n'}
+        },
         config = function()
+            vim.api.nvim_set_keymap("n", "<leader>w", ":WhichKey<CR>", { noremap = true, silent = true })
             require("plugin_configs/_whichkey")
         end
     },
@@ -605,5 +614,15 @@ require('lazy').setup({
             vim.keymap.set('o', 'i,e', '<Plug>CamelCaseMotion_ie', { silent = true })
             vim.keymap.set('x', 'i,e', '<Plug>CamelCaseMotion_ie', { silent = true })
         end
+    },
+
+    { 'vim-denops/denops.vim' },
+
+    { 'vim-denops/denops-helloworld.vim' },
+
+
+    {
+        'kat0h/bufpreview.vim',
+        requires = { 'vim-denops/denops.vim' },
     }
 })
