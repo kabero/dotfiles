@@ -57,6 +57,18 @@ telescope.setup {
         set_env = { ["COLORTERM"] = "truecolor" },
     },
     pickers = {
+        commands = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
+        colorscheme = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
         oldfiles = {
             theme = "ivy",
             layout_config = {
@@ -136,3 +148,6 @@ vim.keymap.set('n', '<leader>fb', ':Telescope buffers<CR>', opts)
 vim.keymap.set('n', '<leader>dj', ':Telescope git_commits<CR>', opts)
 vim.keymap.set('n', '<leader>dk', ':Telescope git_bcommits<CR>', opts)
 vim.keymap.set('n', '<leader>dl', ':Telescope git_status<CR>', opts)
+
+-- Resume
+vim.keymap.set('n', '<leader>jk', ':Telescope resume<CR>', opts)

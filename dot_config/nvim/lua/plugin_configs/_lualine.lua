@@ -88,40 +88,6 @@ ins_left {
 }
 
 ins_left {
-    -- mode component
-    function()
-        return ''
-    end,
-    color = function()
-        -- auto change color according to neovims mode
-        local mode_color = {
-            n = colors.red,
-            i = colors.green,
-            v = colors.blue,
-            [''] = colors.blue,
-            V = colors.blue,
-            c = colors.magenta,
-            no = colors.red,
-            s = colors.orange,
-            S = colors.orange,
-            [''] = colors.orange,
-            ic = colors.yellow,
-            R = colors.violet,
-            Rv = colors.violet,
-            cv = colors.red,
-            ce = colors.red,
-            r = colors.cyan,
-            rm = colors.cyan,
-            ['r?'] = colors.cyan,
-            ['!'] = colors.red,
-            t = colors.red,
-        }
-        return { fg = mode_color[vim.fn.mode()] }
-    end,
-    padding = { right = 1 },
-}
-
-ins_left {
     'hostname',
     color = { fg = colors.blue, gui = 'bold' }
 }
@@ -186,7 +152,6 @@ ins_right {
     color = { fg = colors.magenta, gui = 'bold' },
 }
 
--- Add components to right sections
 ins_right {
     'o:encoding',       -- option component same as &encoding in viml
     fmt = string.upper, -- I'm not sure why it's upper case either ;)
