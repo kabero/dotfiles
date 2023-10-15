@@ -508,7 +508,21 @@ require('lazy').setup({
     },
 
     {
-        "mechatroner/rainbow_csv"
+        "mechatroner/rainbow_csv",
+        config = function()
+            vim.g.disable_rainbow_hover = 1
+            vim.g.rcsv_colorpairs = {
+                { 'darkcyan',    'darkcyan' },
+                { 'green',       'green' },
+                { 'red',         'red' },
+                { 'NONE',        'NONE' },
+                { 'darkred',     'darkred' },
+                { 'magenta',     'magenta' },
+                { 'darkblue',    'darkblue' },
+                { 'darkgreen',   'darkgreen' },
+                { 'darkmagenta', 'darkmagenta' },
+            }
+        end
     },
 
     {
@@ -573,6 +587,23 @@ require('lazy').setup({
             -- vim.g.indent_guides_auto_colors = 0
             -- vim.cmd [[ autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg='#008080' ctermbg=3 ]]
             -- vim.cmd [[ autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg='#c678dd' ctermbg=4 ]]
+        end
+    },
+
+    {
+        'bkad/CamelCaseMotion',
+        config = function()
+            vim.keymap.set('n', ',w', '<Plug>CamelCaseMotion_w', { silent = true })
+            vim.keymap.set('n', ',b', '<Plug>CamelCaseMotion_b', { silent = true })
+            vim.keymap.set('n', ',e', '<Plug>CamelCaseMotion_e', { silent = true })
+            vim.keymap.set('n', ',ge', '<Plug>CamelCaseMotion_ge', { silent = true })
+
+            vim.keymap.set('o', 'i,w', '<Plug>CamelCaseMotion_iw', { silent = true })
+            vim.keymap.set('x', 'i,w', '<Plug>CamelCaseMotion_iw', { silent = true })
+            vim.keymap.set('o', 'i,b', '<Plug>CamelCaseMotion_ib', { silent = true })
+            vim.keymap.set('x', 'i,b', '<Plug>CamelCaseMotion_ib', { silent = true })
+            vim.keymap.set('o', 'i,e', '<Plug>CamelCaseMotion_ie', { silent = true })
+            vim.keymap.set('x', 'i,e', '<Plug>CamelCaseMotion_ie', { silent = true })
         end
     }
 })
