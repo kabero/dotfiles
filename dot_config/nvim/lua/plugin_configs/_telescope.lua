@@ -131,6 +131,12 @@ telescope.setup {
                 height = 30
             }
         },
+        builtin = {
+            theme = "ivy",
+            layout_config = {
+                height = 30
+            }
+        },
     }
 }
 
@@ -151,3 +157,4 @@ vim.keymap.set('n', '<leader>dl', ':Telescope git_status<CR>', opts)
 
 -- Resume
 vim.keymap.set('n', '<leader>jk', ':Telescope resume<CR>', opts)
+vim.keymap.set('n', '<leader>jl', ':Telescope builtin<CR>', opts)
