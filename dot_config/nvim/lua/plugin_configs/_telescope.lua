@@ -13,6 +13,7 @@ telescope.setup {
                 ["<C-d>"] = actions.preview_scrolling_down,
 
                 -- open in split window
+                ["<C-t>"] = actions.select_tab,
                 ["<C-l>"] = actions.select_vertical,
                 ["<C-j>"] = actions.select_horizontal,
 
