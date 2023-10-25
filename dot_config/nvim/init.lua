@@ -16,7 +16,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- Restore last position of cursor
-vim.cmd[[
+vim.cmd [[
 augroup restore-cursor
   autocmd!
   autocmd BufReadPost *
@@ -46,7 +46,7 @@ vim.cmd [[
 -- Highlight chezmoi template files
 vim.cmd [[
     augroup highlightTmplFile
-        autocmd!   
+        autocmd!
         autocmd BufRead *.tmpl call g:DetermineExtOfTmpl()
         function! g:DetermineExtOfTmpl()
             let fname_without_tmpl = expand('%:t:r')
