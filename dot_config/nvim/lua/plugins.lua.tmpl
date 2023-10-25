@@ -646,7 +646,47 @@ require('lazy').setup({
             vim.g.scratch_height = 15
             vim.g.scratch_autohide = 0
             vim.g.scratch_no_mappings = 1
-            vim.keymap.set('n', '<leader>p', '<cmd>ScratchPreview<CR>', { noremap = true, silent = true })
+            vim.keymap.set('n', '<leader>p', '<cmd>Scratch<CR>', { noremap = true, silent = true })
         end
+    },
+
+    {
+        "tyru/open-browser.vim",
+        config = function()
+            vim.keymap.set('n', 'gx', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
+            vim.keymap.set('v', 'gx', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
+            vim.keymap.set('n', '<leader>o', ':OpenBrowserSearch ', { noremap = false, silent = false })
+            vim.cmd[[ 
+                let g:openbrowser_search_engines = {
+                    \ 'devdocs': 'http://devdocs.io/#q={query}',
+                    \ 'github': 'http://github.com/search?q={query}',
+                    \ 'google': 'http://google.com/search?q={query}',
+                    \ 'python': 'http://docs.python.org/dev/search.html?q={query}&check_keywords=yes&area=default',
+                    \ 'wikipedia-ja': 'http://ja.wikipedia.org/wiki/{query}',
+                    \ }
+            ]]
+        end
+    },
+
+    {
+        "tyru/open-browser-github.vim",
+        dependencies = {
+            "tyru/open-browser.vim"
+        },
+    },
+
+    {
+        "akinsho/toggleterm.nvim",
+        version = "*",
+        config = function()
+            require("toggleterm").setup{
+                size = 22,
+                open_mapping = [[<c-j>]]
+            }
+        end
+    },
+
+    {
+        "rhysd/committia.vim"
     }
 })
