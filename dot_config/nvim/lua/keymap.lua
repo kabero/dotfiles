@@ -38,7 +38,8 @@ vim.api.nvim_set_keymap("n", "<c-o>", "<c-o>zz", opts)
 vim.api.nvim_set_keymap("n", "<c-i>", "<c-i>zz", opts)
 
 -- open init.vim in chezmoi dir
-vim.api.nvim_set_keymap("n", "<leader>,", ":execute 'edit ' .. luaeval('GetNVimConfigPath()')<CR> :execute 'lcd ' .. luaeval('GetChezmoiDir()')<CR>", opts)
+vim.api.nvim_set_keymap("n", "<leader>,",
+    ":execute 'edit ' .. luaeval('GetNVimConfigPath()')<CR> :execute 'lcd ' .. luaeval('GetChezmoiDir()')<CR>", opts)
 
 -- Insert
 ------------------------------------
@@ -48,6 +49,14 @@ vim.api.nvim_set_keymap("n", "<leader>,", ":execute 'edit ' .. luaeval('GetNVimC
 
 -- Command
 ------------------------------------
+vim.api.nvim_set_keymap("c", "<C-b>", "<Left>", { noremap = false })
+vim.api.nvim_set_keymap("c", "<C-f>", "<Right>", { noremap = false })
+vim.api.nvim_set_keymap("c", "<C-a>", "<Home>", { noremap = false })
+vim.api.nvim_set_keymap("c", "<C-e>", "<End>", { noremap = false })
+vim.api.nvim_set_keymap("c", "<C-d>", "<Del>", { noremap = true })
+vim.api.nvim_set_keymap("c", "<C-h>", "<BS>", { noremap = true })
+-- FIXME: The behavior when the cursor is a the beginning of a line
+vim.api.nvim_set_keymap("c", "<C-k>", "<C-f>D<C-c><C-c>:<Up>", { noremap = true })
 
 -- Terminal
 ------------------------------------

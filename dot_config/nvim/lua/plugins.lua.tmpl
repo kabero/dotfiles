@@ -618,5 +618,35 @@ require('lazy').setup({
         config = function()
             require("plugin_configs/_alpha_nvim")
         end
+    },
+
+    {
+        'akinsho/git-conflict.nvim',
+        version = "*",
+        config = function()
+            require('git-conflict').setup({
+                default_mappings = false,
+                default_commands = false,
+                highlights = {
+                    incoming = 'DiffChange',
+                    current = 'DiffAdd',
+                }
+            })
+        end
+    },
+
+    {
+        'vim-jp/vimdoc-ja'
+    },
+
+    {
+        'mtth/scratch.vim',
+        config = function()
+            vim.g.scratch_filetype = 'markdown'
+            vim.g.scratch_height = 15
+            vim.g.scratch_autohide = 0
+            vim.g.scratch_no_mappings = 1
+            vim.keymap.set('n', '<leader>p', '<cmd>ScratchPreview<CR>', { noremap = true, silent = true })
+        end
     }
 })
