@@ -79,11 +79,10 @@ require('lazy').setup({
         lazy = false,
         dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
         config = function()
-            require("telescope").load_extension "file_browser"
             vim.api.nvim_set_keymap(
                 "n",
                 "<leader>fn",
-                ":Telescope file_browser theme=ivy path=%:p:h select_buffer=true hidden=true<CR>",
+                ":Telescope file_browser theme=ivy path=%:p:h select_buffer=true hidden=true respect_gitignore=false<CR>",
                 { noremap = true }
             )
         end

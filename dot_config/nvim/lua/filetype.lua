@@ -17,3 +17,6 @@ vim.filetype.add({
         },
     },
 })
+
+-- .envrc
+vim.api.nvim_command('autocmd BufRead,BufNewFile .envrc setlocal filetype=sh')

@@ -138,7 +138,7 @@ telescope.setup {
                 height = 30
             }
         },
-    }
+    },
 }
 
 local opts = { noremap = true, silent = true }
