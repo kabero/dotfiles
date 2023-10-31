@@ -132,7 +132,7 @@ require('lazy').setup({
         "nvim-treesitter/nvim-treesitter-textobjects",
         dependencies = "nvim-treesitter/nvim-treesitter",
         config = function()
-            require'nvim-treesitter.configs'.setup {
+            require 'nvim-treesitter.configs'.setup {
                 textobjects = {
                     select = {
                         enable = true,
@@ -189,7 +189,7 @@ require('lazy').setup({
 
     {
         'nanotee/zoxide.vim',
-        event = 'InsertEnter, CmdlineEnter'
+        event = { 'InsertEnter', 'CmdlineEnter' }
     },
 
     {
@@ -348,7 +348,7 @@ require('lazy').setup({
 
     {
         'hrsh7th/nvim-cmp',
-        event = 'InsertEnter, CmdlineEnter',
+        event = { 'InsertEnter', 'CmdlineEnter' },
         dependencies = {
             'hrsh7th/cmp-nvim-lsp',
             'hrsh7th/cmp-path',
@@ -679,7 +679,7 @@ require('lazy').setup({
             vim.keymap.set('n', 'gx', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
             vim.keymap.set('v', 'gx', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
             vim.keymap.set('n', '<leader>o', ':OpenBrowserSearch ', { noremap = false, silent = false })
-            vim.cmd[[ 
+            vim.cmd [[
                 let g:openbrowser_search_engines = {
                     \ 'devdocs': 'http://devdocs.io/#q={query}',
                     \ 'github': 'http://github.com/search?q={query}',
@@ -702,7 +702,7 @@ require('lazy').setup({
         "akinsho/toggleterm.nvim",
         version = "*",
         config = function()
-            require("toggleterm").setup{
+            require("toggleterm").setup {
                 size = 23,
                 open_mapping = [[<c-j>]]
             }
@@ -750,7 +750,8 @@ require('lazy').setup({
                 },
             }
 
-            vim.keymap.set('n', '<leader>7', '<cmd>lua require"rainbow-delimiters".toggle(0)<CR>', { noremap = true, silent = true })
+            vim.keymap.set('n', '<leader>7', '<cmd>lua require"rainbow-delimiters".toggle(0)<CR>',
+                { noremap = true, silent = true })
         end
     }
 })
