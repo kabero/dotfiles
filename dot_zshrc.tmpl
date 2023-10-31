@@ -18,7 +18,9 @@ eval "$(direnv hook zsh)"
 
 # asdf
 {{ if eq .chezmoi.os "darwin" }}
+{{ if eq .chezmoi.arch "arm64" }}
 . /opt/homebrew/opt/asdf/libexec/asdf.sh
+{{ end }}
 # fpath=(${ASDF_DIR}/completions $fpath)
 source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
 {{ end }}
