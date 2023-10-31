@@ -129,6 +129,29 @@ require('lazy').setup({
     },
 
     {
+        "nvim-treesitter/nvim-treesitter-textobjects",
+        dependencies = "nvim-treesitter/nvim-treesitter",
+        config = function()
+            require'nvim-treesitter.configs'.setup {
+                textobjects = {
+                    select = {
+                        enable = true,
+                        lookahead = false,
+                        keymaps = {
+                            ["af"] = "@function.outer",
+                            ["if"] = "@function.inner",
+                            ["ac"] = "@class.outer",
+                            ["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
+                            ["as"] = { query = "@scope", query_group = "locals", desc = "Select language scope" },
+                        },
+                        include_surrounding_whitespace = false,
+                    },
+                },
+            }
+        end
+    },
+
+    {
         'j-hui/fidget.nvim',
         event = 'LspAttach',
         tag = 'legacy',
@@ -530,6 +553,7 @@ require('lazy').setup({
 
     {
         "mechatroner/rainbow_csv",
+        ft = "csv",
         config = function()
             vim.g.disable_rainbow_hover = 1
             vim.g.rcsv_colorpairs = {
@@ -700,5 +724,33 @@ require('lazy').setup({
     {
         "folke/todo-comments.nvim",
         dependencies = { "nvim-lua/plenary.nvim" },
+    },
+
+    {
+        "hiphish/rainbow-delimiters.nvim",
+        config = function()
+            local rainbow_delimiters = require 'rainbow-delimiters'
+            vim.g.rainbow_delimiters = {
+                strategy = {
+                    [''] = rainbow_delimiters.strategy['global'],
+                    vim = rainbow_delimiters.strategy['local'],
+                },
+                query = {
+                    [''] = 'rainbow-delimiters',
+                    lua = 'rainbow-blocks',
+                },
+                highlight = {
+                    'RainbowDelimiterYellow',
+                    'RainbowDelimiterBlue',
+                    'RainbowDelimiterOrange',
+                    'RainbowDelimiterGreen',
+                    'RainbowDelimiterViolet',
+                    'RainbowDelimiterCyan',
+                    'RainbowDelimiterRed',
+                },
+            }
+
+            vim.keymap.set('n', '<leader>7', '<cmd>lua require"rainbow-delimiters".toggle(0)<CR>', { noremap = true, silent = true })
+        end
     }
 })
