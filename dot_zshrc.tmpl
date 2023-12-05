@@ -122,6 +122,9 @@ fpath=(${ASDF_DIR}/completions $fpath)
 # zoxide
 eval "$(zoxide init zsh)"
 
+# gh
+eval "$(gh completion -s zsh)"
+
 # configs of fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 export FZF_COMPLETION_TRIGGER="," # default: '**'
@@ -224,34 +227,6 @@ alias fh=fhelp
 
 # the fuck
 eval $(thefuck --alias)
-
-# open repository in browser
-# TODO: add support for 'git://' format
-repo() {
-    local remote_name=${1:-origin}
-    local repo_url=$(git remote -vv | awk -v pattern="$remote_name" '$1 == pattern && $3 == "(fetch)" {print $2}')
-
-    if [ -n "$SSH_CONNECTION" ]; then
-        echo "$repo_url"
-        return 0
-    fi
-
-    if [ ! -x "$(command -v open)" ]; then
-        echo "open command is not found"
-        echo $repo_url
-        return 1
-    fi
-
-    if [ -z "$repo_url" ]; then
-        echo "$1 is an invalid remote repo's name."
-        return 1
-    fi
-
-    echo "$repo_url"
-    open -a "Google Chrome" "$repo_url"
-
-    return 0
-}
 
 # colorlized man
 man() {
