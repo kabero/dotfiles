@@ -133,7 +133,9 @@ export FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='/ ' --bind='ctrl-k:kil
 
 # for finding files in current directories
 export FZF_CTRL_T_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
-export FZF_CTRL_T_OPTS=""
+export FZF_CTRL_T_OPTS="--prompt='FILES> '"
+
+export FZF_CTRL_R_OPTS="--prompt='CMD_HISTORY> '"
 
 # fghq (ghq)
 function _ghq_fzf() {
