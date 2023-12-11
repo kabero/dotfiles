@@ -1,7 +1,7 @@
 # dotfiles
 alacritty, asdf, git, neovim, starship, tmux, vim, zsh, chezmoi, obsidian
 
-fzf, navi
+fzf, navi, pet
 
 ## setup
 ### bufpreview
@@ -11,3 +11,11 @@ fzf, navi
 $HOME/.zsh/completions/
 
 `vim-startuptime -vimpath nvim`
+
+## description
+### fzf
+c-s: pet
+c-r: command history
+c-g: ghq
+c-t: files in the current directory
+fh: list of commands utilizing fzf
