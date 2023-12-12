@@ -572,9 +572,14 @@ require('lazy').setup({
     },
 
     {
-        "easymotion/vim-easymotion",
+        "phaazon/hop.nvim",
         config = function()
-            vim.api.nvim_set_keymap("n", "<leader>s", "<Plug>(easymotion-overwin-w)", { noremap = true, silent = true })
+            local hop = require('hop')
+            hop.setup()
+            vim.keymap.set('n', '<leader>s', function()
+                hop.hint_words({ current_line_only = false, create_hl_autocmd = true })
+            end, {remap=true})
+            -- vim.api.nvim_set_keymap("n", "<leader>s", "<Plug>(easymotion-overwin-w)", { noremap = true, silent = true })
         end
     },
 
@@ -758,5 +763,20 @@ require('lazy').setup({
 
     {
         "tpope/vim-fugitive"
+    },
+
+    {
+        "uga-rosa/ccc.nvim",
+        config = function()
+            vim.opt.termguicolors = true
+            local ccc = require("ccc")
+
+            ccc.setup({
+                highlighter = {
+                    auto_enable = true,
+                    lsp = true,
+                },
+            })
+        end
     }
 })
