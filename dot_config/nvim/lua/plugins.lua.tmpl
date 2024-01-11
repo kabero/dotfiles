@@ -442,13 +442,16 @@ require('lazy').setup({
 
                 -- Python
                 null_ls.builtins.diagnostics.flake8.with({
-                    prefer_local = ".direnv/python-*/bin"
+                    -- prefer_local = ".direnv/python-*/bin"
+                    prefer_local = ".venv/bin"
                 }),
                 null_ls.builtins.formatting.isort.with({
-                    prefer_local = ".direnv/python-*/bin"
+                    -- prefer_local = ".direnv/python-*/bin"
+                    prefer_local = ".venv/bin"
                 }),
                 null_ls.builtins.formatting.yapf.with({
-                    prefer_local = ".direnv/python-*/bin"
+                    -- prefer_local = ".direnv/python-*/bin"
+                    prefer_local = ".venv/bin"
                 }),
 
                 -- Go
