@@ -40,7 +40,7 @@ telescope.setup {
         borderchars = { "─", "│", "─", "│", "┌", "┐", "┘", "└" },
         layout_config = {
             horizontal = {
-                prompt_position = "top" ,
+                prompt_position = "top",
                 preview_width = 0.55,
                 result_width = 0.8,
             },
@@ -129,7 +129,7 @@ telescope.setup {
         git_status = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 60
             }
         },
         builtin = {
@@ -152,9 +152,9 @@ vim.keymap.set('n', '<leader>fo', ':Telescope diagnostics<CR>', opts)
 vim.keymap.set('n', '<leader>fb', ':Telescope buffers<CR>', opts)
 
 -- Git
-vim.keymap.set('n', '<leader>dj', ':Telescope git_commits<CR>', opts)
-vim.keymap.set('n', '<leader>dk', ':Telescope git_bcommits<CR>', opts)
-vim.keymap.set('n', '<leader>dl', ':Telescope git_status<CR>', opts)
+vim.keymap.set('n', '<leader>gc', ':Telescope git_commits<CR>', opts)
+vim.keymap.set('n', '<leader>gb', ':Telescope git_bcommits<CR>', opts)
+vim.keymap.set('n', '<leader>gs', ':Telescope git_status<CR>', opts)
 
 -- Resume
 vim.keymap.set('n', '<leader>jk', ':Telescope resume<CR>', opts)

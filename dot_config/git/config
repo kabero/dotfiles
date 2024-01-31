@@ -12,7 +12,7 @@
     light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
     side-by-side = true
     line-numbers = true
-    syntax-theme = gruvbox-dark
+    syntax-theme = Monokai Extended
 
 [merge]
     conflictstyle = diff3
@@ -28,11 +28,11 @@
 root = ~/ghq/github.com
 
 [alias]
-    s = "!git show | delta"
-    d = "!git diff | delta"
+    s = show
+    d = diff
     lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
     lga = log --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-    ss = "status"
+    ss = status
     firstcommit = commit --allow-empty
 
 [filter "lfs"]
