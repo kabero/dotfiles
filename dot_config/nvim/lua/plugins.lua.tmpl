@@ -582,7 +582,7 @@ require('lazy').setup({
             vim.keymap.set('n', '<leader>s', function()
                 hop.hint_words({ current_line_only = false, create_hl_autocmd = true })
             end, {remap=true})
-            -- vim.api.nvim_set_keymap("n", "<leader>s", "<Plug>(easymotion-overwin-w)", { noremap = true, silent = true })
+            vim.api.nvim_set_keymap("n", "<leader>s", ":HopWordMW<CR>", { noremap = true, silent = true })
         end
     },
 
@@ -781,5 +781,9 @@ require('lazy').setup({
                 },
             })
         end
+    },
+
+    {
+        'junegunn/goyo.vim'
     }
 })
