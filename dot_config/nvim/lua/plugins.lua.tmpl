@@ -180,7 +180,6 @@ require('lazy').setup({
                     map('n', '<leader>ak', '<cmd>lua require"gitsigns".blame_line{full=true}<CR>')
                     map('n', '<leader>al', '<cmd>Gitsigns diffthis<CR>')
                     -- TODO: modify the behavior
-                    map('n', '<leader>a:', ':Gitsigns diffthis')
                     map('n', '<leader>1', '<cmd>Gitsigns toggle_current_line_blame<CR>')
                     map('n', '<leader>2', '<cmd>Gitsigns toggle_deleted<CR>')
                 end
@@ -767,11 +766,7 @@ require('lazy').setup({
 
     {
         "tpope/vim-fugitive",
-        config = function()
-            local opts = { noremap = true, silent = true }
-            -- <leader><leader><leader>
-            vim.api.nvim_set_keymap("n", "<leader><leader>", ":Git", opts)
-        end
+        vim.api.nvim_set_keymap("n", "<leader>gc", ":0Gclog<CR>", { noremap = true, silent = true })
     },
 
     {

@@ -48,6 +48,10 @@ vim.api.nvim_set_keymap("n", "<leader>,",
 
 -- Visual
 ------------------------------------
+vim.api.nvim_set_keymap("v", "j", "gj", opts)
+vim.api.nvim_set_keymap("v", "k", "gk", opts)
+vim.api.nvim_set_keymap("v", "gj", "j", opts)
+vim.api.nvim_set_keymap("v", "gk", "k", opts)
 
 -- Command
 ------------------------------------

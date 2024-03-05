@@ -152,7 +152,7 @@ vim.keymap.set('n', '<leader>fo', ':Telescope diagnostics<CR>', opts)
 vim.keymap.set('n', '<leader>fb', ':Telescope buffers<CR>', opts)
 
 -- Git
-vim.keymap.set('n', '<leader>gc', ':Telescope git_commits<CR>', opts)
+-- vim.keymap.set('n', '<leader>gc', ':Telescope git_commits<CR>', opts)
 vim.keymap.set('n', '<leader>gb', ':Telescope git_bcommits<CR>', opts)
 vim.keymap.set('n', '<leader>gf', ':Telescope git_files<CR>', opts)
 vim.keymap.set('n', '<leader>gd', ':Telescope git_status<CR>', opts)
