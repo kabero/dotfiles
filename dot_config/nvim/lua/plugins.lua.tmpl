@@ -685,8 +685,8 @@ require('lazy').setup({
     {
         "tyru/open-browser.vim",
         config = function()
-            vim.keymap.set('n', 'gx', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
-            vim.keymap.set('v', 'gx', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
+            vim.keymap.set('n', 'go', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
+            vim.keymap.set('v', 'go', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
             vim.keymap.set('n', '<leader>o', ':OpenBrowserSearch ', { noremap = false, silent = false })
             vim.cmd [[
                 let g:openbrowser_search_engines = {
