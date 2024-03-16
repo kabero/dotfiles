@@ -694,16 +694,6 @@ require('lazy').setup({
         config = function()
             vim.keymap.set('n', 'go', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
             vim.keymap.set('v', 'go', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
-            vim.keymap.set('n', '<leader>o', ':OpenBrowserSearch ', { noremap = false, silent = false })
-            vim.cmd [[
-                let g:openbrowser_search_engines = {
-                    \ 'devdocs': 'http://devdocs.io/#q={query}',
-                    \ 'github': 'http://github.com/search?q={query}',
-                    \ 'google': 'http://google.com/search?q={query}',
-                    \ 'python': 'http://docs.python.org/dev/search.html?q={query}&check_keywords=yes&area=default',
-                    \ 'wikipedia-ja': 'http://ja.wikipedia.org/wiki/{query}',
-                    \ }
-            ]]
         end
     },
 
