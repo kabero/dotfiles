@@ -43,6 +43,10 @@ vim.api.nvim_set_keymap("n", "<c-i>", "<c-i>zz", opts)
 vim.api.nvim_set_keymap("n", "<leader>,",
     ":execute 'edit ' .. luaeval('GetNVimConfigPath()')<CR> :execute 'lcd ' .. luaeval('GetChezmoiDir()')<CR>", opts)
 
+-- Open bookmarks
+vim.keymap.set('n', '<leader>o', ':<c-u>e ~/bookmarks.yaml<CR>', opts)
+
+
 -- Insert
 ------------------------------------
 
