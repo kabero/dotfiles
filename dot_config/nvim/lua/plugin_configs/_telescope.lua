@@ -1,4 +1,5 @@
 local telescope = require("telescope")
+-- local lga_actions = require("telescope-live-grep-args.actions")
 local actions = require("telescope.actions")
 telescope.setup {
     defaults = {
@@ -139,6 +140,23 @@ telescope.setup {
             }
         },
     },
+    -- TODO: fix to apply configs related to telescope.live_grep_args
+    extensions = {
+        live_grep_args = {
+            auto_quoting = true,
+            -- mappings = {
+            --     i = {
+            -- ["<C-k>"] = lga_actions.quote_prompt(),
+            -- ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
+            --     },
+            -- },
+            theme = "ivy",
+            layout_config = {
+                height = 30,
+                -- mirror=true
+            },
+        }
+    }
 }
 
 local opts = { noremap = true, silent = true }
@@ -146,6 +164,7 @@ local opts = { noremap = true, silent = true }
 vim.keymap.set('n', '<leader>fh', ':Telescope oldfiles<CR>', opts)
 vim.keymap.set('n', '<leader>fj', ':Telescope find_files<CR>', opts)
 vim.keymap.set('n', '<leader>fk', ':Telescope live_grep<CR>', opts)
+-- vim.keymap.set("n", "<leader>fk", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
 vim.keymap.set('n', '<leader>fl', ':Telescope grep_string<CR>', opts)
 vim.keymap.set('n', '<leader>fi', ':Telescope jumplist show_line=false<CR>', opts)
 vim.keymap.set('n', '<leader>fo', ':Telescope diagnostics<CR>', opts)
