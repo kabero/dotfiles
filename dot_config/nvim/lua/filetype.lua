@@ -20,3 +20,6 @@ vim.filetype.add({
 
 -- .envrc
 vim.api.nvim_command('autocmd BufRead,BufNewFile .envrc setlocal filetype=sh')
+
+-- yaml
+vim.api.nvim_command('autocmd FileType yaml setlocal foldmethod=indent | normal zR')

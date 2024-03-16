@@ -272,3 +272,21 @@ ppp() {
     echo "\"$prev_cmd\" copied!"
     echo -n $prev_cmd | pbcopy
 }
+
+# bookmarks
+BM_FILE="$HOME/bookmarks.yaml"
+function bm() {
+  if [ $# -eq 0 ]; then
+    vim "$BM_FILE"
+  elif [ $# -ge 3 ] && [ "$1" = "add" ]; then
+    title="$2"
+    url="$3"
+    echo "    - $title # $url" >> "$BM_FILE"
+    echo "Bookmark added successfully."
+  elif [ $# -eq 1 ] && [ "$1" = "bkup" ]; then
+    cp "$BM_FILE" "$BM_FILE.bkup"
+    echo "Bookmark file backed up successfully."
+  else
+    echo "Invalid command. Usage: bm [add <title> <url>] [bkup]"
+  fi
+}
