@@ -1,0 +1,15 @@
+unmapAll
+
+map t Vomnibar.activateTabSelection
+map <c-d> scrollPageDown
+map <c-u> scrollPageUp
+map <c-f> scrollFullPageDown
+map <c-b> scrollFullPageUp
+map gi focusInput
+map h scrollLeft
+map j scrollDown
+map k scrollUp
+map l scrollRight
+map ? showHelp
+map <c-e> scrollDown
+map <c-y> scrollUp
