@@ -59,6 +59,9 @@ vim.cmd [[
     augroup END
 ]]
 
+-- Open bookmarks
+vim.api.nvim_command('command! Bm :e ~/bookmarks.yaml')
+
 -- Close help by pressing q
 vim.cmd [[ autocmd FileType help nnoremap <buffer> q <C-w>c ]]
 
