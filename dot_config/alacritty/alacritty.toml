@@ -1,5 +1,5 @@
-import = ["/Users/ko_abe/.config/alacritty/github_dark.toml"]
-tabspaces = 4
+import = ["~/.config/alacritty/themes/themes/tokyo-night.toml"]
+live_config_reload = true
 
 [colors]
 draw_bold_text_with_bright_colors = true
@@ -74,7 +74,7 @@ save_to_clipboard = true
 [window]
 decorations = "buttonless"
 dynamic_padding = true
-opacity = 0.65
+opacity = 1.00
 startup_mode = "Windowed"
 
 [window.dimensions]
