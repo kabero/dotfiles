@@ -1,6 +1,5 @@
-import = ["/Users/ko_abe/.config/alacritty/github_dark.toml"]
+import = ["~/.config/alacritty/catppuccin-mocha.toml"]
 live_config_reload = true
-tabspaces = 4
 
 [colors]
 draw_bold_text_with_bright_colors = true
@@ -66,7 +65,6 @@ mods = "Alt|Control"
 hide_when_typing = true
 
 [scrolling]
-auto_scroll = false
 history = 10000
 multiplier = 3
 
@@ -76,7 +74,7 @@ save_to_clipboard = true
 [window]
 decorations = "buttonless"
 dynamic_padding = true
-opacity = 0.65
+opacity = 1.00
 startup_mode = "Windowed"
 
 [window.dimensions]
