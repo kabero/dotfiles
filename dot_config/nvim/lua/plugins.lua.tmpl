@@ -682,10 +682,11 @@ require('lazy').setup({
         'mtth/scratch.vim',
         config = function()
             vim.g.scratch_filetype = 'markdown'
-            vim.g.scratch_height = 15
+            vim.g.scratch_height = 20
             vim.g.scratch_autohide = 0
             vim.g.scratch_no_mappings = 1
-            vim.keymap.set('n', '<leader>p', '<cmd>Scratch<CR>', { noremap = true, silent = true })
+            vim.g.scratch_top = 0
+            vim.keymap.set('n', '<leader>p', '<cmd>ScratchPreview<CR>', { noremap = true, silent = true })
         end
     },
 
@@ -773,4 +774,8 @@ require('lazy').setup({
             })
         end
     },
+
+    {
+        "github/copilot.vim",
+    }
 })
