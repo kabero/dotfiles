@@ -161,7 +161,8 @@ telescope.setup {
 
 local opts = { noremap = true, silent = true }
 -- Finder
-vim.keymap.set('n', '<leader>fh', ':Telescope oldfiles<CR>', opts)
+vim.keymap.set('n', '<leader>fh', ":lua require('telescope.builtin').oldfiles({cwd_only = true})<CR>", opts)
+vim.keymap.set('n', '<leader>fH', ':Telescope oldfiles<CR>', opts)
 vim.keymap.set('n', '<leader>fj', ':Telescope find_files<CR>', opts)
 vim.keymap.set('n', '<leader>fk', ':Telescope live_grep<CR>', opts)
 -- vim.keymap.set("n", "<leader>fk", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")

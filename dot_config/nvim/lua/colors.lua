@@ -9,6 +9,8 @@ vim.cmd [[
         autocmd Colorscheme * highlight Normal ctermbg=none guibg=none
         autocmd Colorscheme * highlight NormalNC ctermbg=none guibg=none
         autocmd Colorscheme * highlight TabLineFill ctermbg=none guibg=none
+        autocmd Colorscheme * set cursorline
+        autocmd Colorscheme * highlight CursorLine ctermbg=none guibg=#2a2a2a
     augroup END
 ]]
 

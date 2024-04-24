@@ -456,7 +456,7 @@ require('lazy').setup({
                     -- prefer_local = ".direnv/python-*/bin"
                     prefer_local = ".venv/bin"
                 }),
-                null_ls.builtins.formatting.yapf.with({
+                null_ls.builtins.formatting.black.with({
                     -- prefer_local = ".direnv/python-*/bin"
                     prefer_local = ".venv/bin"
                 }),
@@ -775,7 +775,7 @@ require('lazy').setup({
         end
     },
 
-    {
-        "github/copilot.vim",
-    }
+--     {
+--         "github/copilot.vim",
+--     }
 })
