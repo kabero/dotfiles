@@ -11,6 +11,7 @@ vim.cmd [[
         autocmd Colorscheme * highlight TabLineFill ctermbg=none guibg=none
         autocmd Colorscheme * set cursorline
         autocmd Colorscheme * highlight CursorLine ctermbg=none guibg=#2a2a2a
+        autocmd Colorscheme * highlight CopilotSuggestion guifg=#bb00cc ctermfg=blue
     augroup END
 ]]
 
