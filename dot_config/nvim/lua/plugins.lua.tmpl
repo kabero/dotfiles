@@ -779,8 +779,8 @@ require('lazy').setup({
         "github/copilot.vim",
         lazy=false,
         config = function()
+            vim.keymap.set("i", "<C-l>", 'copilot#Accept()', {silent = true, expr = true, replace_keycodes = false})
             vim.g.copilot_no_tab_map = true
-            vim.keymap.set("i", "<C-g>", 'copilot#Accept("<CR>")', {silent = true, expr = true, script = true, replace_keycodes = false})
         end
     }
 })
