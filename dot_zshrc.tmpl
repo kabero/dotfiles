@@ -13,9 +13,6 @@ autoload -Uz colors
 colors
 bindkey -e
 
-# direnv
-eval "$(direnv hook zsh)"
-
 # asdf
 {{ if eq .chezmoi.os "darwin" }}
 {{ if eq .chezmoi.arch "arm64" }}
@@ -90,20 +87,11 @@ alias vi="nvim -u ~/.vimrc"
 alias vim="nvim"
 alias view="nvim -R"
 alias tl='tldr'
-alias av='aws-vault'
-alias t=task
-alias grepc="grep --color=always"
-alias jqc="jq -C"
-{{ if eq .chezmoi.os "darwin" }}
-alias ls="exa --sort=ext" 
-alias tree="exa -T"
-alias df="duf"
-alias navi="navi --fzf-overrides \"--bind='ctrl-k:kill-line' --prompt 'NAVI> '\" --fzf-overrides-var \"--bind='ctrl-k:kill-line' --prompt 'NAVI> '\""
-{{ end }}
+alias ls="$(command -v exa --sort=ext || echo ls)"
+alias tree="$(command -v exa -T || echo tree)"
+alias df="$(command -v duf || echo df)"
 
 # fish-like behavior
-{{ if eq .chezmoi.os "darwin"  }}
-{{ end }}
 source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 if type brew &>/dev/null; then
     FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
@@ -119,18 +107,18 @@ source `brew --prefix`/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fpath=(${ASDF_DIR}/completions $fpath)
 {{ end }}
 
-# navi
-# TODO: Add configs for navi
+# initialize
+function command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+command_exists zoxide && eval "$(zoxide init zsh)"
+command_exists gh && eval "$(gh completion -s zsh)"
+command_exists thefuck && eval $(thefuck --alias)
+command_exists direnv && eval "$(direnv hook zsh)"
 
-# zoxide
-eval "$(zoxide init zsh)"
-
-# gh
-eval "$(gh completion -s zsh)"
-
-# configs of fzf
+# fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-export FZF_COMPLETION_TRIGGER="," # default: '**'
+export FZF_COMPLETION_TRIGGER=","
 export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
 export FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='/ ' --bind=ctrl-k:kill-line,ctrl-d:preview-down,ctrl-u:preview-up"
 
@@ -138,7 +126,7 @@ export FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='/ ' --bind=ctrl-k:kill
 export FZF_CTRL_T_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
 export FZF_CTRL_T_OPTS="--prompt='FILES> '"
 
-# select command from history with fzf
+# better <c-r>
 function select-history() {
   BUFFER=$(history -n -r 1 | fzf --no-sort +m --query "$LBUFFER" --prompt="CMD> ")
   CURSOR=$#BUFFER
@@ -147,7 +135,7 @@ function select-history() {
 zle -N select-history
 bindkey '^r' select-history
 
-# fghq (ghq)
+# <c-g> to open repo
 function _ghq_fzf() {
     local src=$(ghq list | fzf --prompt "GHQ> ")
     zle redisplay
@@ -160,87 +148,11 @@ function _ghq_fzf() {
 zle -N _ghq_fzf
 bindkey '^g' _ghq_fzf
 
-# fco (git checkout) - checkout git branch including remote branches
-# ref: https://qiita.com/kamykn/items/aa9920f07487559c0c7e
-fco() {
-    local branches branch
-    branches=$(git branch --all | grep -v HEAD) &&
-    branch=$(echo "$branches" |
-            fzf --prompt "CHECKOUT BRANCH> " -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
-    git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
-}
-
-# fbr - checkout git branch
-fbr() {
-  local branches branch
-  branches=$(git --no-pager branch -vv) &&
-  branch=$(echo "$branches" | fzf +m) &&
-  git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
-}
-
-# flog - git commit browser
-# ref: https://qiita.com/kamykn/items/aa9920f07487559c0c7e
-flog() {
-    git log --graph --color=always \
-        --format="%C(auto)%h%d %s %C(#C0C0C0)%C(bold)%cr" "$@" |
-    fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
-        --prompt "BROWSE COMMIT> " \
-        --bind "ctrl-m:execute:
-              (grep -o '[a-f0-9]\{7\}' | head -1 |
-              xargs -I % sh -c 'git diff % | delta') << 'FZF-EOF'
-              {}
-FZF-EOF"
-}
-
-# Enter docker containers with fzf
-# ref: https://momozo.tech/2021/03/10/fzf%E3%81%A7zsh%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB%E4%BD%9C%E6%A5%AD%E3%82%92%E5%8A%B9%E7%8E%87%E5%8C%96/
-fcon() {
-    local cid
-    cid=$(docker ps | sed 1d | fzf -q "$1" --prompt "ENTER CONTAINER> " | awk '{print $1}')
-    [ -n "$cid" ] && docker exec -it "$cid" /bin/bash
-}
-
-# Show docker logs with fzf
-# ref: https://momozo.tech/2021/03/10/fzf%E3%81%A7zsh%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB%E4%BD%9C%E6%A5%AD%E3%82%92%E5%8A%B9%E7%8E%87%E5%8C%96/
-fdl() {
-    local cid
-    cid=$(docker ps -a | sed 1d | fzf -q "$1" --prompt "SHOW DOCKER LOG> " | awk '{print $1}')
-    [ -n "$cid" ] && docker logs -f --tail=200 "$cid"
-}
-
-# ssh
-ffh() {
-    local host=$(grep -E "^Host " ~/.ssh/config | sed -e 's/Host[ ]*//g' | fzf --prompt "SSH> ")
-    if [ -n "$host" ]; then
-        ssh $host
-    fi
-}
-
-# change directory (with zoxide)
+# cd (fzf + zoxide)
 zz() {
     local dirpath=$(zoxide query -l | sed "s|$HOME|~|g" | fzf --prompt "CD> " --preview="eval echo {} | sed 's|~|$HOME|' | xargs exa -a --oneline --sort=ext")
     cd $(eval echo $(echo $dirpath | sed 's|~|$HOME|'))
 }
-
-_fhelp() {
-    echo "fbr    - checkout git branches"
-    echo "fco    - checkout git branches (including remote branches)"
-    echo "flog   - browse git commit history"
-    echo "fcon   - enter docker containers interactively"
-    echo "fdl    - display docker logs"
-    echo "ffh    - ssh"
-    echo "zz     - change directory"
-}
-
-fhelp() {
-    local selected
-    selected=$(_fhelp | fzf --prompt "FZF HELP> " | cut -d " " -f 1)
-    eval $selected
-}
-alias fh=fhelp
-
-# the fuck
-eval $(thefuck --alias)
 
 # colorlized man
 man() {
@@ -253,7 +165,7 @@ man() {
     command man "$@"
 }
 
-# pet
+# <c-s> to search pet
 function pet-select() {
   BUFFER=$(pet search --query "$LBUFFER")
   CURSOR=$#BUFFER
@@ -263,32 +175,15 @@ zle -N pet-select
 stty -ixon
 bindkey '^s' pet-select
 
+# insert previous command into pet
 function prev() {
   PREV=$(fc -lrn | head -n 1)
   sh -c "pet new `printf %q "$PREV"`"
 }
 
 # copy the previous command
-ppp() {
+function ppp() {
     prev_cmd=$(history -n | tail -n 1)
     echo "\"$prev_cmd\" copied!"
     echo -n $prev_cmd | pbcopy
-}
-
-# bookmarks
-BM_FILE="$HOME/bookmarks.yaml"
-function bm() {
-  if [ $# -eq 0 ]; then
-    vim "$BM_FILE"
-  elif [ $# -ge 3 ] && [ "$1" = "add" ]; then
-    title="$2"
-    url="$3"
-    echo "    - $title # $url" >> "$BM_FILE"
-    echo "Bookmark added successfully."
-  elif [ $# -eq 1 ] && [ "$1" = "bkup" ]; then
-    cp "$BM_FILE" "$BM_FILE.bkup"
-    echo "Bookmark file backed up successfully."
-  else
-    echo "Invalid command. Usage: bm [add <title> <url>] [bkup]"
-  fi
 }
