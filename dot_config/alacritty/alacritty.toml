@@ -11,8 +11,8 @@ TERM = "xterm-256color"
 program = "/bin/zsh"
 args = [
   "--login",
-  "-c",
-  "tmux a -t 0 || tmux"
+  # "-c",
+  # "tmux a -t 0 || tmux"
 ]
 
 [font]
