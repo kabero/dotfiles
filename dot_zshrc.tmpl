@@ -1,5 +1,3 @@
-eval "$(starship init zsh)"
-
 # starship
 PYENV_VIRTUALENV_DISABLE_PROMPT=1
 
@@ -115,6 +113,7 @@ command_exists zoxide && eval "$(zoxide init zsh)"
 command_exists gh && eval "$(gh completion -s zsh)"
 command_exists thefuck && eval $(thefuck --alias)
 command_exists direnv && eval "$(direnv hook zsh)"
+command_exists starship && eval "$(starship init zsh)"
 
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
