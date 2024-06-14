@@ -159,6 +159,14 @@ telescope.setup {
     }
 }
 
+function SearchChangesFilesInBranch()
+    require('telescope.builtin').git_files({
+        git_command = { "git", "diff", "--name-only", "origin/master"},
+        prompt_title = "Changed Files in Current Branch",
+        use_git_root = true
+    })
+end
+
 local opts = { noremap = true, silent = true }
 -- Finder
 vim.keymap.set('n', '<leader>fh', ":lua require('telescope.builtin').oldfiles({cwd_only = true})<CR>", opts)
@@ -175,7 +183,7 @@ vim.keymap.set('n', '<leader>fb', ':Telescope buffers<CR>', opts)
 -- vim.keymap.set('n', '<leader>gc', ':Telescope git_commits<CR>', opts)
 vim.keymap.set('n', '<leader>gb', ':Telescope git_bcommits<CR>', opts)
 vim.keymap.set('n', '<leader>gf', ':Telescope git_files<CR>', opts)
-vim.keymap.set('n', '<leader>gd', ':Telescope git_status<CR>', opts)
+vim.keymap.set('n', '<leader>gd', ':lua SearchChangesFilesInBranch()<CR>', opts)
 vim.keymap.set('n', '<leader>gs', ':Telescope git_status<CR>', opts)
 
 -- Resume
