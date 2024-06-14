@@ -136,6 +136,31 @@ require('lazy').setup({
     },
 
     {
+        'EmranMR/tree-sitter-blade',
+        lazy = false,
+        dependencies = 'nvim-treesitter/nvim-treesitter',
+        config = function()
+            local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+            parser_config.blade = {
+                install_info = {
+                    url = "https://github.com/EmranMR/tree-sitter-blade",
+                    files = { "src/parser.c" },
+                    branch = "main",
+                },
+                filetype = "blade"
+            }
+            vim.cmd [[
+                augroup BladeFiltypeRelated
+                    au BufNewFile,BufRead *.blade.php set ft=blade
+                augroup END
+            ]]
+        end
+        -- :TSInstall blade
+        -- :TSEditQuery highlights blade
+        -- :TSEditQuery injections blade
+    },
+
+    {
         "nvim-treesitter/nvim-treesitter-textobjects",
         dependencies = "nvim-treesitter/nvim-treesitter",
         config = function()
@@ -777,10 +802,10 @@ require('lazy').setup({
 
     {
         "github/copilot.vim",
-        lazy=false,
+        lazy = false,
         config = function()
-            vim.keymap.set("i", "<C-l>", 'copilot#Accept()', {silent = true, expr = true, replace_keycodes = false})
+            vim.keymap.set("i", "<C-l>", 'copilot#Accept()', { silent = true, expr = true, replace_keycodes = false })
             vim.g.copilot_no_tab_map = true
         end
-    }
+    },
 })

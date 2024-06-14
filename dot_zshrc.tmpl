@@ -85,9 +85,9 @@ alias vi="nvim -u ~/.vimrc"
 alias vim="nvim"
 alias view="nvim -R"
 alias tl='tldr'
-alias ls="$(command -v exa --sort=ext || echo ls)"
-alias tree="$(command -v exa -T || echo tree)"
-alias df="$(command -v duf || echo df)"
+alias ls="exa --sort=ext"
+alias tree="exa -T"
+alias df="duf"
 
 # fish-like behavior
 source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
