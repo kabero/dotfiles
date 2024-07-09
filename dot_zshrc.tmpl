@@ -116,42 +116,68 @@ command_exists direnv && eval "$(direnv hook zsh)"
 command_exists starship && eval "$(starship init zsh)"
 
 # fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-export FZF_COMPLETION_TRIGGER=","
-export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
-export FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='/ ' --bind=ctrl-k:kill-line,ctrl-d:preview-down,ctrl-u:preview-up"
+if command_exists fzf; then
+    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+    export FZF_COMPLETION_TRIGGER=","
+    export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
+    export FZF_DEFAULT_OPTS="--height 40% --reverse --prompt='/ ' --bind=ctrl-k:kill-line,ctrl-d:preview-down,ctrl-u:preview-up"
 
-# for finding files in current directories
-export FZF_CTRL_T_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
-export FZF_CTRL_T_OPTS="--prompt='FILES> '"
+    # for finding files in current directories
+    export FZF_CTRL_T_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
+    export FZF_CTRL_T_OPTS="--prompt='FILES> '"
 
-# Enhanced <c-r>
-function select-history() {
-  BUFFER=$(history -n -r 1 | fzf --no-sort +m --query "$LBUFFER" --prompt="CMD> ")
-  CURSOR=$#BUFFER
-  zle redisplay
-}
-zle -N select-history
-bindkey '^r' select-history
+    # Enhanced <c-r>
+    function select-history() {
+        BUFFER=$(history -n -r 1 | fzf --no-sort +m --query "$LBUFFER" --prompt="CMD> ")
+        CURSOR=$#BUFFER
+        zle redisplay
+    }
+    zle -N select-history
+    bindkey '^r' select-history
 
-# Open repo with <c-g>
-function _ghq_fzf() {
-    local src=$(ghq list | fzf --prompt "GHQ> ")
-    zle redisplay
-    if [ -n "$src" ]; then
-        BUFFER="cd $(ghq root)/$src"
-        zle accept-line
-    fi
-    zle -R -c
-}
-zle -N _ghq_fzf
-bindkey '^g' _ghq_fzf
+    # Open repo with <c-g>
+    function _ghq_fzf() {
+        local src=$(ghq list | fzf --prompt "GHQ> ")
+        zle redisplay
+        if [ -n "$src" ]; then
+            BUFFER="cd $(ghq root)/$src"
+            zle accept-line
+        fi
+        zle -R -c
+    }
+    zle -N _ghq_fzf
+    bindkey '^g' _ghq_fzf
 
-# cd (fzf + zoxide) with zz
-zz() {
-    local dirpath=$(zoxide query -l | sed "s|$HOME|~|g" | fzf --prompt "CD> " --preview="eval echo {} | sed 's|~|$HOME|' | xargs exa -a --oneline --sort=ext")
-    cd $(eval echo $(echo $dirpath | sed 's|~|$HOME|'))
-}
+    # cd (fzf + zoxide) with zz
+    zz() {
+        local dirpath=$(zoxide query -l | sed "s|$HOME|~|g" | fzf --prompt "CD> " --preview="eval echo {} | sed 's|~|$HOME|' | xargs exa -a --oneline --sort=ext")
+        cd $(eval echo $(echo $dirpath | sed 's|~|$HOME|'))
+    }
+
+    # <c-s> to search pet
+    function pet-select() {
+        BUFFER=$(pet search --query "$LBUFFER")
+        CURSOR=$#BUFFER
+        zle redisplay
+    }
+    zle -N pet-select
+    stty -ixon
+    bindkey '^s' pet-select
+
+    # insert previous command into pet
+    prev() {
+    PREV=$(fc -lrn | head -n 1)
+    sh -c "pet new `printf %q "$PREV"`"
+    }
+
+    # copy the previous command
+    ppp() {
+        prev_cmd=$(history -n | tail -n 1)
+        echo "\"$prev_cmd\" copied!"
+        echo -n $prev_cmd | pbcopy
+    }
+fi
+
 
 # colorlized man pages
 man() {
@@ -164,25 +190,13 @@ man() {
     command man "$@"
 }
 
-# <c-s> to search pet
-function pet-select() {
-  BUFFER=$(pet search --query "$LBUFFER")
-  CURSOR=$#BUFFER
-  zle redisplay
-}
-zle -N pet-select
-stty -ixon
-bindkey '^s' pet-select
 
-# insert previous command into pet
-prev() {
-  PREV=$(fc -lrn | head -n 1)
-  sh -c "pet new `printf %q "$PREV"`"
+# open note
+v() {
+    vim ~/notes/$(uuidgen).md
 }
 
-# copy the previous command
-ppp() {
-    prev_cmd=$(history -n | tail -n 1)
-    echo "\"$prev_cmd\" copied!"
-    echo -n $prev_cmd | pbcopy
+# tmpfile
+vv() {
+    echo ~/notes/$(uuidgen).txt
 }
