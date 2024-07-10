@@ -109,10 +109,25 @@ fpath=(${ASDF_DIR}/completions $fpath)
 function command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
-command_exists zoxide && eval "$(zoxide init zsh)"
-command_exists gh && eval "$(gh completion -s zsh)"
-command_exists thefuck && eval $(thefuck --alias)
-command_exists direnv && eval "$(direnv hook zsh)"
+
+z() {
+    unset -f z
+    eval "$(zoxide init zsh)"
+    __zoxide_z "$@"
+}
+
+gh() {
+    unset -f gh
+    eval "$(gh completion -s zsh)"
+    gh "$@"
+}
+
+direnv() {
+    unset -f direnv
+    eval "$(direnv hook zsh)"
+    direnv "$@"
+}
+
 command_exists starship && eval "$(starship init zsh)"
 
 # fzf
