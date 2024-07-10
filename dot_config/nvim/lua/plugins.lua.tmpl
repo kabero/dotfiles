@@ -221,11 +221,6 @@ require('lazy').setup({
     },
 
     {
-        'nanotee/zoxide.vim',
-        event = { 'InsertEnter', 'CmdlineEnter' }
-    },
-
-    {
         'neovim/nvim-lspconfig',
         event = 'InsertEnter',
     },
@@ -609,7 +604,7 @@ require('lazy').setup({
 
     {
         "phaazon/hop.nvim",
-        lazy = true,
+        lazy = false,
         config = function()
             local hop = require('hop')
             hop.setup()
@@ -650,23 +645,6 @@ require('lazy').setup({
             -- vim.g.indent_guides_auto_colors = 0
             -- vim.cmd [[ autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg='#008080' ctermbg=3 ]]
             -- vim.cmd [[ autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg='#c678dd' ctermbg=4 ]]
-        end
-    },
-
-    {
-        'bkad/CamelCaseMotion',
-        config = function()
-            vim.keymap.set('n', ',w', '<Plug>CamelCaseMotion_w', { silent = true })
-            vim.keymap.set('n', ',b', '<Plug>CamelCaseMotion_b', { silent = true })
-            vim.keymap.set('n', ',e', '<Plug>CamelCaseMotion_e', { silent = true })
-            vim.keymap.set('n', ',ge', '<Plug>CamelCaseMotion_ge', { silent = true })
-
-            vim.keymap.set('o', 'i,w', '<Plug>CamelCaseMotion_iw', { silent = true })
-            vim.keymap.set('x', 'i,w', '<Plug>CamelCaseMotion_iw', { silent = true })
-            vim.keymap.set('o', 'i,b', '<Plug>CamelCaseMotion_ib', { silent = true })
-            vim.keymap.set('x', 'i,b', '<Plug>CamelCaseMotion_ib', { silent = true })
-            vim.keymap.set('o', 'i,e', '<Plug>CamelCaseMotion_ie', { silent = true })
-            vim.keymap.set('x', 'i,e', '<Plug>CamelCaseMotion_ie', { silent = true })
         end
     },
 
@@ -785,21 +763,6 @@ require('lazy').setup({
     {
         "tpope/vim-fugitive",
         vim.api.nvim_set_keymap("n", "<leader>gc", ":0Gclog<CR>", { noremap = true, silent = true })
-    },
-
-    {
-        "uga-rosa/ccc.nvim",
-        config = function()
-            vim.opt.termguicolors = true
-            local ccc = require("ccc")
-
-            ccc.setup({
-                highlighter = {
-                    auto_enable = true,
-                    lsp = true,
-                },
-            })
-        end
     },
 
     {

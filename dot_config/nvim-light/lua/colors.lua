@@ -16,4 +16,4 @@ vim.cmd [[
     augroup END
 ]]
 
-vim.cmd([[colorscheme everforest]])
+vim.cmd([[colorscheme dracula]])
