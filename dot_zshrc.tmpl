@@ -184,15 +184,17 @@ if command_exists fzf; then
     PREV=$(fc -lrn | head -n 1)
     sh -c "pet new `printf %q "$PREV"`"
     }
-
-    # copy the previous command
-    ppp() {
-        prev_cmd=$(history -n | tail -n 1)
-        echo "\"$prev_cmd\" copied!"
-        echo -n $prev_cmd | pbcopy
-    }
 fi
 
+# copy the previous command
+ppp() {
+    history -n
+    echo ''
+
+    prev_cmd=$(history -n | tail -n 1)
+    echo "\"$prev_cmd\" copied!"
+    echo -n $prev_cmd | pbcopy
+}
 
 # colorlized man pages
 man() {
@@ -208,7 +210,7 @@ man() {
 
 # open note
 v() {
-    vim ~/notes/$(uuidgen).md
+    vi ~/notes/$(uuidgen).md
 }
 
 # tmpfile
