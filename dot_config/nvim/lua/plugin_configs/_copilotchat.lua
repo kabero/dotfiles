@@ -55,7 +55,5 @@ chat.setup({
             end,
         },
     },
-    window = {
-        layout = 'float'
-    },
+    window = {},
 })
