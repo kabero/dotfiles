@@ -67,7 +67,6 @@ setopt hist_ignore_all_dups
 setopt hist_ignore_dups
 setopt hist_ignore_space
 setopt hist_reduce_blanks
-setopt hist_no_store
 setopt pushd_ignore_dups
 setopt share_history
 HISTSIZE=100000
@@ -222,28 +221,4 @@ vv() {
 # docker compose
 d() {
     docker compose exec $@
-}
-
-# tmux
-function tt() {
-    current_pane=$(tmux display-message -p '#{pane_id}')
-
-    tmux list-panes -F '#{pane_id}' | grep -v "$current_pane" | while read -r pane; do
-        tmux kill-pane -t "$pane"
-    done
-
-    tmux split-window -h
-    tmux split-window -v -t 0
-    tmux split-window -v -t 2
-}
-
-function ttt() {
-    current_pane=$(tmux display-message -p '#{pane_id}')
-
-    tmux list-panes -F '#{pane_id}' | grep -v "$current_pane" | while read -r pane; do
-        tmux kill-pane -t "$pane"
-    done
-
-    tmux split-window -h -p 66
-    tmux split-window -h -p 50
 }

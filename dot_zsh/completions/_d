@@ -1,0 +1,7 @@
+#compdef d
+
+_d () {
+  compadd `docker compose ps --format json 2>/dev/null | jq -r '.Service' | sort `;
+}
+
+_d
