@@ -40,14 +40,14 @@ chat.setup({
         },
         Commit = {
             prompt =
-            'commitize の規則に従って、変更に対するコミットメッセージを記述してください。 タイトルは最大50文字で、メッセージは72文字で折り返されるようにしてください。 メッセージ全体を gitcommit 言語のコードブロックでラップしてください。メッセージは日本語でお願いします。',
+            'commitize の規則に従って、変更に対するコミットメッセージを記述してください。 タイトルは最大50文字で、メッセージは72文字で折り返されるようにしてください。 メッセージ全体を gitcommit 言語のコード ブロックでラップしてください。メッセージは日本語でお願いします。',
             mapping = '<leader>cc',
             description = "コミットメッセージの作成",
             selection = require('CopilotChat.select').gitdiff,
         },
         CommitStaged = {
             prompt =
-            'commitize の規則に従って、ステージ済みの変更に対するコミットメッセージを記述してください。 タイトルは最大50文字で、メッセージは72文字で折り返されるようにしてください。 メッセージ全体を gitcommit 言語のコードブロックでラップしてください。メッセージは日本語でお願いします。',
+            'commitize の規則に従って、ステージ済みの変更に対するコミットメッセージを記述してください。 タイトルは最大50文字で、メッセージは72文字で折り返されるようにしてください。 メッセージ全体を gitcommit 言語のコード ブロックでラップしてください。メッセージは日本語でお願いします。',
             mapping = '<leader>cs',
             description = "ステージ済みのコミットメッセージの作成",
             selection = function(source)
@@ -55,5 +55,15 @@ chat.setup({
             end,
         },
     },
-    window = {},
 })
+
+-- keybindings
+-------------------- 
+local map = vim.api.nvim_set_keymap
+local opts = { noremap = true, silent = true }
+
+-- show copilot chat commands in telescope
+map('n', '<leader>t', [[<Cmd>lua local actions = require("CopilotChat.actions"); require("CopilotChat.integrations.telescope").pick(actions.prompt_actions())<CR>]], opts)
+
+-- quick chat
+map('n', '<leader>cq', [[<Cmd>lua local input = vim.fn.input("Quick Chat: "); if input ~= "" then require("CopilotChat").ask(input, { selection = require("CopilotChat.select").buffer }) end<CR>]], opts)
