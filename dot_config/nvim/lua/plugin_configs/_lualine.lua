@@ -17,6 +17,7 @@ local colors = {
     magenta  = '#c678dd',
     blue     = '#51afef',
     red      = '#ec5f67',
+    white    = '#AAAAAA',
 }
 
 local conditions = {
@@ -83,20 +84,20 @@ ins_left {
     function()
         return '▊'
     end,
-    color = { fg = colors.blue },      -- Sets highlighting of component
+    color = { fg = colors.white },     -- Sets highlighting of component
     padding = { left = 0, right = 1 }, -- We don't need space before this
 }
 
-ins_left {
-    'hostname',
-    color = { fg = colors.blue, gui = 'bold' }
-}
+-- ins_left {
+--     'hostname',
+--     color = { fg = colors.white, gui = 'bold' }
+-- }
 
 ins_left {
     function()
         return vim.fn.fnamemodify(vim.fn.getcwd(), ':t')
     end,
-    color = { fg = colors.green, gui = 'bold' }
+    color = { fg = colors.white, gui = 'bold' }
 }
 
 -- ins_left {
@@ -110,7 +111,7 @@ ins_left {
     filestatus = true,
     path = 1,
     cond = conditions.buffer_not_empty,
-    color = { fg = colors.magenta, gui = 'bold' },
+    color = { fg = colors.white, gui = 'bold' },
 }
 
 -- ins_left {
@@ -122,7 +123,7 @@ ins_left {
 ins_right {
     'diagnostics',
     sources = { 'nvim_diagnostic' },
-    symbols = { error = ' ', warn = ' ', info = ' ' },
+    symbols = { error = 'E ', warn = 'W ', info = 'I ' },
     diagnostics_color = {
         color_error = { fg = colors.red },
         color_warn = { fg = colors.yellow },
@@ -147,9 +148,8 @@ ins_right {
         end
         return msg
     end,
-    -- icon = ' LSP:',
-    -- icon = 'LSP:',
-    color = { fg = colors.magenta, gui = 'bold' },
+    icon = 'LSP:',
+    color = { fg = colors.white, gui = 'bold' },
 }
 
 -- ins_right {
@@ -174,13 +174,13 @@ ins_right {
 
 ins_right {
     'branch',
-    color = { fg = colors.violet, gui = 'bold' },
+    color = { fg = colors.white, gui = 'bold' },
 }
 
 ins_right {
     'diff',
     -- Is it me or the symbol for modified us really weird
-    symbols = { added = ' ', modified = '󰝤 ', removed = ' ' },
+    symbols = { added = '+', modified = '~', removed = '-' },
     diff_color = {
         added = { fg = colors.green },
         modified = { fg = colors.orange },
@@ -193,7 +193,7 @@ ins_right {
     function()
         return '▊'
     end,
-    color = { fg = colors.blue },
+    color = { fg = colors.white },
     padding = { left = 1 },
 }
 
