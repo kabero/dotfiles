@@ -323,6 +323,9 @@ require('lazy').setup({
                 ui = {
                     code_action = "C"
                 },
+                symbol_in_winbar = {
+                    enable = false,
+                },
             })
             -- hover_doc
             vim.keymap.set('n', 'K', '<cmd>Lspsaga hover_doc ++quiet<CR>')
@@ -655,8 +658,6 @@ require('lazy').setup({
 
     { 'vim-denops/denops.vim' },
 
-    { 'vim-denops/denops-helloworld.vim' },
-
     {
         'kat0h/bufpreview.vim',
         requires = { 'vim-denops/denops.vim' },
@@ -682,18 +683,6 @@ require('lazy').setup({
     },
 
     {
-        'mtth/scratch.vim',
-        config = function()
-            vim.g.scratch_filetype = 'markdown'
-            vim.g.scratch_height = 20
-            vim.g.scratch_autohide = 0
-            vim.g.scratch_no_mappings = 1
-            vim.g.scratch_top = 0
-            vim.keymap.set('n', '<leader>p', '<cmd>ScratchPreview<CR>', { noremap = true, silent = true })
-        end
-    },
-
-    {
         "tyru/open-browser.vim",
         config = function()
             vim.keymap.set('n', 'go', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
@@ -706,7 +695,7 @@ require('lazy').setup({
         version = "*",
         config = function()
             require("toggleterm").setup {
-                size = 23,
+                size = 30,
                 open_mapping = [[<c-j>]]
             }
         end
