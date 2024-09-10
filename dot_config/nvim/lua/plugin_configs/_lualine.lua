@@ -178,6 +178,11 @@ ins_right {
 }
 
 ins_right {
+    'progress',
+    color = { fg = colors.white, gui = 'bold' },
+}
+
+ins_right {
     'diff',
     -- Is it me or the symbol for modified us really weird
     symbols = { added = '+', modified = '~', removed = '-' },
