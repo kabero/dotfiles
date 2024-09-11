@@ -14,7 +14,7 @@ vim.cmd [[
         autocmd Colorscheme * highlight CursorLine ctermbg=none guibg=#1c1c1c
 
         " Comment
-        autocmd Colorscheme * highlight Comment ctermbg=none guibg=none guifg=#636363
+        autocmd Colorscheme * highlight Comment ctermbg=none guibg=none guifg=#6f6f6f
 
         " Search
         autocmd Colorscheme * highlight Search guibg=#7a6d94 guifg=#000000
