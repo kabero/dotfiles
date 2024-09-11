@@ -125,7 +125,7 @@ require('lazy').setup({
         end
     },
 
-    { 'tpope/vim-commentary',            lazy = false },
+    { 'tpope/vim-commentary', lazy = false },
 
     {
         'nvim-treesitter/nvim-treesitter',
@@ -620,6 +620,17 @@ require('lazy').setup({
                 hop.hint_words({ current_line_only = false, create_hl_autocmd = true })
             end, { remap = true })
             vim.api.nvim_set_keymap("n", "<leader>s", ":HopWordMW<CR>", { noremap = true, silent = true })
+
+            -- highlights
+            vim.api.nvim_create_autocmd('ColorScheme', {
+                pattern = '*',
+                callback = function()
+                    vim.api.nvim_set_hl(0, 'HopNextKey', { fg = '#8a2be2', bold = true })
+                    vim.api.nvim_set_hl(0, 'HopNextKey1', { fg = '#5f9ea0', bold = true })
+                    vim.api.nvim_set_hl(0, 'HopNextKey2', { fg = '#5f9ea0', bold = true })
+                    vim.api.nvim_set_hl(0, 'HopUnmatched', { fg = '#153535' })
+                end,
+            })
         end
     },
 
