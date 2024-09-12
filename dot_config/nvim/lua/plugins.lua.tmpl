@@ -658,12 +658,6 @@ require('lazy').setup({
         config = function()
             vim.keymap.set("n", "<Leader>8", "<cmd>IndentGuidesToggle<CR>")
             vim.g.indent_guides_auto_colors = 0
-
-            -- To configure the color of the indent guides, uncomment the following section
-            -------------------------------------------------------------------------------
-            -- vim.g.indent_guides_auto_colors = 0
-            -- vim.cmd [[ autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg='#008080' ctermbg=3 ]]
-            -- vim.cmd [[ autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg='#c678dd' ctermbg=4 ]]
         end
     },
 
