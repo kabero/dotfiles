@@ -36,7 +36,7 @@ telescope.setup {
                 ["q"] = require("telescope.actions").close
             },
         },
-        prompt_prefix = "   ",
+        prompt_prefix = "> ",
         selection_caret = "  ",
         borderchars = { "─", "│", "─", "│", "┌", "┐", "┘", "└" },
         layout_config = {
@@ -62,19 +62,19 @@ telescope.setup {
         commands = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 40
             }
         },
         colorscheme = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 40
             }
         },
         oldfiles = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 40
             }
         },
         find_files = {
@@ -82,49 +82,49 @@ telescope.setup {
             hidden = false,
             no_ignore = true,
             layout_config = {
-                height = 30
+                height = 40
             }
         },
         live_grep = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 40
             }
         },
         grep_string = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 40
             }
         },
         jumplist = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 40
             }
         },
         diagnostics = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 40
             }
         },
         buffers = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 40
             }
         },
         git_commits = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 40
             }
         },
         git_bcommits = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 40
             }
         },
         git_status = {
@@ -136,7 +136,7 @@ telescope.setup {
         builtin = {
             theme = "ivy",
             layout_config = {
-                height = 30
+                height = 40
             }
         },
     },
