@@ -21,9 +21,9 @@ vim.cmd [[
         autocmd Colorscheme * highlight IncSearch guibg=#5d20d6 guifg=#FFFFFF
         
         " Tabline
-        autocmd Colorscheme * highlight TabLineSel guibg=NONE guifg=#aaaaaa
-        autocmd Colorscheme * highlight TabLine guibg=#3a3a3a guifg=#aaaaaa
-        autocmd Colorscheme * highlight TabLineFill guibg=#1c1c1c guifg=#d0d0d0
+        autocmd Colorscheme * highlight TabLineSel guibg=NONE guifg=#ff7a93
+        autocmd Colorscheme * highlight TabLine guibg=NONE guifg=#aaaaaa
+        autocmd Colorscheme * highlight TabLineFill guibg=NONE guifg=#d0d0d0
     augroup END
 ]]
 
