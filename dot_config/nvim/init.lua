@@ -65,5 +65,14 @@ vim.cmd [[
     autocmd TermOpen * setlocal nonumber
 ]]
 
+-- Config of neovide
+if vim.g.neovide then
+    vim.cmd([[autocmd VimEnter * cd ~/Notes/]])
+    vim.o.guifont = "RobotoMono Nerd Font Mono"
+    vim.g.neovide_refresh_rate = 60
+    vim.g.neovide_refresh_rate_idle = 5
+    vim.g.neovide_scroll_animation_length = 0.3
+end
+
 -- Color settings should be at the bottom.
 require "colors"
