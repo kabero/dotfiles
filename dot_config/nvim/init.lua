@@ -68,6 +68,7 @@ vim.cmd [[
 -- Config of neovide
 if vim.g.neovide then
     vim.cmd([[autocmd VimEnter * cd ~/Notes/]])
+    vim.cmd([[autocmd VimEnter * edit ~/Notes/note.md]])
     vim.o.guifont = "RobotoMono Nerd Font Mono"
     vim.g.neovide_refresh_rate = 60
     vim.g.neovide_refresh_rate_idle = 5
