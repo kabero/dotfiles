@@ -62,19 +62,19 @@ telescope.setup {
         commands = {
             theme = "ivy",
             layout_config = {
-                height = 40
+                height = 35
             }
         },
         colorscheme = {
             theme = "ivy",
             layout_config = {
-                height = 40
+                height = 35
             }
         },
         oldfiles = {
             theme = "ivy",
             layout_config = {
-                height = 40
+                height = 35
             }
         },
         find_files = {
@@ -82,49 +82,49 @@ telescope.setup {
             hidden = false,
             no_ignore = true,
             layout_config = {
-                height = 40
+                height = 35
             }
         },
         live_grep = {
             theme = "ivy",
             layout_config = {
-                height = 40
+                height = 35
             }
         },
         grep_string = {
             theme = "ivy",
             layout_config = {
-                height = 40
+                height = 35
             }
         },
         jumplist = {
             theme = "ivy",
             layout_config = {
-                height = 40
+                height = 35
             }
         },
         diagnostics = {
             theme = "ivy",
             layout_config = {
-                height = 40
+                height = 35
             }
         },
         buffers = {
             theme = "ivy",
             layout_config = {
-                height = 40
+                height = 35
             }
         },
         git_commits = {
             theme = "ivy",
             layout_config = {
-                height = 40
+                height = 35
             }
         },
         git_bcommits = {
             theme = "ivy",
             layout_config = {
-                height = 40
+                height = 35
             }
         },
         git_status = {
@@ -136,7 +136,7 @@ telescope.setup {
         builtin = {
             theme = "ivy",
             layout_config = {
-                height = 40
+                height = 35
             }
         },
     },
