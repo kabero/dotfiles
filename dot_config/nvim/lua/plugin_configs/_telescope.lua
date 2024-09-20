@@ -6,12 +6,8 @@ telescope.setup {
         mappings = {
             i = {
                 -- scroll results
-                -- ["<C-u>"] = actions.results_scrolling_up,
-                -- ["<C-d>"] = actions.results_scrolling_down,
-
-                -- scroll preview
-                ["<C-u>"] = actions.preview_scrolling_up,
-                ["<C-d>"] = actions.preview_scrolling_down,
+                ["<C-u>"] = actions.results_scrolling_up,
+                ["<C-d>"] = actions.results_scrolling_down,
 
                 -- open in split window
                 ["<C-t>"] = actions.select_tab,
@@ -152,9 +148,22 @@ telescope.setup {
             -- },
             theme = "ivy",
             layout_config = {
-                height = 30,
-                -- mirror=true
+                height = 40,
             },
+        },
+        egrepify = {
+            theme = "ivy",
+            layout_config = {
+                height = 40,
+            },
+            mappings = {
+                i = {
+                    ["<C-a>"] = { "<c-o>0", type = "command" },
+                }
+            },
+            permutations = true,
+            lnum_hl = "Normal",
+            col_hl = "Normal",
         }
     }
 }
@@ -172,8 +181,9 @@ local opts = { noremap = true, silent = true }
 vim.keymap.set('n', '<leader>fh', ":lua require('telescope.builtin').oldfiles({cwd_only = true})<CR>", opts)
 vim.keymap.set('n', '<leader>fH', ':Telescope oldfiles<CR>', opts)
 vim.keymap.set('n', '<leader>fj', ':Telescope find_files<CR>', opts)
-vim.keymap.set('n', '<leader>fk', ':Telescope live_grep<CR>', opts)
+-- vim.keymap.set('n', '<leader>fk', ':Telescope live_grep<CR>', opts)
 -- vim.keymap.set("n", "<leader>fk", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
+vim.keymap.set('n', '<leader>fk', ':Telescope egrepify<CR>', opts)
 vim.keymap.set('n', '<leader>fl', ':Telescope grep_string<CR>', opts)
 vim.keymap.set('n', '<leader>fi', ':Telescope jumplist show_line=false<CR>', opts)
 vim.keymap.set('n', '<leader>fo', ':Telescope diagnostics<CR>', opts)

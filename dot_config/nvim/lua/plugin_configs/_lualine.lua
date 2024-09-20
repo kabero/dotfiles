@@ -184,7 +184,6 @@ ins_right {
 
 ins_right {
     'diff',
-    -- Is it me or the symbol for modified us really weird
     symbols = { added = '+', modified = '~', removed = '-' },
     diff_color = {
         added = { fg = colors.green },
@@ -202,5 +201,4 @@ ins_right {
     padding = { left = 1 },
 }
 
--- Now don't forget to initialize lualine
 lualine.setup(config)
