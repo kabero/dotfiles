@@ -24,6 +24,11 @@ vim.cmd [[
         autocmd Colorscheme * highlight TabLineSel guibg=NONE guifg=#ff7a93
         autocmd Colorscheme * highlight TabLine guibg=NONE guifg=#aaaaaa
         autocmd Colorscheme * highlight TabLineFill guibg=NONE guifg=#d0d0d0
+
+        " Telescope
+        autocmd Colorscheme * highlight TelescopeMatching guibg=none guifg=#5f9ea0
+        autocmd Colorscheme * highlight clear TelescopeSelection
+        autocmd Colorscheme * highlight link TelescopeSelection CursorLine
     augroup END
 ]]
 
