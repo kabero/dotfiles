@@ -129,6 +129,12 @@ telescope.setup {
                 height = 60
             }
         },
+        git_files = {
+            theme = "ivy",
+            layout_config = {
+                height = 35
+            }
+        },
         builtin = {
             theme = "ivy",
             layout_config = {
@@ -172,7 +178,7 @@ function SearchChangesFilesInBranch()
     require('telescope.builtin').git_files({
         git_command = { "git", "diff", "--name-only", "origin/master"},
         prompt_title = "Changed Files in Current Branch",
-        use_git_root = true
+        use_git_root = true,
     })
 end
 
