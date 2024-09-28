@@ -167,9 +167,15 @@ telescope.setup {
                     ["<C-a>"] = { "<c-o>0", type = "command" },
                 }
             },
-            permutations = true,
+            permutations = false,
             lnum_hl = "Normal",
             col_hl = "Normal",
+
+            prefixes = {
+                ["!"] = {
+                    flag = "invert-match",
+                }
+            },
         }
     }
 }
