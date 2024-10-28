@@ -532,7 +532,7 @@ require('lazy').setup({
                         go         = 'go run %',
                         python     = 'python %',
                         ruby       = '[ -d .bundle ] && bundle exec ruby % || ruby %',
-                        rust       = 'cargo run %',
+                        rust       = 'rustc % -o tmp.out; ./tmp.out; rm tmp.out',
                         sh         = 'sh %',
                         zig        = 'zig build run',
                         javascript = 'node %',
@@ -791,6 +791,21 @@ require('lazy').setup({
         dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
         config = function()
             require('telescope').load_extension('egrepify')
+        end
+    },
+
+    {
+        'RRethy/vim-illuminate',
+        config = function()
+            require('illuminate').configure({
+                filetypes_denylist = {
+                    'dirbuf',
+                    'dirvish',
+                    'fugitive',
+                    'markdown',
+                },
+                under_cursor = false,
+            })
         end
     }
 })
