@@ -126,7 +126,7 @@ telescope.setup {
         git_status = {
             theme = "ivy",
             layout_config = {
-                height = 60
+                height = 35 
             }
         },
         git_files = {
@@ -160,7 +160,7 @@ telescope.setup {
         egrepify = {
             theme = "ivy",
             layout_config = {
-                height = 40,
+                height = 35,
             },
             mappings = {
                 i = {
