@@ -11,7 +11,7 @@ language C
 set encoding=utf-8
 filetype plugin indent on
 
-set clipboard+=unnamedplus
+set clipboard=unnamed,unnamedplus
 set mouse=a
 set fileformats=unix
 set ambiwidth=single
