@@ -224,3 +224,23 @@ vv() {
 d() {
     docker compose exec $@
 }
+
+# ssh
+function ssh() {
+  if [[ -n $(printenv TMUX) ]] ; then
+      local pane_id=$(tmux display -p '#{pane_id}')
+      local original_bg=$(tmux show-options -gqv pane-active-border-style | grep -o 'bg=[^,]*')
+
+      if [[ `echo $1 | grep -E 'prd|prod'` ]] ; then
+          tmux select-pane -P 'bg=#330000'
+      elif [[ `echo $1 | grep -E 'stg|staging'` ]] ; then
+          tmux select-pane -P 'bg=#000033'
+      fi
+
+      command ssh "$@"
+
+      tmux select-pane -t $pane_id -P "$original_bg"
+  else
+      command ssh "$@"
+  fi
+}
