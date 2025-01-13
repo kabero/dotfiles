@@ -17,6 +17,7 @@ vim.api.nvim_set_keymap("n", "[q", ":<c-u>cprev<CR>", opts)
 vim.api.nvim_set_keymap("n", "<c-l>", ":<c-u>noh<CR><c-l>", opts)
 vim.api.nvim_set_keymap("n", "<c-o>", "<c-o>zz", opts)
 vim.api.nvim_set_keymap("n", "<c-i>", "<c-i>zz", opts)
+vim.api.nvim_set_keymap("n", "<leader>6", ":SmearCursorToggle<CR>", opts)
 
 -- Insert
 ------------------------------------
