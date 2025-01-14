@@ -211,7 +211,7 @@ require('lazy').setup({
                     -- Actions
                     map('n', '<leader>aj', '<cmd>Gitsigns preview_hunk<CR>')
                     map('n', '<leader>ak', '<cmd>lua require"gitsigns".blame_line{full=true}<CR>')
-                    map('n', '<leader>al', '<cmd>Gitsigns diffthis<CR>')
+                    map('n', '<leader>al', '<cmd>lua require"gitsigns".diffthis(nill, {vertical=true})<CR>')
                     -- TODO: modify the behavior
                     map('n', '<leader>1', '<cmd>Gitsigns toggle_current_line_blame<CR>')
                     map('n', '<leader>2', '<cmd>Gitsigns toggle_deleted<CR>')
@@ -771,7 +771,7 @@ require('lazy').setup({
 
     {
         "CopilotC-Nvim/CopilotChat.nvim",
-        branch = "canary",
+        branch = "main",
         dependencies = {
             { "github/copilot.vim" },
             { "nvim-lua/plenary.nvim" },
@@ -824,7 +824,7 @@ require('lazy').setup({
                 auto_suggestions = false,
                 auto_set_highlight_group = true,
                 auto_set_keymaps = true,
-                auto_apply_diff_after_generation = true,
+                auto_apply_diff_after_generation = false,
                 support_paste_from_clipboard = true,
             },
             copilot = {
