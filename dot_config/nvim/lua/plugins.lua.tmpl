@@ -324,7 +324,10 @@ require('lazy').setup({
                     code_action = "C"
                 },
                 symbol_in_winbar = {
-                    enable = false,
+                    enable = true,
+                    hide_keyword = true,
+                    show_file = false,
+                    separator = " > ",
                 },
             })
             -- hover_doc
@@ -861,12 +864,29 @@ require('lazy').setup({
                     file_types = { "markdown", "Avante" },
                 },
                 ft = { "markdown", "Avante" },
+                config = function()
+                    require('render-markdown').setup({
+                        render_modes = true,
+                        heading = {
+                            width = "block",
+                            left_pad = 0,
+                            right_pad = 4,
+                            icons = {},
+                        },
+                        code = {
+                            width = "block",
+                        }
+                    })
+                end
             },
         },
     },
 
     {
         'b0o/incline.nvim',
+        dependencies = {
+            'nvim-tree/nvim-web-devicons',
+        },
         config = function()
             local devicons = require 'nvim-web-devicons'
             require('incline').setup {
@@ -929,5 +949,9 @@ require('lazy').setup({
         opts = {
             smear_between_neighbor_lines = false,
         },
+    },
+
+    {
+        'JoosepAlviste/nvim-ts-context-commentstring',
     },
 })
