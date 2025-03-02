@@ -8,6 +8,7 @@ vim.opt.ambiwidth = "single"
 vim.opt.clipboard:append { 'unnamedplus' }
 vim.opt.fileformats = 'unix'
 vim.opt.mouse = 'a'
+vim.o.exrc = true
 
 -- Search
 vim.opt.hlsearch = true
