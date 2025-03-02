@@ -29,6 +29,10 @@ vim.cmd [[
         autocmd Colorscheme * highlight TelescopeMatching guibg=none guifg=#5f9ea0
         autocmd Colorscheme * highlight clear TelescopeSelection
         autocmd Colorscheme * highlight link TelescopeSelection CursorLine
+        
+        " Winbar
+        autocmd Colorscheme * highlight WinBar guibg=NONE guifg=#d3c6aa
+        autocmd Colorscheme * highlight WinBarNC guibg=NONE guifg=#888888
     augroup END
 ]]
 
