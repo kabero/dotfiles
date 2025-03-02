@@ -75,5 +75,29 @@ if vim.g.neovide then
     vim.g.neovide_scroll_animation_length = 0.3
 end
 
+-- Highlight info
+function _G.get_syn_id(transparent)
+    local synid = vim.fn.synID(vim.fn.line('.'), vim.fn.col('.'), 1)
+    if transparent == 1 then
+        return vim.fn.synIDtrans(synid)
+    else
+        return synid
+    end
+end
+function _G.get_syn_name(synid)
+    return vim.fn.synIDattr(synid, 'name')
+end
+function _G.get_highlight_info()
+    local syn_id = get_syn_id(0)
+    local trans_id = get_syn_id(1)
+    local syn_name = get_syn_name(syn_id)
+    local trans_name = get_syn_name(trans_id)
+    vim.cmd('highlight ' .. syn_name)
+    vim.cmd('highlight ' .. trans_name)
+end
+vim.api.nvim_create_user_command('HighlightInfo', function()
+    get_highlight_info()
+end, {})
+
 -- Color settings should be at the bottom.
 require "colors"
