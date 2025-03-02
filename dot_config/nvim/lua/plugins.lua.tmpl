@@ -475,18 +475,18 @@ require('lazy').setup({
                 -- }),
 
                 -- Python
-                null_ls.builtins.diagnostics.flake8.with({
-                    -- prefer_local = ".direnv/python-*/bin"
-                    prefer_local = ".venv/bin"
-                }),
-                null_ls.builtins.formatting.isort.with({
-                    -- prefer_local = ".direnv/python-*/bin"
-                    prefer_local = ".venv/bin"
-                }),
-                null_ls.builtins.formatting.black.with({
-                    -- prefer_local = ".direnv/python-*/bin"
-                    prefer_local = ".venv/bin"
-                }),
+                -- null_ls.builtins.diagnostics.flake8.with({
+                --     -- prefer_local = ".direnv/python-*/bin"
+                --     prefer_local = ".venv/bin"
+                -- }),
+                -- null_ls.builtins.formatting.isort.with({
+                --     -- prefer_local = ".direnv/python-*/bin"
+                --     prefer_local = ".venv/bin"
+                -- }),
+                -- null_ls.builtins.formatting.black.with({
+                --     -- prefer_local = ".direnv/python-*/bin"
+                --     prefer_local = ".venv/bin"
+                -- }),
 
                 -- PHP
                 -- null_ls.builtins.formatting.pint.with({
@@ -494,10 +494,13 @@ require('lazy').setup({
                 -- }),
 
                 -- Go
-                null_ls.builtins.formatting.gofmt,
+                -- null_ls.builtins.formatting.gofmt,
 
                 -- Rust
-                null_ls.builtins.formatting.rustfmt,
+                -- null_ls.builtins.formatting.rustfmt,
+
+                -- PHP
+                null_ls.builtins.formatting.pint
 
                 -- yaml
                 -- null_ls.builtins.diagnostics.yamllint,
