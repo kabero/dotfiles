@@ -37,8 +37,7 @@ vim.api.nvim_set_keymap("c", "<C-a>", "<Home>", { noremap = false })
 vim.api.nvim_set_keymap("c", "<C-e>", "<End>", { noremap = false })
 vim.api.nvim_set_keymap("c", "<C-d>", "<Del>", { noremap = true })
 vim.api.nvim_set_keymap("c", "<C-h>", "<BS>", { noremap = true })
--- FIXME: The behavior when the cursor is a the beginning of a line
-vim.api.nvim_set_keymap("c", "<C-k>", "<C-f>D<C-c><C-c>:<Up>", { noremap = true })
+vim.api.nvim_set_keymap("c", "<C-k>", "<C-\\>e(strpart(getcmdline(), 0, getcmdpos() - 1))<CR>", { noremap = true })
 vim.api.nvim_set_keymap("c", "<M-BS>", "<c-w>", { noremap = true })
 
 -- Terminal
