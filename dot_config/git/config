@@ -28,11 +28,12 @@
 root = ~/ghq/github.com
 
 [alias]
-    s = show
+    s = switch
     d = diff
     lg = log --graph --pretty=format:'%Cred%h%Creset %C(bold blue)%an%Creset %Cgreen%cr%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
     lga = log --graph --all --pretty=format:'%Cred%h%Creset %C(bold blue)%an%Creset %Cgreen%cr%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
     ss = status
+    co = checkout
 
 [filter "lfs"]
     clean = git-lfs clean -- %f
