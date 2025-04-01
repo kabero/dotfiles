@@ -182,7 +182,7 @@ telescope.setup {
 
 function SearchChangesFilesInBranch()
     require('telescope.builtin').git_files({
-        git_command = { "git", "diff", "--name-only", "origin/master"},
+        git_command = { "git", "diff", "--name-only", "master..."},
         prompt_title = "Changed Files in Current Branch",
         use_git_root = true,
     })
