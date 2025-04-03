@@ -1,2 +1,3 @@
 .nvim.lua
 .myfiles/
+.DS_Store

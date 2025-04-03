@@ -91,6 +91,7 @@ alias teee='tee >(pbcopy)'
 alias av='aws-vault'
 alias ave='aws-vault exec'
 alias code='cursor'
+alias dbash='docker build -t tmp . && docker run -it --rm --entrypoint /bin/bash tmp'
 
 # fish-like behavior
 source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
