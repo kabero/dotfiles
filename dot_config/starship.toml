@@ -8,6 +8,7 @@ $localip\
 $shlvl\
 $singularity\
 $kubernetes\
+${custom.parent_repo}\
 $directory\
 $vcsh\
 $fossil_branch\
@@ -16,7 +17,7 @@ $git_commit\
 $git_state\
 $git_metrics\
 $git_status\
-$custom\
+${custom.git_name}\
 $hg_branch\
 $pijul_channel\
 $docker_context\
@@ -48,6 +49,13 @@ $character"""
 [character]
 success_symbol = '[\$](bold green)'
 error_symbol = '[\$](bold red)'
+
+[custom.parent_repo]
+when = true
+require_repo = true
+command = 'super_root=$(git rev-parse --show-superproject-working-tree); if [[ -n "$super_root" ]]; then result=$(git rev-parse --show-toplevel | sed "s|^$(dirname "$super_root")/*||" | xargs dirname); if [[ -n "$result" ]]; then echo "${result}/"; else echo "/"; fi; fi'
+style = "bold cyan"
+format = '[$output]($style)'
 
 [directory]
 read_only = " "
