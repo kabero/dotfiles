@@ -28,8 +28,8 @@ x = 0
 y = 0
 
 [font.normal]
-family = "RobotoMono Nerd Font Mono"
-# family = "Hack Nerd Font"
+# family = "RobotoMono Nerd Font Mono"
+family = "Hack Nerd Font"
 style = "Regular"
 
 [font.offset]
