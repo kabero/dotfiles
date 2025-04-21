@@ -147,7 +147,14 @@ if command_exists fzf; then
 
     # Enhanced <c-r>
     function select-history() {
-        BUFFER=$(history -n -r 1 | fzf +m --query "$LBUFFER" --prompt="CMD> ")
+        local original_buffer=$BUFFER
+        local query=$LBUFFER
+        local result=$(history -n -r 1 | fzf +m --print-query --query "$query" --prompt="CMD> ")
+        if [ -n "$result" ]; then
+            BUFFER=$(echo "$result" | tail -n 1)
+        else
+            BUFFER=$query
+        fi
         CURSOR=$#BUFFER
         zle redisplay
     }
