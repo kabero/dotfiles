@@ -18,7 +18,8 @@ vim.opt.smartcase = true
 vim.opt.wrapscan = true
 
 -- View
-vim.opt.cursorline = false
+vim.opt.cursorline = true
+vim.opt.cursorlineopt = "both"
 vim.opt.laststatus = 3
 vim.opt.number = true
 vim.opt.numberwidth = 4

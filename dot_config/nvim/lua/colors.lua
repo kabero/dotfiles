@@ -4,7 +4,8 @@ vim.cmd [[
         autocmd!
         autocmd Colorscheme * highlight EndOfBuffer ctermbg=none guibg=none
         autocmd Colorscheme * highlight Folded ctermbg=none guibg=none
-        autocmd Colorscheme * highlight LineNr ctermbg=none guibg=none
+        autocmd Colorscheme * highlight LineNr ctermbg=none guibg=none guifg=#707070
+        autocmd Colorscheme * highlight CursorLineNr ctermbg=none guibg=none guifg=#ff7a93
         autocmd Colorscheme * highlight NonText ctermbg=none guibg=none
         autocmd Colorscheme * highlight Normal ctermbg=none guibg=none
         autocmd Colorscheme * highlight NormalNC ctermbg=none guibg=none
