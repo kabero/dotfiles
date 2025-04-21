@@ -253,6 +253,7 @@ function ssh() {
 }
 
 alias c='claude'
+alias s='status'
 
 function ccommit() {
     changed_files=$(git diff --cached --name-only)
@@ -267,4 +268,57 @@ function ccommit() {
 function ccommand() {
     _prompt="$* ...このようなシェルコマンドをワンライナーで出力してください"
     claude -p $_prompt | tee >(pbcopy)
+}
+
+# Project status command
+function status() {
+    # Current directory information
+    echo "📁 Directory: $(pwd)"
+    echo "📊 Size: $(du -sh . | cut -f1)"
+    
+    if [ -d .git ]; then
+        echo "📝 Git Files: $(git ls-files | wc -l | tr -d ' ')"
+        echo "📁 Git Directories: $(git ls-files | xargs dirname | sort -u | wc -l | tr -d ' ')"
+    else
+        echo "📝 Files: $(find . -type f | wc -l | tr -d ' ')"
+        echo "📁 Directories: $(find . -type d | wc -l | tr -d ' ')"
+    fi
+    echo ""
+
+    # Git information
+    if [ -d .git ]; then
+        echo "🌿 Git Status:"
+        git status -sb
+        echo ""
+        echo "📊 Git Stats:"
+        echo "  Commits: $(git rev-list --count HEAD)"
+        echo "  Branches: $(git branch | wc -l | tr -d ' ')"
+        echo "  Tags: $(git tag | wc -l | tr -d ' ')"
+        echo "  Contributors: $(git shortlog -s | wc -l | tr -d ' ')"
+        echo ""
+        echo "📅 Last Commit:"
+        git log -1 --pretty=format:"  %C(yellow)%h%Creset %C(green)%an%Creset %C(blue)%ar%Creset%n  %s"
+    else
+        echo "❌ Not a git repository"
+    fi
+
+    # Dependencies information
+    if [ -f package.json ]; then
+        echo ""
+        echo "📦 Node.js Dependencies:"
+        echo "  Dependencies: $(jq -r '.dependencies | length' package.json)"
+        echo "  DevDependencies: $(jq -r '.devDependencies | length' package.json)"
+    fi
+
+    if [ -f go.mod ]; then
+        echo ""
+        echo "📦 Go Dependencies:"
+        echo "  Dependencies: $(go list -m all | wc -l | tr -d ' ')"
+    fi
+
+    if [ -f requirements.txt ]; then
+        echo ""
+        echo "📦 Python Dependencies:"
+        echo "  Dependencies: $(wc -l requirements.txt | awk '{print $1}')"
+    fi
 }
