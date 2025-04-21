@@ -128,7 +128,7 @@ require('lazy').setup({
 
     {
         'nvim-treesitter/nvim-treesitter',
-        lazy = false,
+        event = { "BufReadPost", "BufNewFile" },
         dependencies = 'windwp/nvim-ts-autotag',
         config = function()
             require("plugin_configs/_nvim_treesitter")
@@ -194,7 +194,7 @@ require('lazy').setup({
 
     {
         'lewis6991/gitsigns.nvim',
-        lazy = false,
+        event = { "BufReadPost", "BufNewFile" },
         config = function()
             require('gitsigns').setup {
                 on_attach = function(bufnr)
@@ -226,12 +226,12 @@ require('lazy').setup({
 
     {
         'mfussenegger/nvim-dap',
-        lazy = false
+        event = "VeryLazy"
     },
 
     {
         'williamboman/mason.nvim',
-        lazy = false,
+        event = "VeryLazy",
         build = ":MasonUpdate",
         config = function()
             local mason = require('mason')

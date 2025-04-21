@@ -53,6 +53,27 @@ telescope.setup {
         winblend = 0,
         border = {},
         set_env = { ["COLORTERM"] = "truecolor" },
+        file_ignore_patterns = {
+            "node_modules",
+            "vendor",
+            ".git",
+            "target",
+            "dist",
+            "build",
+            "*.min.js",
+            "*.min.css",
+        },
+        vimgrep_arguments = {
+            "rg",
+            "--color=never",
+            "--no-heading",
+            "--with-filename",
+            "--line-number",
+            "--column",
+            "--smart-case",
+            "--hidden",
+            "--glob=!.git/",
+        },
     },
     pickers = {
         commands = {
