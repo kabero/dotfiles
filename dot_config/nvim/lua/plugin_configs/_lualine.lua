@@ -109,7 +109,7 @@ ins_left {
 ins_left {
     'filename',
     filestatus = true,
-    path = 3,
+    path = 1,
     cond = conditions.buffer_not_empty,
     color = { fg = colors.white, gui = 'bold' },
 }
