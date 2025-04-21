@@ -253,7 +253,6 @@ function ssh() {
 }
 
 alias c='claude'
-alias s='status'
 
 function ccommit() {
     changed_files=$(git diff --cached --name-only)
@@ -272,53 +271,92 @@ function ccommand() {
 
 # Project status command
 function status() {
+    # Colors
+    local BLUE='\033[1;34m'
+    local GREEN='\033[1;32m'
+    local YELLOW='\033[1;33m'
+    local RED='\033[1;31m'
+    local PURPLE='\033[1;35m'
+    local CYAN='\033[1;36m'
+    local NC='\033[0m'
+
     # Current directory information
-    echo "📁 Directory: $(pwd)"
-    echo "📊 Size: $(du -sh . | cut -f1)"
+    echo "${BLUE}📁 Directory:${NC} $(pwd)"
+    echo "${GREEN}📊 Size:${NC} $(du -sh . | cut -f1)"
     
     if [ -d .git ]; then
-        echo "📝 Git Files: $(git ls-files | wc -l | tr -d ' ')"
-        echo "📁 Git Directories: $(git ls-files | xargs dirname | sort -u | wc -l | tr -d ' ')"
+        echo "${YELLOW}📝 Git Files:${NC} $(git ls-files | wc -l | tr -d ' ')"
+        echo "${YELLOW}📁 Git Directories:${NC} $(git ls-files | xargs dirname | sort -u | wc -l | tr -d ' ')"
+        echo "${YELLOW}📦 Git Size:${NC} $(git count-objects -vH | grep size-pack | cut -d: -f2 | tr -d ' ')"
     else
-        echo "📝 Files: $(find . -type f | wc -l | tr -d ' ')"
-        echo "📁 Directories: $(find . -type d | wc -l | tr -d ' ')"
+        echo "${YELLOW}📝 Files:${NC} $(find . -type f | wc -l | tr -d ' ')"
+        echo "${YELLOW}📁 Directories:${NC} $(find . -type d | wc -l | tr -d ' ')"
     fi
     echo ""
 
     # Git information
     if [ -d .git ]; then
-        echo "🌿 Git Status:"
+        echo "${GREEN}🌿 Git Status:${NC}"
         git status -sb
         echo ""
-        echo "📊 Git Stats:"
-        echo "  Commits: $(git rev-list --count HEAD)"
-        echo "  Branches: $(git branch | wc -l | tr -d ' ')"
-        echo "  Tags: $(git tag | wc -l | tr -d ' ')"
-        echo "  Contributors: $(git shortlog -s | wc -l | tr -d ' ')"
+        echo "${PURPLE}📊 Git Stats:${NC}"
+        echo "  ${CYAN}Commits:${NC} $(git rev-list --count HEAD)"
+        echo "  ${CYAN}Branches:${NC} $(git branch | wc -l | tr -d ' ')"
+        echo "  ${CYAN}Tags:${NC} $(git tag | wc -l | tr -d ' ')"
+        echo "  ${CYAN}Contributors:${NC} $(git shortlog -s | wc -l | tr -d ' ')"
+        echo "  ${CYAN}Stashes:${NC} $(git stash list | wc -l | tr -d ' ')"
+        echo "  ${CYAN}Remotes:${NC} $(git remote -v | wc -l | tr -d ' ')"
         echo ""
-        echo "📅 Last Commit:"
+        echo "${YELLOW}📅 Last Commit:${NC}"
         git log -1 --pretty=format:"  %C(yellow)%h%Creset %C(green)%an%Creset %C(blue)%ar%Creset%n  %s"
+        echo ""
+        echo "${RED}📈 Recent Activity:${NC}"
+        git log --since="1 week ago" --pretty=format:"  %C(yellow)%h%Creset %C(green)%an%Creset %C(blue)%ar%Creset %s" | head -n 5
     else
-        echo "❌ Not a git repository"
+        echo "${RED}❌ Not a git repository${NC}"
     fi
 
     # Dependencies information
     if [ -f package.json ]; then
         echo ""
-        echo "📦 Node.js Dependencies:"
-        echo "  Dependencies: $(jq -r '.dependencies | length' package.json)"
-        echo "  DevDependencies: $(jq -r '.devDependencies | length' package.json)"
+        echo "${BLUE}📦 Node.js Dependencies:${NC}"
+        echo "  ${CYAN}Dependencies:${NC} $(jq -r '.dependencies | length' package.json)"
+        echo "  ${CYAN}DevDependencies:${NC} $(jq -r '.devDependencies | length' package.json)"
+        echo "  ${CYAN}Scripts:${NC} $(jq -r '.scripts | length' package.json)"
+        if [ -f package-lock.json ]; then
+            echo "  ${CYAN}Lockfile:${NC} $(jq -r '.packages | length' package-lock.json)"
+        fi
     fi
 
     if [ -f go.mod ]; then
         echo ""
-        echo "📦 Go Dependencies:"
-        echo "  Dependencies: $(go list -m all | wc -l | tr -d ' ')"
+        echo "${GREEN}📦 Go Dependencies:${NC}"
+        echo "  ${CYAN}Dependencies:${NC} $(go list -m all | wc -l | tr -d ' ')"
+        echo "  ${CYAN}Go Version:${NC} $(go version | cut -d' ' -f3)"
     fi
 
     if [ -f requirements.txt ]; then
         echo ""
-        echo "📦 Python Dependencies:"
-        echo "  Dependencies: $(wc -l requirements.txt | awk '{print $1}')"
+        echo "${YELLOW}📦 Python Dependencies:${NC}"
+        echo "  ${CYAN}Dependencies:${NC} $(wc -l requirements.txt | awk '{print $1}')"
+        if [ -f Pipfile ]; then
+            echo "  ${CYAN}Pipfile Dependencies:${NC} $(jq -r '.default | length' Pipfile.lock 2>/dev/null || echo 0)"
+        fi
+    fi
+
+    # Docker information
+    if [ -f docker-compose.yml ]; then
+        echo ""
+        echo "${BLUE}🐳 Docker:${NC}"
+        echo "  ${CYAN}Services:${NC} $(docker-compose config --services | wc -l | tr -d ' ')"
+        echo "  ${CYAN}Networks:${NC} $(docker-compose config --networks | jq -r 'keys | length')"
+        echo "  ${CYAN}Volumes:${NC} $(docker-compose config --volumes | jq -r 'keys | length')"
+    fi
+
+    # File types information
+    if [ -d .git ]; then
+        echo ""
+        echo "${PURPLE}📄 File Extensions:${NC}"
+        git ls-files | grep -v '^\.' | sed 's/.*\.//' | sort | uniq -c | sort -nr | head -n 5 | awk '{print "  ." $2 ": " $1}'
     fi
 }
