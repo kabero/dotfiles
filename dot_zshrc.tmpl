@@ -17,7 +17,7 @@ bindkey -e
 . /opt/homebrew/opt/asdf/libexec/asdf.sh
 {{ end }}
 # fpath=(${ASDF_DIR}/completions $fpath)
-source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
+# source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
 {{ end }}
 {{ if eq .chezmoi.os "linux" }}
 . "$HOME/.asdf/asdf.sh"
