@@ -65,6 +65,12 @@ vim.cmd [[
     autocmd TermOpen * setlocal nonumber
 ]]
 
+-- Disable line numbers in Notes directory
+vim.cmd [[
+    autocmd BufEnter ~/Notes/** setlocal norelativenumber
+    autocmd BufEnter ~/Notes/** setlocal nonumber
+]]
+
 -- Config of neovide
 if vim.g.neovide then
     vim.cmd([[autocmd VimEnter * cd ~/Notes/]])
