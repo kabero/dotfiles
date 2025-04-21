@@ -161,6 +161,23 @@ if command_exists fzf; then
     zle -N select-history
     bindkey '^r' select-history
 
+    # Enhanced <c-t>
+    function select-file() {
+        local result=$(rg --files --hidden --follow --glob "!**/.git/*" | fzf +m --prompt="FILES> ")
+        if [ -n "$result" ]; then
+            if [ -d "$result" ]; then
+                BUFFER="cd $result"
+                zle accept-line
+            else
+                BUFFER="nvim $result"
+                zle accept-line
+            fi
+        fi
+        zle redisplay
+    }
+    zle -N select-file
+    bindkey '^t' select-file
+
     # Open repo with <c-g>
     function _ghq_fzf() {
         local src=$(ghq list | fzf --prompt "GHQ> ")
