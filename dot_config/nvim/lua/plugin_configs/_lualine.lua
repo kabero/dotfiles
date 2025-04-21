@@ -109,7 +109,7 @@ ins_left {
 ins_left {
     'filename',
     filestatus = true,
-    path = 1,
+    path = 3,
     cond = conditions.buffer_not_empty,
     color = { fg = colors.white, gui = 'bold' },
 }
@@ -177,10 +177,6 @@ ins_right {
     color = { fg = colors.white, gui = 'bold' },
 }
 
-ins_right {
-    'progress',
-    color = { fg = colors.white, gui = 'bold' },
-}
 
 ins_right {
     'diff',
