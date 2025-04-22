@@ -35,20 +35,14 @@ telescope.setup {
         prompt_prefix = "> ",
         selection_caret = "  ",
         borderchars = { "─", "│", "─", "│", "┌", "┐", "┘", "└" },
+        layout_strategy = "bottom_pane",
         layout_config = {
-            horizontal = {
+            bottom_pane = {
+                height = 0.4,
+                preview_cutoff = 120,
                 prompt_position = "top",
-                preview_width = 0.55,
-                result_width = 0.8,
             },
-            vertical = {
-                mirror = false,
-            },
-            width = 0.90,
-            height = 0.85,
-            preview_cutoff = 120,
         },
-        layout_strategy = "horizontal",
         sorting_strategy = "ascending",
         winblend = 0,
         border = {},
