@@ -164,14 +164,9 @@ if command_exists fzf; then
     # Enhanced <c-t>
     function select-file() {
         local result=$(rg --files --hidden --follow --glob "!**/.git/*" | fzf +m --prompt="FILES> ")
+
         if [ -n "$result" ]; then
-            if [ -d "$result" ]; then
-                BUFFER="cd $result"
-                zle accept-line
-            else
-                BUFFER="nvim $result"
-                zle accept-line
-            fi
+            LBUFFER="${LBUFFER}${result}"
         fi
         zle redisplay
     }
