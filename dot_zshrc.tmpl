@@ -139,17 +139,33 @@ if command_exists fzf; then
     [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
     export FZF_COMPLETION_TRIGGER=","
     export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
-    export FZF_DEFAULT_OPTS="--height 50% --reverse --prompt='/ ' --bind=ctrl-k:kill-line,ctrl-d:preview-down,ctrl-u:preview-up"
+    export FZF_DEFAULT_OPTS="
+    --height 50%
+    --reverse
+    --prompt='❯ '
+    --pointer='❯'
+    --marker='✓'
+    --ansi
+    --color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9
+    --color=fg+:#f8f8f2,bg+:#282a36,hl+:#bd93f9
+    --color=info:#ffb86c,prompt:#50fa7b,pointer:#ff79c6
+    --color=marker:#ff79c6,spinner:#ffb86c,header:#6272a4
+    --bind=ctrl-k:kill-line,ctrl-d:preview-down,ctrl-u:preview-up
+    --preview-window=right:60%:wrap
+    --border=rounded
+    --margin=1
+    --padding=1
+    "
 
     # for finding files in current directories
     export FZF_CTRL_T_COMMAND='rg --files --hidden --follow --glob "!**/.git/*"'
-    export FZF_CTRL_T_OPTS="--prompt='FILES> '"
+    export FZF_CTRL_T_OPTS="--prompt='> '"
 
     # Enhanced <c-r>
     function select-history() {
         local original_buffer=$BUFFER
         local query=$LBUFFER
-        local result=$(history -n -r 1 | fzf +m --print-query --query "$query" --prompt="CMD> ")
+        local result=$(history -n -r 1 | fzf +m --print-query --query "$query" --prompt="> ")
         if [ -n "$result" ]; then
             BUFFER=$(echo "$result" | tail -n 1)
         else
@@ -163,8 +179,7 @@ if command_exists fzf; then
 
     # Enhanced <c-t>
     function select-file() {
-        local result=$(rg --files --hidden --follow --glob "!**/.git/*" | fzf +m --prompt="FILES> ")
-
+        local result=$(rg --files --hidden --follow --glob "!**/.git/*" | fzf +m --prompt="> ")
         if [ -n "$result" ]; then
             LBUFFER="${LBUFFER}${result}"
         fi
@@ -175,7 +190,7 @@ if command_exists fzf; then
 
     # Open repo with <c-g>
     function _ghq_fzf() {
-        local src=$(ghq list | fzf --prompt "GHQ> ")
+        local src=$(ghq list | fzf --prompt "> ")
         zle redisplay
         if [ -n "$src" ]; then
             BUFFER="cd $(ghq root)/$src"
@@ -188,7 +203,7 @@ if command_exists fzf; then
 
     # cd (fzf + zoxide) with zz
     zz() {
-        local dirpath=$(zoxide query -l | sed "s|$HOME|~|g" | fzf --prompt "CD> " --preview="eval echo {} | sed 's|~|$HOME|' | xargs exa -a --oneline --sort=ext")
+        local dirpath=$(zoxide query -l | sed "s|$HOME|~|g" | fzf --prompt "> " --preview="eval echo {} | sed 's|~|$HOME|' | xargs exa -a --oneline --sort=ext")
         cd $(eval echo $(echo $dirpath | sed 's|~|$HOME|'))
     }
 fi
