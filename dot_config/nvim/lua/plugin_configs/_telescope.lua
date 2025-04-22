@@ -185,11 +185,11 @@ telescope.setup {
             permutations = false,
             lnum_hl = "Normal",
             col_hl = "Normal",
-
             prefixes = {
                 ["!"] = {
                     flag = "invert-match",
-                }
+                },
+                ["^"] = false
             },
         }
     }
