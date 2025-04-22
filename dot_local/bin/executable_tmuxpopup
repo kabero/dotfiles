@@ -3,10 +3,16 @@
 # Toggle tmux popup window
 width='85%'
 height='90%'
+session_name=${1}
 session=$(tmux display-message -p -F "#{session_name}")
 
-if [[ "$session" == *"popup"* ]]; then
+if [[ "$session" == "note" || "$session" == "terminal" ]]; then
   tmux detach-client
 else
-  tmux popup -d "#{pane_current_path}" -xC -yC -w$width -h$height -E "tmux attach -t popup || tmux new -s popup -c ~/Notes 'nvim ~/Notes/note.md'"
+  if [[ "$session_name" == "note" ]]; then
+    tmux popup -d "#{pane_current_path}" -xC -yC -w$width -h$height -E "tmux attach -t $session_name || tmux new -s $session_name -c ~/Notes 'nvim ~/Notes/note.md'"
+  fi
+  if [[ "$session_name" == "terminal" ]]; then
+    tmux popup -d "#{pane_current_path}" -xC -yC -w$width -h$height -E "tmux attach -t $session_name || tmux new -s $session_name 'zsh'"
+  fi
 fi
