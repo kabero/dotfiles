@@ -142,9 +142,9 @@ if command_exists fzf; then
     export FZF_DEFAULT_OPTS="
     --height 50%
     --reverse
-    --prompt='❯ '
-    --pointer='❯'
-    --marker='✓'
+    --prompt='[file] > '
+    --pointer='>'
+    --marker='*'
     --ansi
     --color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9
     --color=fg+:#f8f8f2,bg+:#282a36,hl+:#bd93f9
@@ -159,12 +159,13 @@ if command_exists fzf; then
 
     # for finding files in current directories
     export FZF_CTRL_T_COMMAND='rg --files --hidden --follow --glob "!**/.git/*" --glob "!**/node_modules/*" --glob "!**/vendor/*" --glob "!**/dist/*" --glob "!**/build/*"'
+    export FZF_CTRL_T_OPTS="--prompt='[file] > '"
 
     # Enhanced <c-r>
     function select-history() {
         local original_buffer=$BUFFER
         local query=$LBUFFER
-        local result=$(history -n -r 1 | fzf +m --print-query --query "$query" --prompt="> " --exact)
+        local result=$(history -n -r 1 | fzf +m --print-query --query "$query" --prompt="[cmd] > " --exact)
         if [ -n "$result" ]; then
             BUFFER=$(echo "$result" | tail -n 1)
         else
