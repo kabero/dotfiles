@@ -18,14 +18,27 @@ vim.filetype.add({
     },
 })
 
--- .envrc
-vim.api.nvim_command('autocmd BufRead,BufNewFile .envrc setlocal filetype=sh')
+-- Create a group for file type related autocommands
+local filetype_group = vim.api.nvim_create_augroup('MyFileTypeSettings', { clear = true })
 
--- .env
-vim.api.nvim_command('autocmd BufRead,BufNewFile .env.* setlocal filetype=sh')
+-- env files
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+    pattern = { '.envrc', '.env.*' },
+    group = filetype_group,
+    callback = function()
+        vim.opt_local.filetype = 'sh'
+    end,
+})
 
--- yaml
-vim.api.nvim_command('autocmd FileType yaml setlocal foldmethod=indent | normal zR')
+-- yaml files
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'yaml',
+    group = filetype_group,
+    callback = function()
+        vim.opt_local.foldmethod = 'indent'
+        vim.cmd('normal zR')
+    end,
+})
 
 -- tmpl
 vim.filetype.add({
