@@ -25,7 +25,7 @@
     email = 83853529+kabero@users.noreply.github.com
 
 [ghq]
-root = ~/ghq/github.com
+root = ~/ghq
 
 [alias]
     s = switch
