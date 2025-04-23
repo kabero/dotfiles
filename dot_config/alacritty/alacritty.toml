@@ -19,8 +19,8 @@ args = [
 size = 14
 
 [font.bold]
-family = "RobotoMono Nerd Font Mono"
-# family = "Hack Nerd Font"
+# family = "RobotoMono Nerd Font Mono"
+family = "Hack Nerd Font Mono"
 style = "Medium"
 
 [font.glyph_offset]
@@ -29,7 +29,7 @@ y = 0
 
 [font.normal]
 # family = "RobotoMono Nerd Font Mono"
-family = "Hack Nerd Font"
+family = "Hack Nerd Font Mono"
 style = "Regular"
 
 [font.offset]
