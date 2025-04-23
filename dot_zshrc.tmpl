@@ -190,7 +190,7 @@ if command_exists fzf; then
 
     # Open repo with <c-g>
     function _ghq_fzf() {
-        local src=$(ghq list | fzf --prompt "> ")
+        local src=$(ghq list | fzf --prompt "[ghq] > ")
         zle redisplay
         if [ -n "$src" ]; then
             BUFFER="cd $(ghq root)/$src"
