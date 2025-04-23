@@ -179,7 +179,7 @@ if command_exists fzf; then
 
     # Enhanced <c-t>
     function select-file() {
-        local result=$(rg --files --hidden --follow --glob "!**/.git/*" | fzf +m --prompt="> ")
+        local result=$(rg --files --hidden --follow --glob "!**/.git/*" | fzf +m --prompt="[file] > ")
         if [ -n "$result" ]; then
             LBUFFER="${LBUFFER}${result}"
         fi
