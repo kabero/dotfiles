@@ -1,3 +1,5 @@
 .nvim.lua
 .myfiles/
+.my_tmp/
+kabe/
 .DS_Store
