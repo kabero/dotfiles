@@ -631,22 +631,19 @@ require('lazy').setup({
         event = 'VeryLazy',
         config = function()
             local hop = require('hop')
-            hop.setup()
+            hop.setup({
+                create_hl_autocmd = false,
+            })
             vim.keymap.set('n', '<leader>s', function()
-                hop.hint_words({ current_line_only = false, create_hl_autocmd = true })
+                hop.hint_words({ current_line_only = false, create_hl_autocmd = false })
             end, { remap = true })
             vim.api.nvim_set_keymap("n", "<leader>s", ":HopWordMW<CR>", { noremap = true, silent = true })
 
             -- highlights
-            vim.api.nvim_create_autocmd('ColorScheme', {
-                pattern = '*',
-                callback = function()
-                    vim.api.nvim_set_hl(0, 'HopNextKey', { fg = '#8a2be2', bold = true })
-                    vim.api.nvim_set_hl(0, 'HopNextKey1', { fg = '#5f9ea0', bold = true })
-                    vim.api.nvim_set_hl(0, 'HopNextKey2', { fg = '#5f9ea0', bold = true })
-                    vim.api.nvim_set_hl(0, 'HopUnmatched', { fg = '#153535' })
-                end,
-            })
+            vim.api.nvim_set_hl(0, 'HopNextKey', { fg = '#9d4edd', bg = '#2a2a2a', bold = true, cterm = { bold = true, italic = true } })
+            vim.api.nvim_set_hl(0, 'HopNextKey1', { fg = '#4cc9f0', bg = '#2a2a2a', bold = true, cterm = { bold = true } })
+            vim.api.nvim_set_hl(0, 'HopNextKey2', { fg = '#4cc9f0', bg = '#2a2a2a', bold = true, cterm = { bold = true } })
+            vim.api.nvim_set_hl(0, 'HopUnmatched', { fg = '#a1a1aa', bg = '#2a2a2a', cterm = { italic = true } })
         end
     },
 
