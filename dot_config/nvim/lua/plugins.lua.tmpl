@@ -348,7 +348,8 @@ require('lazy').setup({
                     },
                     methods = {
                         tyd = 'textDocument/typeDefinition',
-                    }
+                    },
+                    layout = 'telescope'
                 }
             })
             vim.keymap.set('n', '<leader>,', "<Cmd>Lspsaga finder<CR>", { desc = 'Telescope: live grep args', })
