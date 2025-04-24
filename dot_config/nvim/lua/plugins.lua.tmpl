@@ -640,10 +640,10 @@ require('lazy').setup({
             vim.api.nvim_set_keymap("n", "<leader>s", ":HopWordMW<CR>", { noremap = true, silent = true })
 
             -- highlights
-            vim.api.nvim_set_hl(0, 'HopNextKey', { fg = '#9d4edd', bg = '#2a2a2a', bold = true, cterm = { bold = true, italic = true } })
-            vim.api.nvim_set_hl(0, 'HopNextKey1', { fg = '#4cc9f0', bg = '#2a2a2a', bold = true, cterm = { bold = true } })
-            vim.api.nvim_set_hl(0, 'HopNextKey2', { fg = '#4cc9f0', bg = '#2a2a2a', bold = true, cterm = { bold = true } })
-            vim.api.nvim_set_hl(0, 'HopUnmatched', { fg = '#a1a1aa', bg = '#2a2a2a', cterm = { italic = true } })
+            vim.api.nvim_set_hl(0, 'HopNextKey', { fg = '#4cc9f0', bold = true, cterm = { bold = true, italic = true } })
+            vim.api.nvim_set_hl(0, 'HopNextKey1', { fg = '#9d4edd', bold = true, cterm = { bold = true } })
+            vim.api.nvim_set_hl(0, 'HopNextKey2', { fg = '#9d4edd', bold = true, cterm = { bold = true } })
+            vim.api.nvim_set_hl(0, 'HopUnmatched', { fg = '#444444', cterm = { italic = true } })
         end
     },
 
