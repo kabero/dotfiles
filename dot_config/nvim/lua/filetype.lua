@@ -43,7 +43,7 @@ vim.api.nvim_create_autocmd('FileType', {
 -- tmpl
 vim.filetype.add({
     extension = {
-        tmpl = function(path, bufnr)
+        tmpl = function(path, _)
             local original_ext = path:match("%.([^.]+)%.tmpl$")
             if original_ext then
                 return vim.filetype.match({ filename = path:gsub("%.tmpl$", "") })
@@ -51,4 +51,13 @@ vim.filetype.add({
             return "text"
         end,
     },
+})
+
+-- Disable search highlighting color for specific file types
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = { 'sagafinder' },
+    group = filetype_group,
+    callback = function()
+        vim.cmd('highlight Search ctermbg=NONE ctermfg=NONE guibg=NONE guifg=NONE')
+    end,
 })
