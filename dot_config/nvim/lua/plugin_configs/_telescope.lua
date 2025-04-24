@@ -67,6 +67,10 @@ telescope.setup {
             "--smart-case",
             "--hidden",
             "--glob=!.git/",
+            "--type-add",
+            "binary:ext:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,tar,gz,rar,7z,iso,img,bin,exe,dll,so,dylib",
+            "--type-not",
+            "binary",
         },
     },
     pickers = {
