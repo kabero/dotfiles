@@ -1,5 +1,5 @@
 [core]
-    ; pager = delta
+    ui = auto
 
 [interactive]
     diffFilter = delta --color-only
@@ -13,6 +13,9 @@
     side-by-side = true
     line-numbers = true
     syntax-theme = Monokai Extended
+
+[pull]
+    ff = only
 
 [merge]
     conflictstyle = diff3
