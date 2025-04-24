@@ -792,6 +792,18 @@ require('lazy').setup({
                 vim.fn['copilot#Dismiss']()
                 vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-c>', true, true, true), 'n', true)
             end, { noremap = true, silent = true })
+            vim.g.copilot_filetypes = {
+                ["*"] = true,
+                ["help"] = false,
+                ["gitcommit"] = false,
+                ["gitrebase"] = false,
+                ["hgcommit"] = false,
+                ["svn"] = false,
+                ["cvs"] = false,
+                [".*"] = false,
+            }
+            vim.g.copilot_enabled = true
+            vim.g.copilot_show_ghost_text = true
         end
     },
 
