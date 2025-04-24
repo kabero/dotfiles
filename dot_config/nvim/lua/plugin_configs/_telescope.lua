@@ -141,7 +141,7 @@ telescope.setup {
         git_status = {
             theme = "ivy",
             layout_config = {
-                height = 35 
+                height = 35
             }
         },
         git_files = {
