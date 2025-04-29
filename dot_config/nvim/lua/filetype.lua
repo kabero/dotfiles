@@ -53,6 +53,18 @@ vim.filetype.add({
     },
 })
 
+-- c
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'c',
+    group = filetype_group,
+    callback = function()
+        vim.opt_local.tabstop = 2
+        vim.opt_local.softtabstop = 2
+        vim.opt_local.shiftwidth = 2
+    end,
+})
+
+
 -- Disable search highlighting color for specific file types
 vim.api.nvim_create_autocmd('FileType', {
     pattern = { 'sagafinder', 'TelescopePrompt' },
