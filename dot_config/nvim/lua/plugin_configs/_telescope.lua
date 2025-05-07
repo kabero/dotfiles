@@ -53,7 +53,6 @@ telescope.setup {
             ".git",
             "target",
             "dist",
-            "build",
             "*.min.js",
             "*.min.css",
         },
