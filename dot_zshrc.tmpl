@@ -138,7 +138,7 @@ command_exists starship && eval "$(starship init zsh)"
 if command_exists fzf; then
     [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
     export FZF_COMPLETION_TRIGGER=","
-    export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!**/.git/*" --glob "!**/node_modules/*" --glob "!**/vendor/*" --glob "!**/dist/*" --glob "!**/build/*"'
+    export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!**/.git/*" --glob "!**/node_modules/*" --glob "!**/vendor/*" --glob "!**/dist/*"'
     export FZF_DEFAULT_OPTS="
     --height 50%
     --reverse
@@ -158,7 +158,7 @@ if command_exists fzf; then
     "
 
     # for finding files in current directories
-    export FZF_CTRL_T_COMMAND='rg --files --hidden --follow --glob "!**/.git/*" --glob "!**/node_modules/*" --glob "!**/vendor/*" --glob "!**/dist/*" --glob "!**/build/*"'
+    export FZF_CTRL_T_COMMAND='rg --files --hidden --follow --glob "!**/.git/*" --glob "!**/node_modules/*" --glob "!**/vendor/*" --glob "!**/dist/*"'
     export FZF_CTRL_T_OPTS="--prompt='[file] > '"
 
     # Enhanced <c-r>
