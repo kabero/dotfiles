@@ -79,6 +79,8 @@ if vim.g.neovide then
     vim.g.neovide_refresh_rate = 60
     vim.g.neovide_refresh_rate_idle = 5
     vim.g.neovide_scroll_animation_length = 0.3
+    vim.env.LANG      = 'ja_JP.UTF-8'
+    vim.env.LC_CTYPE  = 'ja_JP.UTF-8'
 end
 
 -- Highlight info
