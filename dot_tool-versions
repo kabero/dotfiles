@@ -1,0 +1,6 @@
+direnv 2.32.2
+python 3.10.1
+nodejs 22.15.0
+ruby 3.2.2
+terraform 1.4.6
+golang 1.21.3
