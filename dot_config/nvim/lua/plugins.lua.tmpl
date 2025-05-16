@@ -257,21 +257,23 @@ require('lazy').setup({
                 ensure_installed = {}
             }
 
-            mason_lspconfig.setup_handlers({ function(server)
-                local opts = {}
-                opts.on_attach = function(client, bufnr)
-                    -- Disable formatting for specific LSP clients (like intelephense)
-                    if client.name == "intelephense" then
-                        client.server_capabilities.documentFormattingProvider = false
-                        client.server_capabilities.documentRangeFormattingProvider = false
-                    end
+            mason_lspconfig.setup_handlers({
+                function(server)
+                    local opts = {}
+                    opts.on_attach = function(client, bufnr)
+                        -- Disable formatting for specific LSP clients (like intelephense)
+                        if client.name == "intelephense" then
+                            client.server_capabilities.documentFormattingProvider = false
+                            client.server_capabilities.documentRangeFormattingProvider = false
+                        end
 
-                    -- keymap for formatting
-                    local bufopts = { noremap = true, silent = true, buffer = bufnr }
-                    vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
-                end
-                nvim_lsp[server].setup(opts)
-            end })
+                        -- keymap for formatting
+                        local bufopts = { noremap = true, silent = true, buffer = bufnr }
+                        vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
+                    end
+                    nvim_lsp[server].setup(opts)
+                end,
+            })
 
             vim.diagnostic.config {
                 virtual_text = {
