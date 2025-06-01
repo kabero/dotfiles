@@ -5,4 +5,4 @@ kabe/
 .DS_Store
 
 **/.claude/settings.local.json
-CLAUDE.md
+CLAUDE.local.md
