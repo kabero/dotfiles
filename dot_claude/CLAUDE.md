@@ -1,3 +1,5 @@
+# CLAUDE.md (global rules for Claude, excluding project-specific rules)
+
 ### 最重要ルール - 新しいルールの追加プロセス
 
 ユーザから今回限りではなく常に対応が必要だと思われる指示を受けた場合:
