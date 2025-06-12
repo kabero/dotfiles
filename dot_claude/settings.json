@@ -70,6 +70,7 @@
       "Bash(gh pr diff:*)",
       "Bash(gh issue create:*)",
       "Bash(gh issue edit:*)",
+      "Bash(git log:*)",
       "mcp__atlassian__searchJiraIssuesUsingJql",
       "mcp__atlassian__searchConfluenceUsingCql",
       "mcp__atlassian__atlassianUserInfo",
