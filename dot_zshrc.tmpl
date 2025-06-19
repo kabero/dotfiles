@@ -167,7 +167,7 @@ if command_exists fzf; then
         local query=$LBUFFER
         local result=$(history -n -r 1 | fzf +m --print-query --query "$query" --prompt="[cmd] > " --exact)
         if [ -n "$result" ]; then
-            BUFFER=$(echo "$result" | tail -n 1)
+            BUFFER=$(echo "$result" | tail -n 1 | tr -d '\n')
         else
             BUFFER=$query
         fi
