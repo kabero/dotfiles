@@ -71,6 +71,7 @@
       "Bash(gh issue create:*)",
       "Bash(gh issue edit:*)",
       "Bash(git log:*)",
+      "Bash(say:*)",
       "mcp__atlassian__searchJiraIssuesUsingJql",
       "mcp__atlassian__searchConfluenceUsingCql",
       "mcp__atlassian__atlassianUserInfo",
