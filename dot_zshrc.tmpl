@@ -242,7 +242,7 @@ d() {
 }
 
 # personal notes and drafts
-# ignore kabe directory in git
+# - ignore kabe directory in git
 _k() {
     if git rev-parse --is-inside-work-tree >/dev/null 2>&1 && [[ -d ./kabe ]]; then
         local -a files
