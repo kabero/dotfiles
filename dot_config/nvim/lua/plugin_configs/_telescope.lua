@@ -55,6 +55,53 @@ telescope.setup {
             "dist/",
             "*.min.js",
             "*.min.css",
+            "build/",
+            "out/",
+            "bin/",
+            "obj/",
+            ".next/",
+            ".nuxt/",
+            "_site/",
+            "public/build/",
+            -- logs
+            "*.log",
+            "logs/",
+            "log/",
+            -- temporary files
+            "__pycache__/",
+            "*.pyc",
+            "*.pyo",
+            ".pytest_cache/",
+            ".coverage",
+            "coverage/",
+            "htmlcov/",
+            -- compiled files
+            "*.class",
+            "*.jar",
+            "*.war",
+            "*.o",
+            "*.so",
+            "*.dll",
+            "*.exe",
+            -- images
+            "*.jpg",
+            "*.jpeg",
+            "*.png",
+            "*.gif",
+            "*.svg",
+            "*.ico",
+            "*.mp4",
+            "*.mp3",
+            "*.wav",
+            -- docs
+            "*.pdf",
+            "*.doc",
+            "*.docx",
+            "*.xls",
+            "*.xlsx",
+            "*.ppt",
+            "*.pptx",
+            "*.lock",
         },
         vimgrep_arguments = {
             "rg",
@@ -196,7 +243,7 @@ telescope.setup {
 
 function SearchChangesFilesInBranch()
     require('telescope.builtin').git_files({
-        git_command = { "git", "diff", "--name-only", "master..."},
+        git_command = { "git", "diff", "--name-only", "master..." },
         prompt_title = "Changed Files in Current Branch",
         use_git_root = true,
     })
