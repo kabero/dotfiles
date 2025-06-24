@@ -397,8 +397,8 @@ require('lazy').setup({
             vim.keymap.set('n', '[g', '<cmd>Lspsaga diagnostic_jump_prev<CR>')
 
             -- show all diagnostics (buffer, workspace)
-            vim.keymap.set('n', '<leader>d', '<cmd>Lspsaga show_buf_diagnostics<CR>')
-            vim.keymap.set('n', '<leader>D', '<cmd>Lspsaga show_workspace_diagnostics<CR>')
+            vim.keymap.set('n', '<leader>fd', '<cmd>Lspsaga show_buf_diagnostics<CR>')
+            vim.keymap.set('n', '<leader>fw', '<cmd>Lspsaga show_workspace_diagnostics<CR>')
 
             -- toggle outline
             vim.keymap.set('n', '<leader>0', '<cmd>Lspsaga outline<CR>')
