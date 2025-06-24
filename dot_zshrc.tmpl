@@ -274,7 +274,11 @@ k() {
     if [[ $# -eq 0 ]]; then
         ls ./kabe
     elif [[ $# -eq 1 ]]; then
-        vim $1
+        if [[ "$1" == kabe/* ]]; then
+            vim $1
+        else
+            vim kabe/$1
+        fi
     else
         echo "Usage: k [filename]"
         echo "If no filename is provided, it lists the contents of the kabe directory."
