@@ -262,18 +262,3 @@ function ssh() {
 }
 
 alias c='claude'
-
-function ccommit() {
-    changed_files=$(git diff --cached --name-only)
-    if [ -z "$changed_files" ]; then
-        echo "No changes to commit."
-        return 1
-    fi
-    claude_prompt="現在ステージされているファイルについて、その変更点を踏まえてprefix付きのコミットメッセージ(日本語)を考えてください。ex) fix: <commit message>"
-    claude -p $claude_prompt | tee >(pbcopy)
-}
-
-function ccommand() {
-    _prompt="$* ...このようなシェルコマンドをワンライナーで出力してください"
-    claude -p $_prompt | tee >(pbcopy)
-}
