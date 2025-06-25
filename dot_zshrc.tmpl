@@ -261,7 +261,8 @@ k() {
     fi
 
     if [[ ! -e ./kabe ]]; then
-        local yn = $(read -q "kabe directory does not exist. Create it? (y/n) " && echo $yn)
+        echo -n "kabe directory does not exist. Create it? (y/n) "
+        read yn
         if [[ $yn == "y" || $yn == "Y" ]]; then
             mkdir kabe
             echo "kabe directory created."
