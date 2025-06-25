@@ -55,7 +55,6 @@ telescope.setup {
             "dist/",
             "*.min.js",
             "*.min.css",
-            "build/",
             "out/",
             "bin/",
             "obj/",
