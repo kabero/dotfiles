@@ -1,0 +1,2 @@
+regex=root
+colours=red
