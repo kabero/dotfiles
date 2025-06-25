@@ -1,6 +1,10 @@
 # Default config
 # https://starship.rs/config/#prompt
 
+# Reduce prompt update frequency
+scan_timeout = 30
+command_timeout = 1000
+
 format = """
 $username\
 $hostname\
@@ -38,7 +42,7 @@ success_symbol = '[\$](bold green)'
 error_symbol = '[\$](bold red)'
 
 [custom.parent_repo]
-when = true
+when = false
 require_repo = true
 command = 'super_root=$(git rev-parse --show-superproject-working-tree); if [[ -n "$super_root" ]]; then result=$(git rev-parse --show-toplevel | sed "s|^$(dirname "$super_root")/*||" | xargs dirname); if [[ -n "$result" ]]; then echo "${result}/"; else echo "/"; fi; fi'
 style = "bold cyan"
@@ -64,7 +68,7 @@ disabled = true
 force_display = false
 
 [custom.git_name]
-when = true
+when = false
 require_repo = true
 command = 'git config --get user.name'
 symbol = ''
