@@ -1,0 +1,23 @@
+regexp=DEBUG
+colours=bold magenta
+-
+regexp=INFO
+colours=bold green
+-
+regexp=WARNING
+colours=bold yellow
+-
+regexp=(?i)ERROR
+colours=bold red
+-
+regexp=SQL:
+colours=bold cyan
+-
+regexp=\"(?:[^\"\\]|\\[\"\\nrtbf]|\\u[0-9a-fA-F]{4})*\"
+colours=bold yellow
+-
+regexp=`[^`]*`
+colours=bold yellow
+-
+regexp=^\[.*?\]
+colours=bold blue
