@@ -17,8 +17,9 @@ size = 14
 
 [font.bold]
 # family = "RobotoMono Nerd Font Mono"
-family = "Hack Nerd Font Mono"
-style = "Medium"
+# family = "Hack Nerd Font Mono"
+family = "UDEV Gothic 35NF"
+style = "Bold"
 
 [font.glyph_offset]
 x = 0
@@ -26,8 +27,13 @@ y = 0
 
 [font.normal]
 # family = "RobotoMono Nerd Font Mono"
-family = "Hack Nerd Font Mono"
+# family = "Hack Nerd Font Mono"
+family = "UDEV Gothic 35NF"
 style = "Regular"
+
+[font.italic]
+family = "UDEV Gothic 35NF"
+style = "Italic"
 
 [font.offset]
 x = 0
