@@ -12,7 +12,7 @@ vim.cmd [[
         autocmd Colorscheme * set cursorline
         autocmd Colorscheme * highlight CopilotSuggestion guifg=#bb00cc ctermfg=blue
         autocmd Colorscheme * highlight SignColumn guibg=NONE
-        autocmd Colorscheme * highlight CursorLine ctermbg=none guibg=#1c1c1c
+        autocmd Colorscheme * highlight CursorLine ctermbg=none guibg=#2f2f2f
 
         " Comment
         autocmd Colorscheme * highlight Comment ctermbg=none guibg=none guifg=#6f6f6f
