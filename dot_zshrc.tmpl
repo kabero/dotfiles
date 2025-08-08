@@ -246,7 +246,7 @@ v() {
 
     if [[ $1 == "n" || $1 == "new" ]]; then
         local next_version=$(uuidgen)
-        vi ~/notes/$next_version.md
+        vim ~/notes/$next_version.md
         if [[ -f ~/notes/$next_version.md ]]; then
             echo $next_version > ~/notes/.version
         fi
