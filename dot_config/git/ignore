@@ -4,6 +4,8 @@
 kabe/
 .DS_Store
 
+**/.serena
+
 **/.claude/settings.local.json
 
 **/CLAUDE.local.md
