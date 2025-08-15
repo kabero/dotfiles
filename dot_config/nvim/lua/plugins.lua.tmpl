@@ -796,6 +796,7 @@ require('lazy').setup({
             end, { noremap = true, silent = true })
             vim.g.copilot_filetypes = {
                 ["*"] = true,
+                -- Documentation & VCS
                 ["help"] = false,
                 ["gitcommit"] = false,
                 ["gitrebase"] = false,
@@ -804,9 +805,97 @@ require('lazy').setup({
                 ["cvs"] = false,
                 ["md"] = false,
                 [".*"] = false,
+                -- Security sensitive files
+                [".env"] = false,
+                ["env"] = false,
+                ["ssh_config"] = false,
+                ["passwd"] = false,
+                ["shadow"] = false,
+                ["sudoers"] = false,
+                -- Secrets and keys
+                ["pem"] = false,
+                ["key"] = false,
+                ["cert"] = false,
+                ["crt"] = false,
+                ["ca"] = false,
+                ["p12"] = false,
+                ["pfx"] = false,
+                ["jks"] = false,
+                ["gpg"] = false,
+                ["asc"] = false,
+                -- Config files with potential secrets
+                ["yaml"] = false,
+                ["yml"] = false,
+                ["toml"] = false,
+                ["ini"] = false,
+                ["cfg"] = false,
+                ["conf"] = false,
+                ["config"] = false,
+                ["json"] = false,
+                -- Database files
+                ["sql"] = false,
+                ["sqlite"] = false,
+                ["sqlite3"] = false,
+                ["db"] = false,
+                -- Terraform/Infrastructure
+                ["tf"] = false,
+                ["tfvars"] = false,
+                ["tfstate"] = false,
+                -- Kubernetes
+                ["kubeconfig"] = false,
+                -- Binary files
+                ["bin"] = false,
+                ["exe"] = false,
+                ["dll"] = false,
+                ["so"] = false,
+                ["dylib"] = false,
             }
             vim.g.copilot_enabled = true
             vim.g.copilot_show_ghost_text = true
+            
+            -- Path pattern based exclusions
+            vim.api.nvim_create_autocmd({"BufEnter", "BufNewFile"}, {
+                pattern = "*",
+                callback = function()
+                    local bufname = vim.fn.expand("%:p")
+                    local disable_patterns = {
+                        "%.env",              -- any .env files
+                        "%.env%.",            -- .env.local, .env.production, etc
+                        "/%.ssh/",            -- SSH directory
+                        "/%.gnupg/",          -- GPG directory
+                        "/%.aws/",            -- AWS credentials
+                        "/%.kube/",           -- Kubernetes configs
+                        "/%.docker/",         -- Docker configs
+                        "%.pem$",             -- PEM files
+                        "%.key$",             -- Key files
+                        "%.crt$",             -- Certificate files
+                        "%.p12$",             -- PKCS12 files
+                        "/private/",          -- private directories
+                        "/secrets/",          -- secrets directories
+                        "/credentials/",      -- credentials directories
+                        "id_rsa",             -- SSH private keys
+                        "id_dsa",             -- SSH private keys
+                        "id_ecdsa",           -- SSH private keys
+                        "id_ed25519",         -- SSH private keys
+                        "%.asc$",             -- GPG ASCII armored files
+                        "%.gpg$",             -- GPG encrypted files
+                        "/vault/",            -- Vault directories
+                        "%.tfstate",          -- Terraform state files
+                        "%.tfvars",           -- Terraform variables
+                        "shadow$",            -- Shadow password file
+                        "passwd$",            -- Password file
+                        "%.sqlite",           -- SQLite databases
+                        "%.db$",              -- Database files
+                    }
+                    
+                    for _, pattern in ipairs(disable_patterns) do
+                        if bufname:match(pattern) then
+                            vim.b.copilot_enabled = false
+                            break
+                        end
+                    end
+                end
+            })
         end
     },
 
