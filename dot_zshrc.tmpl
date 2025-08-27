@@ -235,7 +235,7 @@ v() {
     if [[ $# -eq 0 ]]; then
         local latest_version=$(tail -n1 ~/notes/.version 2>/dev/null || echo -n "")
         if [[ -f ~/notes/$latest_version.md ]]; then
-            vi ~/notes/$latest_version.md
+            vim ~/notes/$latest_version.md
         else
             echo "No notes found. Create a new note with 'v n' or 'v new'."
             rm ~/notes/.version 2>/dev/null
