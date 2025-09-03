@@ -44,6 +44,7 @@ vim.opt.tabstop = 4
 
 -- Others
 vim.api.nvim_command('filetype plugin indent on')
+vim.opt.autoread = true
 vim.opt.compatible = false
 vim.opt.hidden = true
 vim.opt.swapfile = false
