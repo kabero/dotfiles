@@ -11,6 +11,9 @@ autoload -Uz colors
 colors
 bindkey -e
 
+# my commands
+export PATH="$HOME/pyscripts:$PATH"
+
 # asdf
 {{ if eq .chezmoi.os "darwin" }}
 {{ if eq .chezmoi.arch "arm64" }}
