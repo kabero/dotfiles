@@ -328,52 +328,6 @@ d() {
     docker compose exec $@
 }
 
-# personal notes and drafts
-# - ignore kabe directory in git
-_k() {
-    if git rev-parse --is-inside-work-tree >/dev/null 2>&1 && [[ -d ./kabe ]]; then
-        local -a files
-        files=(./kabe/*(N:t)) 
-        
-        if (( ${#files} > 0 )); then
-            _describe 'kabe files' files -P 'kabe/'
-        fi
-    fi
-}
-
-k() {
-    if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-        echo "This is not a git repository."
-        return 1
-    fi
-
-    if [[ ! -e ./kabe ]]; then
-        echo -n "kabe directory does not exist. Create it? (y/n) "
-        read yn
-        if [[ $yn == "y" || $yn == "Y" ]]; then
-            mkdir kabe
-            echo "kabe directory created."
-        else
-            echo "Exiting without creating kabe directory."
-            return 1
-        fi
-    fi
-
-    if [[ $# -eq 0 ]]; then
-        ls ./kabe
-    elif [[ $# -eq 1 ]]; then
-        if [[ "$1" == kabe/* ]]; then
-            vim $1
-        else
-            vim kabe/$1
-        fi
-    else
-        echo "Usage: k [filename]"
-        echo "If no filename is provided, it lists the contents of the kabe directory."
-    fi
-}
-compdef _k k
-
 ## git status
 git-path() {
     if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
