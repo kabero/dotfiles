@@ -193,7 +193,6 @@ require('lazy').setup({
         lazy = false,
         config = function()
             local mason_lspconfig = require('mason-lspconfig')
-            local nvim_lsp = require('lspconfig')
             require('mason-lspconfig').setup {
                 ensure_installed = {}
             }
@@ -212,7 +211,7 @@ require('lazy').setup({
                         local bufopts = { noremap = true, silent = true, buffer = bufnr }
                         vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
                     end
-                    nvim_lsp[server].setup(opts)
+                    vim.lsp.config(server, opts)
                 end,
             })
 
