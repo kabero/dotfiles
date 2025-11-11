@@ -93,8 +93,8 @@ require('lazy').setup({
     {
         'nvim-treesitter/nvim-treesitter',
         branch = 'master',
-        lazy = false,
         build = ':TSUpdate',
+        lazy = false,
         event = { "BufReadPost", "BufNewFile" },
         dependencies = 'windwp/nvim-ts-autotag',
         config = function()
@@ -436,6 +436,7 @@ require('lazy').setup({
 
     {
         'nvimtools/none-ls.nvim',
+        event = "VeryLazy",
         dependencies = { "nvim-lua/plenary.nvim" },
         config = function()
             local null_ls = require("null-ls")
@@ -646,11 +647,13 @@ require('lazy').setup({
     },
 
     {
-        "norcalli/nvim-colorizer.lua"
+        "norcalli/nvim-colorizer.lua",
+        event = "VeryLazy",
     },
 
     {
         "folke/todo-comments.nvim",
+        event = "VeryLazy",
         dependencies = { "nvim-lua/plenary.nvim" },
     },
 
