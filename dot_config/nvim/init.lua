@@ -16,60 +16,85 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- Restore last position of cursor
-vim.cmd [[
-augroup restore-cursor
-  autocmd!
-  autocmd BufReadPost *
-        \ : if line("'\"") >= 1 && line("'\"") <= line("$")
-        \ |   exe "normal! g`\""
-        \ | endif
-  autocmd BufWinEnter *
-        \ : if empty(&buftype) && line('.') > winheight(0) / 2
-        \ |   execute 'normal! zz'
-        \ | endif
-augroup END
-]]
+local restore_cursor_group = vim.api.nvim_create_augroup('restore-cursor', { clear = true })
+
+vim.api.nvim_create_autocmd('BufReadPost', {
+    group = restore_cursor_group,
+    callback = function()
+        local mark = vim.api.nvim_buf_get_mark(0, '"')
+        local lcount = vim.api.nvim_buf_line_count(0)
+        if mark[1] > 0 and mark[1] <= lcount then
+            pcall(vim.api.nvim_win_set_cursor, 0, mark)
+        end
+    end,
+})
+
+vim.api.nvim_create_autocmd('BufWinEnter', {
+    group = restore_cursor_group,
+    callback = function()
+        -- Only center if buffer is not special and cursor is below half window
+        if vim.bo.buftype == '' and vim.fn.line('.') > vim.fn.winheight(0) / 2 then
+            vim.cmd('normal! zz')
+        end
+    end,
+})
 
 -- Avoid automatically commenting when adding a new line
-vim.cmd [[ autocmd FileType * setlocal formatoptions-=r ]]
-vim.cmd [[ autocmd FileType * setlocal formatoptions-=o ]]
+vim.api.nvim_create_autocmd('FileType', {
+    callback = function()
+        vim.opt_local.formatoptions:remove({ 'r', 'o' })
+    end,
+})
 
 -- Highlight ideographic space
-vim.cmd [[
-    augroup highlightIdegraphicSpace
-        autocmd!
-        autocmd Colorscheme * highlight IdeographicSpace term=underline ctermbg=DarkGreen guibg=DarkGreen
-        autocmd VimEnter,WinEnter * match IdeographicSpace /　/
-    augroup END
-]]
+local ideographic_space_group = vim.api.nvim_create_augroup('highlightIdegraphicSpace', { clear = true })
+
+vim.api.nvim_create_autocmd('Colorscheme', {
+    group = ideographic_space_group,
+    callback = function()
+        vim.api.nvim_set_hl(0, 'IdeographicSpace', { bg = 'DarkGreen' })
+    end,
+})
+
+vim.api.nvim_create_autocmd({ 'VimEnter', 'WinEnter' }, {
+    group = ideographic_space_group,
+    callback = function()
+        vim.fn.matchadd('IdeographicSpace', '　')
+    end,
+})
 
 -- Highlight chezmoi template files
-vim.cmd [[
-    augroup highlightTmplFile
-        autocmd!
-        autocmd BufRead *.tmpl call g:DetermineExtOfTmpl()
-        function! g:DetermineExtOfTmpl()
-            let fname_without_tmpl = expand('%:t:r')
-            if fname_without_tmpl == "dot_zshrc"
-                let &filetype="zsh"
-            else
-                let &filetype=expand('%:t:r:e')
-            endif
-        endfunction
-    augroup END
-]]
+local tmpl_group = vim.api.nvim_create_augroup('highlightTmplFile', { clear = true })
+
+vim.api.nvim_create_autocmd('BufRead', {
+    group = tmpl_group,
+    pattern = '*.tmpl',
+    callback = function()
+        local fname_without_tmpl = vim.fn.expand('%:t:r')
+        if fname_without_tmpl == "dot_zshrc" then
+            vim.bo.filetype = "zsh"
+        else
+            vim.bo.filetype = vim.fn.expand('%:t:r:e')
+        end
+    end,
+})
 
 -- Terminal
-vim.cmd [[
-    autocmd TermOpen * setlocal norelativenumber
-    autocmd TermOpen * setlocal nonumber
-]]
+vim.api.nvim_create_autocmd('TermOpen', {
+    callback = function()
+        vim.opt_local.relativenumber = false
+        vim.opt_local.number = false
+    end,
+})
 
 -- Disable line numbers in Notes directory
-vim.cmd [[
-    autocmd BufEnter ~/Notes/** setlocal norelativenumber
-    autocmd BufEnter ~/Notes/** setlocal nonumber
-]]
+vim.api.nvim_create_autocmd('BufEnter', {
+    pattern = vim.fn.expand('~/Notes') .. '/**',
+    callback = function()
+        vim.opt_local.relativenumber = false
+        vim.opt_local.number = false
+    end,
+})
 
 -- Config of neovide
 if vim.g.neovide then
