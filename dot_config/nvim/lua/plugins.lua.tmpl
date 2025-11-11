@@ -601,22 +601,6 @@ require('lazy').setup({
         end
     },
 
-    {
-        'ojroques/nvim-osc52',
-        event = 'VeryLazy',
-        config = function()
-            if vim.fn.has('unix') == 1 and vim.fn.exists('$SSH_CLIENT') == 1 then
-                local function copy()
-                    if vim.v.event.operator == 'y' then
-                        require('osc52').copy_register('0')
-                    end
-                end
-
-                vim.api.nvim_create_autocmd('TextYankPost', { callback = copy })
-            end
-        end
-    },
-
     { 'vim-denops/denops.vim' },
 
     {
