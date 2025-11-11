@@ -38,7 +38,11 @@ require('nvim-treesitter.configs').setup {
         enable = true,
         additional_vim_regex_highlighting = false,
         disable = function(lang, buf)
-            local max_filesize = 100 * 1024 -- 100 KB
+            if vim.tbl_contains({ 'markdown' }, lang) then
+                return false
+            end
+
+            local max_filesize = 1000 * 1024 -- 1MB
             local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
             if ok and stats and stats.size > max_filesize then
                 return true
