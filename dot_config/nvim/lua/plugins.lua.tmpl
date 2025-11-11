@@ -170,6 +170,7 @@ require('lazy').setup({
 
     {
         'williamboman/mason.nvim',
+        version = '^1.0.0',
         event = "VeryLazy",
         build = ":MasonUpdate",
         config = function()
@@ -188,6 +189,7 @@ require('lazy').setup({
 
     {
         'williamboman/mason-lspconfig.nvim',
+        version = '^1.0.0',
         lazy = false,
         config = function()
             local mason_lspconfig = require('mason-lspconfig')
@@ -312,6 +314,9 @@ require('lazy').setup({
             -- peek_definition
             vim.keymap.set('n', 'gp', '<cmd>Lspsaga peek_definition<CR>')
 
+            -- find references
+            vim.keymap.set('n', 'gr', '<cmd>Lspsaga finder ref<CR>')
+
             -- peek type definition
             -- vim.keymap.set('n', '', '<cmd>lua vim.lsp.buf.type_definition()<CR>')
 
@@ -329,7 +334,7 @@ require('lazy').setup({
             vim.keymap.set("n", "<Leader>co", "<cmd>Lspsaga outgoing_calls<CR>")
 
             -- rename (entire file)
-            vim.keymap.set('n', 'gr', '<cmd>Lspsaga rename<CR>')
+            vim.keymap.set('n', 'gR', '<cmd>Lspsaga rename<CR>')
 
             -- navigate between diagnostics
             vim.keymap.set('n', ']g', '<cmd>Lspsaga diagnostic_jump_next<CR>')
