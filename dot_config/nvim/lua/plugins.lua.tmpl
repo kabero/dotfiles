@@ -195,7 +195,7 @@ require('lazy').setup({
     {
         'williamboman/mason-lspconfig.nvim',
         version = '^1.0.0',
-        lazy = false,
+        event = "VeryLazy",
         config = function()
             local mason_lspconfig = require('mason-lspconfig')
             require('mason-lspconfig').setup {
@@ -469,13 +469,10 @@ require('lazy').setup({
                 -- }),
 
                 -- Go
-                -- null_ls.builtins.formatting.gofmt,
+                null_ls.builtins.formatting.gofmt,
 
                 -- Rust
-                -- null_ls.builtins.formatting.rustfmt,
-
-                -- PHP
-                -- null_ls.builtins.formatting.pint,
+                null_ls.builtins.formatting.rustfmt,
 
                 -- yaml
                 -- null_ls.builtins.diagnostics.yamllint,
@@ -559,7 +556,8 @@ require('lazy').setup({
     },
 
     {
-        "tpope/vim-sleuth"
+        "tpope/vim-sleuth",
+        event = "BufReadPost",
     },
 
     {
@@ -602,7 +600,10 @@ require('lazy').setup({
         end
     },
 
-    { 'vim-denops/denops.vim' },
+    {
+        'vim-denops/denops.vim',
+        event = "VeryLazy",
+    },
 
     {
         'akinsho/git-conflict.nvim',
@@ -659,6 +660,7 @@ require('lazy').setup({
 
     {
         "hiphish/rainbow-delimiters.nvim",
+        event = "VeryLazy",
         config = function()
             local rainbow_delimiters = require 'rainbow-delimiters'
             vim.g.rainbow_delimiters = {
@@ -822,6 +824,7 @@ require('lazy').setup({
 
     {
         'RRethy/vim-illuminate',
+        event = "BufReadPost",
         config = function()
             require('illuminate').configure({
                 filetypes_denylist = {
@@ -900,6 +903,7 @@ require('lazy').setup({
 
     {
         'JoosepAlviste/nvim-ts-context-commentstring',
+        event = "VeryLazy",
     },
 
     {
