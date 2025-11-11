@@ -18,6 +18,8 @@ require('lazy').setup({
 
     {
         "sainnhe/everforest",
+        priority = 1000,
+        lazy = false,
         config = function()
             vim.cmd [[ let g:everforest_background = 'hard' ]]
             -- use the blue defined in everforest for highlighting constants
@@ -86,10 +88,13 @@ require('lazy').setup({
         end
     },
 
-    { 'tpope/vim-commentary', lazy = false },
+    { 'tpope/vim-commentary', event = "VeryLazy" },
 
     {
         'nvim-treesitter/nvim-treesitter',
+        branch = 'master',
+        lazy = false,
+        build = ':TSUpdate',
         event = { "BufReadPost", "BufNewFile" },
         dependencies = 'windwp/nvim-ts-autotag',
         config = function()
@@ -99,7 +104,7 @@ require('lazy').setup({
 
     {
         'EmranMR/tree-sitter-blade',
-        lazy = false,
+        ft = "blade",
         dependencies = 'nvim-treesitter/nvim-treesitter',
         config = function()
             local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
@@ -652,7 +657,8 @@ require('lazy').setup({
     },
 
     {
-        "rhysd/committia.vim"
+        "rhysd/committia.vim",
+        ft = "gitcommit",
     },
 
     {
@@ -701,7 +707,7 @@ require('lazy').setup({
 
     {
         "github/copilot.vim",
-        lazy = false,
+        event = "InsertEnter",
         config = function()
             vim.keymap.set("i", "<C-l>", 'copilot#Accept()', { silent = true, expr = true, replace_keycodes = false })
             vim.g.copilot_no_tab_map = true
@@ -945,7 +951,7 @@ require('lazy').setup({
         'cordx56/rustowl',
         version = '*',
         build = 'cargo install --path . --locked',
-        lazy = false, -- This plugin is already lazy
+        ft = "rust",
         opts = {
             client = {
                 on_attach = function(_, buffer)
