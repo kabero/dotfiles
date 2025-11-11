@@ -1,0 +1,117 @@
+-- Project-local Neovim configuration
+-- Copy this file to your project root as .nvim.lua
+-- You will be prompted to trust this file on first load
+
+-- ============================================================================
+-- Python Project (uv + ruff)
+-- ============================================================================
+vim.api.nvim_create_autocmd("LspAttach", {
+    callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+        -- Override formatting for Python with uv + ruff
+        if client.name == "pyright" then
+            vim.keymap.set('n', 'gl', function()
+                vim.cmd('!uv run ruff format %')
+                vim.cmd('edit!')
+            end, { buffer = args.buf, desc = "Format with uv run ruff" })
+
+            -- Optional: Auto-format on save
+            -- vim.api.nvim_create_autocmd("BufWritePre", {
+            --     buffer = args.buf,
+            --     callback = function()
+            --         vim.cmd('silent !uv run ruff format %')
+            --     end,
+            -- })
+        end
+    end,
+})
+
+-- Set Python interpreter to project's venv
+-- vim.g.python3_host_prog = vim.fn.getcwd() .. "/.venv/bin/python"
+
+-- ============================================================================
+-- TypeScript/JavaScript Project (prettier + eslint)
+-- ============================================================================
+-- vim.api.nvim_create_autocmd("LspAttach", {
+--     callback = function(args)
+--         local client = vim.lsp.get_client_by_id(args.data.client_id)
+--
+--         if client.name == "tsserver" then
+--             vim.keymap.set('n', 'gl', function()
+--                 vim.cmd('!npx prettier --write %')
+--                 vim.cmd('edit!')
+--             end, { buffer = args.buf, desc = "Format with prettier" })
+--         end
+--     end,
+-- })
+
+-- ============================================================================
+-- PHP/Laravel Project (pint)
+-- ============================================================================
+-- vim.api.nvim_create_autocmd("LspAttach", {
+--     callback = function(args)
+--         local client = vim.lsp.get_client_by_id(args.data.client_id)
+--
+--         if client.name == "intelephense" then
+--             vim.keymap.set('n', 'gl', function()
+--                 vim.cmd('!./vendor/bin/pint %')
+--                 vim.cmd('edit!')
+--             end, { buffer = args.buf, desc = "Format with pint" })
+--         end
+--     end,
+-- })
+
+-- ============================================================================
+-- Ruby Project (rubocop)
+-- ============================================================================
+-- vim.api.nvim_create_autocmd("LspAttach", {
+--     callback = function(args)
+--         local client = vim.lsp.get_client_by_id(args.data.client_id)
+--
+--         if client.name == "solargraph" then
+--             vim.keymap.set('n', 'gl', function()
+--                 vim.cmd('!bundle exec rubocop -a %')
+--                 vim.cmd('edit!')
+--             end, { buffer = args.buf, desc = "Format with rubocop" })
+--         end
+--     end,
+-- })
+
+-- ============================================================================
+-- Go Project (gofmt/goimports)
+-- ============================================================================
+-- vim.api.nvim_create_autocmd("LspAttach", {
+--     callback = function(args)
+--         local client = vim.lsp.get_client_by_id(args.data.client_id)
+--
+--         if client.name == "gopls" then
+--             -- gopls already handles formatting, but you can override
+--             vim.keymap.set('n', 'gl', function()
+--                 vim.cmd('!goimports -w %')
+--                 vim.cmd('edit!')
+--             end, { buffer = args.buf, desc = "Format with goimports" })
+--         end
+--     end,
+-- })
+
+-- ============================================================================
+-- Custom Project Keymaps
+-- ============================================================================
+-- vim.keymap.set('n', '<leader>t', ':!make test<CR>', { desc = "Run tests" })
+-- vim.keymap.set('n', '<leader>b', ':!make build<CR>', { desc = "Build project" })
+-- vim.keymap.set('n', '<leader>r', ':!./run.sh<CR>', { desc = "Run project" })
+
+-- ============================================================================
+-- Project-specific Options
+-- ============================================================================
+-- vim.opt_local.tabstop = 2
+-- vim.opt_local.shiftwidth = 2
+-- vim.opt_local.expandtab = true
+
+-- ============================================================================
+-- Custom Commands
+-- ============================================================================
+-- vim.api.nvim_create_user_command('Test', function()
+--     vim.cmd('!make test')
+-- end, {})

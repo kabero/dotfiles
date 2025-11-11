@@ -165,7 +165,7 @@ require('lazy').setup({
 
     {
         'neovim/nvim-lspconfig',
-        event = 'InsertEnter',
+        event = 'VeryLazy',
     },
 
     {
@@ -199,7 +199,14 @@ require('lazy').setup({
         config = function()
             local mason_lspconfig = require('mason-lspconfig')
             require('mason-lspconfig').setup {
-                ensure_installed = {}
+                -- ensure_installed = {
+                    -- "gopls",           -- Go
+                    -- "rust_analyzer",   -- Rust
+                    -- "tsserver",        -- TypeScript/JavaScript
+                    -- "pyright",         -- Python
+                    -- "solargraph",      -- Ruby
+                    -- "intelephense",    -- PHP/Laravel
+                -- }
             }
 
             mason_lspconfig.setup_handlers({
@@ -307,7 +314,7 @@ require('lazy').setup({
             -- lsp_finder
             vim.keymap.set('n', 'gh', '<cmd>Lspsaga lsp_finder<CR>')
 
-            -- code_action
+            -- code_action (quick access)
             vim.keymap.set('n', 'ga', '<cmd>Lspsaga code_action<CR>')
 
             -- goto_definition
@@ -441,48 +448,31 @@ require('lazy').setup({
         config = function()
             local null_ls = require("null-ls")
             local sources = {
-                -- Ruby
-                -- null_ls.builtins.diagnostics.rubocop.with({
-                --     prefer_local = "bin",
+                -- Go
+                -- null_ls.builtins.formatting.gofmt,
+
+                -- Rust
+                -- null_ls.builtins.formatting.rustfmt,
+
+                -- TypeScript/JavaScript
+                -- null_ls.builtins.formatting.prettier.with({
+                --     prefer_local = "node_modules/.bin",
                 -- }),
+                -- Note: eslint diagnostics are handled by tsserver LSP
+
+                -- Python (using uv + ruff)
+                -- Note: ruff formatting/diagnostics are handled by pyright LSP
+                -- Use 'uv run ruff format' manually or via external formatter if needed
+
+                -- Ruby
                 -- null_ls.builtins.formatting.rubocop.with({
                 --     prefer_local = "bin",
                 -- }),
 
-                -- Python
-                -- null_ls.builtins.diagnostics.flake8.with({
-                --     -- prefer_local = ".direnv/python-*/bin"
-                --     prefer_local = ".venv/bin"
-                -- }),
-                -- null_ls.builtins.formatting.isort.with({
-                --     -- prefer_local = ".direnv/python-*/bin"
-                --     prefer_local = ".venv/bin"
-                -- }),
-                -- null_ls.builtins.formatting.black.with({
-                --     -- prefer_local = ".direnv/python-*/bin"
-                --     prefer_local = ".venv/bin"
-                -- }),
-
-                -- PHP
+                -- PHP/Laravel
                 -- null_ls.builtins.formatting.pint.with({
                 --     prefer_local = "vendor/bin"
                 -- }),
-
-                -- Go
-                null_ls.builtins.formatting.gofmt,
-
-                -- Rust
-                null_ls.builtins.formatting.rustfmt,
-
-                -- yaml
-                -- null_ls.builtins.diagnostics.yamllint,
-
-                -- Eslint
-                -- null_ls.builtins.diagnostics.eslint.with({
-                --     prefer_local = "node_modules/.bin",
-                -- }),
-                -- null_ls.builtins.formatting.prettier,
-
             }
             null_ls.setup({
                 diagnostics_format = "#{m} (#{s}: #{c})",
@@ -929,7 +919,7 @@ require('lazy').setup({
 
                     vim.keymap.set("n", "<leader><space>", function()
                         require("actions-preview").code_actions()
-                    end, { buffer = bufnr, desc = "LSP: Code action" })
+                    end, { buffer = bufnr, desc = "LSP: Code action with preview" })
                 end,
             })
         end,
