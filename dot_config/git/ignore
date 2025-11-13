@@ -10,3 +10,4 @@ kabe/
 **/.claude/settings.local.json
 
 **/CLAUDE.local.md
+**/.jaq.json

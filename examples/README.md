@@ -108,6 +108,56 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 ```
 
+### jaq-nvim: クイック実行 (`<leader>q`)
+
+プロジェクトごとに異なる実行コマンドを設定できます。
+
+#### 方法1: `.jaq.json` ファイル（推奨）
+
+プロジェクトルートに `.jaq.json` を作成：
+
+```json
+{
+  "external": {
+    "python": "uv run %",
+    "typescript": "tsx %",
+    "typescriptreact": "tsx %",
+    "go": "go run %",
+    "ruby": "bundle exec ruby %"
+  }
+}
+```
+
+#### 方法2: `.nvim.lua` で動的設定
+
+```lua
+vim.api.nvim_create_autocmd("User", {
+    pattern = "LazyDone",
+    callback = function()
+        local ok, jaq = pcall(require, 'jaq-nvim')
+        if ok and jaq.config and jaq.config.opts then
+            local new_cmds = {
+                external = {
+                    python = 'uv run %',
+                    typescript = 'tsx %',
+                    go = 'go run %',
+                }
+            }
+            if jaq.config.opts.cmds then
+                jaq.config.opts.cmds = vim.tbl_extend('force', jaq.config.opts.cmds, new_cmds)
+            end
+        end
+    end
+})
+```
+
+#### 使える変数
+
+- `%` - 現在のファイルパス
+- `$dir` - ファイルのディレクトリ
+- `$fileBase` - ファイル名（拡張子なし）
+- `$moduleName` - Pythonモジュール名
+
 ## トラブルシューティング
 
 ### 設定が読み込まれない

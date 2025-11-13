@@ -3,96 +3,81 @@
 -- You will be prompted to trust this file on first load
 
 -- ============================================================================
--- Python Project (uv + ruff)
+-- Example: uv + ruff
 -- ============================================================================
 vim.api.nvim_create_autocmd("LspAttach", {
     callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        -- use 'edit!' for force reload
+        vim.keymap.set('n', 'gl', function()
+            vim.cmd('!silent uv run ruff format %')
+            vim.cmd('edit!')
+        end, { buffer = args.buf, desc = "Format with uv run ruff" })
 
-        -- Override formatting for Python with uv + ruff
-        if client.name == "pyright" then
-            vim.keymap.set('n', 'gl', function()
-                vim.cmd('!uv run ruff format %')
-                vim.cmd('edit!')
-            end, { buffer = args.buf, desc = "Format with uv run ruff" })
-
-            -- Optional: Auto-format on save
-            -- vim.api.nvim_create_autocmd("BufWritePre", {
-            --     buffer = args.buf,
-            --     callback = function()
-            --         vim.cmd('silent !uv run ruff format %')
-            --     end,
-            -- })
-        end
+        vim.api.nvim_create_autocmd("BufWritePre", {
+            buffer = args.buf,
+            callback = function()
+                vim.cmd('silent !uv run ruff format %')
+            end,
+        })
     end,
 })
 
--- Set Python interpreter to project's venv
--- vim.g.python3_host_prog = vim.fn.getcwd() .. "/.venv/bin/python"
+-- ============================================================================
+-- jaq-nvim: Quick Run Commands (<leader>q)
+-- ============================================================================
+-- プロジェクト固有の実行コマンドを設定します。
+-- 2つの方法があります：
 
--- ============================================================================
--- TypeScript/JavaScript Project (prettier + eslint)
--- ============================================================================
--- vim.api.nvim_create_autocmd("LspAttach", {
---     callback = function(args)
---         local client = vim.lsp.get_client_by_id(args.data.client_id)
+-- 方法1: .jaq.json ファイルを使用（推奨・最もシンプル）
+-- プロジェクトルートに .jaq.json を作成してください：
 --
---         if client.name == "tsserver" then
---             vim.keymap.set('n', 'gl', function()
---                 vim.cmd('!npx prettier --write %')
---                 vim.cmd('edit!')
---             end, { buffer = args.buf, desc = "Format with prettier" })
---         end
---     end,
--- })
+-- {
+--   "external": {
+--     "python": "uv run %",
+--     "typescript": "tsx %",
+--     "typescriptreact": "tsx %",
+--     "go": "go run %",
+--     "ruby": "bundle exec ruby %",
+--     "php": "docker compose exec app php artisan test %"
+--   }
+-- }
 
--- ============================================================================
--- PHP/Laravel Project (pint)
--- ============================================================================
--- vim.api.nvim_create_autocmd("LspAttach", {
---     callback = function(args)
---         local client = vim.lsp.get_client_by_id(args.data.client_id)
+-- 方法2: Luaで動的に設定を上書き（より柔軟）
+-- 以下のコードのコメントを外して使用します：
 --
---         if client.name == "intelephense" then
---             vim.keymap.set('n', 'gl', function()
---                 vim.cmd('!./vendor/bin/pint %')
---                 vim.cmd('edit!')
---             end, { buffer = args.buf, desc = "Format with pint" })
---         end
---     end,
--- })
-
--- ============================================================================
--- Ruby Project (rubocop)
--- ============================================================================
--- vim.api.nvim_create_autocmd("LspAttach", {
---     callback = function(args)
---         local client = vim.lsp.get_client_by_id(args.data.client_id)
+-- vim.api.nvim_create_autocmd("User", {
+--     pattern = "LazyDone",
+--     callback = function()
+--         local ok, jaq = pcall(require, 'jaq-nvim')
+--         if ok and jaq.config and jaq.config.opts then
+--             local new_cmds = {
+--                 external = {
+--                     -- Python with uv
+--                     python = vim.fn.executable('uv') == 1 and 'uv run %' or 'python %',
 --
---         if client.name == "solargraph" then
---             vim.keymap.set('n', 'gl', function()
---                 vim.cmd('!bundle exec rubocop -a %')
---                 vim.cmd('edit!')
---             end, { buffer = args.buf, desc = "Format with rubocop" })
---         end
---     end,
--- })
-
--- ============================================================================
--- Go Project (gofmt/goimports)
--- ============================================================================
--- vim.api.nvim_create_autocmd("LspAttach", {
---     callback = function(args)
---         local client = vim.lsp.get_client_by_id(args.data.client_id)
+--                     -- TypeScript with tsx or ts-node
+--                     typescript = vim.fn.executable('tsx') == 1 and 'tsx %' or './node_modules/.bin/ts-node %',
+--                     typescriptreact = vim.fn.executable('tsx') == 1 and 'tsx %' or './node_modules/.bin/ts-node %',
 --
---         if client.name == "gopls" then
---             -- gopls already handles formatting, but you can override
---             vim.keymap.set('n', 'gl', function()
---                 vim.cmd('!goimports -w %')
---                 vim.cmd('edit!')
---             end, { buffer = args.buf, desc = "Format with goimports" })
+--                     -- Go
+--                     go = 'go run %',
+--
+--                     -- Ruby with bundle
+--                     ruby = '[ -d .bundle ] && bundle exec ruby % || ruby %',
+--
+--                     -- PHP with Docker
+--                     php = 'docker compose exec app php artisan test %',
+--
+--                     -- Custom build commands
+--                     -- makefile = 'make run',
+--                     -- sh = 'bash ./scripts/run.sh %',
+--                 }
+--             }
+--             if jaq.config.opts.cmds then
+--                 jaq.config.opts.cmds = vim.tbl_extend('force', jaq.config.opts.cmds, new_cmds)
+--             end
 --         end
---     end,
+--     end
 -- })
 
 -- ============================================================================
