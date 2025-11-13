@@ -11,46 +11,12 @@ autoload -Uz colors
 colors
 bindkey -e
 
-# my commands
-export PATH="$HOME/bin/pyscripts:$PATH"
-export PATH="$HOME/bin/shscripts:$PATH"
+# user scripts
+export PATH="$HOME/scripts/bin:$PATH"
 
 # asdf
-{{ if eq .chezmoi.os "darwin" }}
-{{ if eq .chezmoi.arch "arm64" }}
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
-{{ end }}
-# fpath=(${ASDF_DIR}/completions $fpath)
-# source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
-{{ end }}
 {{ if eq .chezmoi.os "linux" }}
 . "$HOME/.asdf/asdf.sh"
-{{ end }}
-
-# Java
-{{ if eq .chezmoi.os "darwin" }}
-export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
-export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
-{{ end }}
-
-# PHP
-{{ if eq .chezmoi.os "darwin" }}
-# export PATH="/opt/homebrew/opt/php@8.1/bin:$PATH"
-# export PATH="/opt/homebrew/opt/php@8.1/sbin:$PATH"
-{{ end }}
-
-# Go
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin
-
-# flutter
-export PATH="$PATH:$HOME/dev/flutter/bin"
-
-# nvm
-{{ if eq .chezmoi.os "darwin" }}
-export NVM_DIR="$HOME/.nvm"
-  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 {{ end }}
 
 export PATH="$HOME/.local/bin:$PATH"
@@ -67,11 +33,11 @@ setopt magic_equal_subst
 # history
 setopt auto_pushd
 setopt append_history
-setopt hist_ignore_all_dups
 setopt hist_ignore_dups
 setopt hist_reduce_blanks
 setopt pushd_ignore_dups
 setopt inc_append_history
+setopt share_history
 HISTSIZE=100000
 SAVEHIST=100000
 
