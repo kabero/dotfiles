@@ -87,27 +87,6 @@ vim.api.nvim_create_autocmd('TermOpen', {
     end,
 })
 
--- Disable line numbers in Notes directory
-vim.api.nvim_create_autocmd('BufEnter', {
-    pattern = vim.fn.expand('~/Notes') .. '/**',
-    callback = function()
-        vim.opt_local.relativenumber = false
-        vim.opt_local.number = false
-    end,
-})
-
--- Config of neovide
-if vim.g.neovide then
-    vim.cmd([[autocmd VimEnter * cd ~/Notes/]])
-    vim.cmd([[autocmd VimEnter * edit ~/Notes/note.md]])
-    vim.o.guifont = "RobotoMono Nerd Font Mono"
-    vim.g.neovide_refresh_rate = 60
-    vim.g.neovide_refresh_rate_idle = 5
-    vim.g.neovide_scroll_animation_length = 0.3
-    vim.env.LANG      = 'ja_JP.UTF-8'
-    vim.env.LC_CTYPE  = 'ja_JP.UTF-8'
-end
-
 -- Highlight info
 function _G.get_syn_id(transparent)
     local synid = vim.fn.synID(vim.fn.line('.'), vim.fn.col('.'), 1)

@@ -55,6 +55,7 @@ alacritty, asdf, git, neovim, starship, tmux, vim, zsh, chezmoi, obsidian, fzf, 
 |----------|-------------|---------------|
 | `GIT_USER_NAME` | Git user name | Required |
 | `GIT_USER_EMAIL` | Git email address | Required |
+| `GHQ_ROOT` | ghq root directory | `~/ghq` |
 
 ### Aliases
 ```sh

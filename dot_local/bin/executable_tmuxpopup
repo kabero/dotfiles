@@ -9,7 +9,7 @@ session=$(tmux display-message -p -F "#{session_name}")
 if [[ "$session" == "note" || "$session" == "terminal" ]]; then
   tmux detach-client
 else
-  if [[ "$session_name" == "note" ]]; then
+  if [[ "$session_name" == "note" ]]; then  # note は使っていないけど残しておく
     tmux popup -d "#{pane_current_path}" -xC -yC -w$width -h$height -E "tmux attach -t $session_name || tmux new -s $session_name -c ~/Notes 'nvim ~/Notes/note.md'"
   fi
   if [[ "$session_name" == "terminal" ]]; then
