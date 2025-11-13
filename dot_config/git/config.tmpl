@@ -28,7 +28,7 @@
     email = {{ env "GIT_USER_EMAIL" }}
 
 [ghq]
-root = ~/ghq
+root = {{ env "GHQ_ROOT" | default "~/ghq" }}
 
 [alias]
     s = switch
