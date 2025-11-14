@@ -175,9 +175,8 @@ require('lazy').setup({
 
     {
         'williamboman/mason.nvim',
-        version = '^1.0.0',
+        version = '^2.0.0',
         event = "VeryLazy",
-        build = ":MasonUpdate",
         config = function()
             local mason = require('mason')
             mason.setup({
@@ -194,36 +193,44 @@ require('lazy').setup({
 
     {
         'williamboman/mason-lspconfig.nvim',
-        version = '^1.0.0',
+        version = '^2.0.0',
         event = "VeryLazy",
+        dependencies = {
+            'williamboman/mason.nvim',
+            'neovim/nvim-lspconfig'
+        },
         config = function()
-            local mason_lspconfig = require('mason-lspconfig')
             require('mason-lspconfig').setup {
+                automatic_enable = true,  -- Automatically enable installed servers
                 -- ensure_installed = {
                     -- "gopls",           -- Go
                     -- "rust_analyzer",   -- Rust
-                    -- "tsserver",        -- TypeScript/JavaScript
+                    -- "ts_ls",           -- TypeScript/JavaScript (renamed from tsserver in v2)
                     -- "pyright",         -- Python
                     -- "solargraph",      -- Ruby
                     -- "intelephense",    -- PHP/Laravel
                 -- }
             }
 
-            mason_lspconfig.setup_handlers({
-                function(server)
-                    local opts = {}
-                    opts.on_attach = function(client, bufnr)
-                        -- Disable formatting for specific LSP clients (like intelephense)
-                        if client.name == "intelephense" then
-                            client.server_capabilities.documentFormattingProvider = false
-                            client.server_capabilities.documentRangeFormattingProvider = false
-                        end
+            -- Use LspAttach autocmd for per-buffer LSP setup (Neovim 0.11+ best practice)
+            vim.api.nvim_create_autocmd("LspAttach", {
+                callback = function(args)
+                    local client = vim.lsp.get_client_by_id(args.data.client_id)
+                    local bufnr = args.buf
 
-                        -- keymap for formatting
-                        local bufopts = { noremap = true, silent = true, buffer = bufnr }
-                        vim.keymap.set('n', 'gl', function() vim.lsp.buf.format { async = true } end, bufopts)
+                    if not client then return end
+
+                    -- Disable formatting for specific LSP clients (like intelephense)
+                    if client.name == "intelephense" then
+                        client.server_capabilities.documentFormattingProvider = false
+                        client.server_capabilities.documentRangeFormattingProvider = false
                     end
-                    vim.lsp.config(server, opts)
+
+                    -- Keymap for formatting
+                    local bufopts = { noremap = true, silent = true, buffer = bufnr }
+                    vim.keymap.set('n', 'gl', function()
+                        vim.lsp.buf.format { async = true }
+                    end, bufopts)
                 end,
             })
 
