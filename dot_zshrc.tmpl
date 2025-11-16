@@ -45,7 +45,12 @@ SAVEHIST=100000
 if [ -e ~/.zsh/completions ]; then
     fpath=(~/.zsh/completions $fpath)
 fi
-autoload -Uz compinit && compinit
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+    compinit
+else
+    compinit -C
+fi
 zstyle ':completion:*' completer _complete _approximate _prefix
 
 # aliases
@@ -61,19 +66,19 @@ alias ave='aws-vault exec'
 alias code='cursor'
 alias dbash='docker build -t tmp . && docker run -it --rm --entrypoint /bin/bash tmp'
 
-# fish-like behavior
-source `brew --prefix`/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+BREW_PREFIX=$(brew --prefix)
+
+source "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 if type brew &>/dev/null; then
-    FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
-    FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+    FPATH="$BREW_PREFIX/share/zsh-completions:$FPATH"
+    FPATH="$BREW_PREFIX/share/zsh/site-functions:${FPATH}"
 fi
 
-# zsh-autosuggestions
 {{ if eq .chezmoi.os "darwin" }}
-source `brew --prefix`/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 {{ end }}
 {{ if eq .chezmoi.os "linux" }}
-source `brew --prefix`/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fpath=(${ASDF_DIR}/completions $fpath)
 {{ end }}
 
