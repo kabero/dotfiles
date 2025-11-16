@@ -169,11 +169,6 @@ require('lazy').setup({
     },
 
     {
-        'mfussenegger/nvim-dap',
-        event = "VeryLazy"
-    },
-
-    {
         'williamboman/mason.nvim',
         version = '^2.0.0',
         event = "VeryLazy",
@@ -603,22 +598,6 @@ require('lazy').setup({
     },
 
     {
-        'akinsho/git-conflict.nvim',
-        ft = { 'gitcommit', 'gitrebase', 'gitconfig' },
-        version = "*",
-        config = function()
-            require('git-conflict').setup({
-                default_mappings = false,
-                default_commands = false,
-                highlights = {
-                    incoming = 'DiffChange',
-                    current = 'DiffAdd',
-                }
-            })
-        end
-    },
-
-    {
         "tyru/open-browser.vim",
         event = 'VeryLazy',
         config = function()
@@ -646,13 +625,7 @@ require('lazy').setup({
 
     {
         "norcalli/nvim-colorizer.lua",
-        event = "VeryLazy",
-    },
-
-    {
-        "folke/todo-comments.nvim",
-        event = "VeryLazy",
-        dependencies = { "nvim-lua/plenary.nvim" },
+        ft = { "css", "scss", "html", "javascript", "typescript", "blade" },
     },
 
     {
@@ -896,11 +869,6 @@ require('lazy').setup({
             }
         end,
         event = 'VeryLazy',
-    },
-
-    {
-        'JoosepAlviste/nvim-ts-context-commentstring',
-        event = "VeryLazy",
     },
 
     {
