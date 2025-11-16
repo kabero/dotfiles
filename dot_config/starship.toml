@@ -2,27 +2,18 @@
 # https://starship.rs/config/#prompt
 
 # Reduce prompt update frequency
-scan_timeout = 30
+scan_timeout = 10
 command_timeout = 1000
 
 format = """
 $username\
 $hostname\
 $localip\
-$shlvl\
-$singularity\
-$kubernetes\
-${custom.parent_repo}\
 $directory\
 $git_branch\
 $git_commit\
 $git_state\
-$git_metrics\
 $git_status\
-${custom.git_name}\
-$hg_branch\
-$docker_context\
-$buf\
 $terraform\
 $aws\
 $env_var\
@@ -41,13 +32,6 @@ $character"""
 success_symbol = '[\$](bold green)'
 error_symbol = '[\$](bold red)'
 
-[custom.parent_repo]
-when = false
-require_repo = true
-command = 'super_root=$(git rev-parse --show-superproject-working-tree); if [[ -n "$super_root" ]]; then result=$(git rev-parse --show-toplevel | sed "s|^$(dirname "$super_root")/*||" | xargs dirname); if [[ -n "$result" ]]; then echo "${result}/"; else echo "/"; fi; fi'
-style = "bold cyan"
-format = '[$output]($style)'
-
 [directory]
 read_only = " "
 truncation_length = 100
@@ -64,11 +48,14 @@ style_user = "green"
 show_always = true
 disabled = true
 
+[git_metrics]
+disabled = true
+
 [aws]
 force_display = false
 
-[custom.git_name]
-when = false
-require_repo = true
-command = 'git config --get user.name'
-symbol = ''
+# [custom.git_name]
+# when = false
+# require_repo = true
+# command = 'git config --get user.name'
+# symbol = ''
