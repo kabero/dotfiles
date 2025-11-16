@@ -1,9 +1,8 @@
 # Default config
 # https://starship.rs/config/#prompt
 
-# Reduce prompt update frequency
 scan_timeout = 10
-command_timeout = 1000
+command_timeout = 500
 
 format = """
 $username\
@@ -51,11 +50,24 @@ disabled = true
 [git_metrics]
 disabled = true
 
+[git_status]
+ahead = "⇡"
+behind = "⇣"
+
+[kubernetes]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[buf]
+disabled = true
+
+[terraform]
+disabled = true
+
+[hg_branch]
+disabled = true
+
 [aws]
 force_display = false
-
-# [custom.git_name]
-# when = false
-# require_repo = true
-# command = 'git config --get user.name'
-# symbol = ''
