@@ -1,5 +1,5 @@
 -- General
-vim.cmd("language C")
+vim.cmd("language en_US.UTF-8")
 vim.cmd("set encoding=utf-8")
 vim.cmd("let g:python3_host_prog = expand('~/.asdf/installs/python/3.9.1/bin/python')")
 vim.cmd("let g:ruby_host_prog = expand('~/.asdf/installs/ruby/3.1.2/bin/ruby')")
