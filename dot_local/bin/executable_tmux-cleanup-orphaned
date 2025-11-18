@@ -1,0 +1,13 @@
+#!/bin/zsh
+
+active_panes=$(tmux list-panes -a -F "#{pane_id}" 2>/dev/null | tr -d '%')
+
+tmux list-sessions 2>/dev/null | grep "^terminal-" | cut -d: -f1 | while read session; do
+  pane_id=$(echo "$session" | sed 's/^terminal-//')
+  if ! echo "$active_panes" | grep -q "^${pane_id}$"; then
+    echo "Killing orphaned session: $session (pane %$pane_id no longer exists)"
+    tmux kill-session -t "$session"
+  fi
+done
+
+echo "Cleanup complete."
