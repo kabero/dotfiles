@@ -11,7 +11,7 @@ config.font = wezterm.font_with_fallback {
 config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
 config.use_ime = true
 config.font_size = 13.0
-config.window_background_opacity = 0.90
+config.window_background_opacity = 1.00
 
 config.window_padding = {
   left = 0,
