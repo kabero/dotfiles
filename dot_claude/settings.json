@@ -29,7 +29,6 @@
       "Bash(zip:*)",
       "Bash(unzip:*)",
       "Bash(curl:*)",
-      "Bash(wget:*)",
       "Bash(ps:*)",
       "Bash(top:*)",
       "Bash(which:*)",
@@ -72,6 +71,7 @@
       "Bash(gh issue edit:*)",
       "Bash(git log:*)",
       "Bash(say:*)",
+      "Bash(docker compose exec:*)",
       "mcp__atlassian__searchJiraIssuesUsingJql",
       "mcp__atlassian__searchConfluenceUsingCql",
       "mcp__atlassian__atlassianUserInfo",
@@ -91,7 +91,17 @@
       "mcp__atlassian__getJiraProjectIssueTypesMetadata",
       "mcp__atlassian__getAccessibleAtlassianResources"
     ],
-    "deny": []
+    "deny": [
+      "Bash(git reset:*)",
+      "Bash(git rebase:*)",
+      "Read(.env:*)",
+      "Read(id_rsa)",
+      "Read(id_ed25519)",
+      "Read(**/*token*)",
+      "Read(**/*key*)",
+      "Write(.env:*)",
+      "Bash(wget:*)"
+    ]
   },
   "hooks": {
     "Stop": [
