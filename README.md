@@ -187,6 +187,10 @@ You can configure project-specific LSP settings, formatters, and more using `.nv
 - `Ctrl+G`: ghq (repository navigation)
 - `Ctrl+T`: file selection in current directory
 
+#### tmux
+
+- `Ctrl-g`: navi integration - popup window for searching and selecting command snippets, selected text is loaded into tmux buffer
+
 ## 💡 Customization
 
 ### Editing Configuration Files
