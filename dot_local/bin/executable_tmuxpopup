@@ -16,7 +16,7 @@ else
     ~/.local/bin/tmux-cleanup-orphaned >/dev/null 2>&1
 
     pane_id=$(tmux display-message -p -F "#{pane_id}" | tr -d '%')
-    unique_session="${session_name}-${pane_id}"
+    unique_session="${session_name}-${session}-${pane_id}"
     tmux popup -d "#{pane_current_path}" -xC -yC -w$width -h$height -E "tmux attach -t $unique_session || tmux new -s $unique_session 'zsh'"
   fi
 fi
