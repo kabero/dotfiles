@@ -6,13 +6,17 @@ height='90%'
 session_name=${1}
 session=$(tmux display-message -p -F "#{session_name}")
 
-if [[ "$session" == "note" || "$session" == "terminal" ]]; then
+if [[ "$session" == "note" || "$session" =~ ^terminal- ]]; then
   tmux detach-client
 else
   if [[ "$session_name" == "note" ]]; then  # note は使っていないけど残しておく
     tmux popup -d "#{pane_current_path}" -xC -yC -w$width -h$height -E "tmux attach -t $session_name || tmux new -s $session_name -c ~/Notes 'nvim ~/Notes/note.md'"
   fi
   if [[ "$session_name" == "terminal" ]]; then
-    tmux popup -d "#{pane_current_path}" -xC -yC -w$width -h$height -E "tmux attach -t $session_name || tmux new -s $session_name 'zsh'"
+    ~/.local/bin/tmux-cleanup-orphaned >/dev/null 2>&1
+
+    pane_id=$(tmux display-message -p -F "#{pane_id}" | tr -d '%')
+    unique_session="${session_name}-${pane_id}"
+    tmux popup -d "#{pane_current_path}" -xC -yC -w$width -h$height -E "tmux attach -t $unique_session || tmux new -s $unique_session 'zsh'"
   fi
 fi
