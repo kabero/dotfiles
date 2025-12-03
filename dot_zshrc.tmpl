@@ -13,6 +13,7 @@ bindkey -e
 
 # user scripts
 export PATH="$HOME/scripts/bin:$PATH"
+export PATH="$HOME/bin:$PATH"
 
 # asdf
 {{ if eq .chezmoi.os "linux" }}
@@ -164,18 +165,22 @@ if command_exists fzf; then
     bindkey '^t' select-file
 
     # Open repo with <c-g>
-    function _ghq_fzf() {
-        local src=$(ghq list | fzf --prompt "[ghq] > ")
-        zle redisplay
-        if [ -n "$src" ]; then
-            BUFFER="cd $(ghq root)/$src"
-            zle accept-line
-        fi
-        zle -R -c
-    }
-    zle -N _ghq_fzf
-    bindkey '^g' _ghq_fzf
-
+    if command_exists tm; then
+        # tm command: https://zenn.dev/layerx/articles/8c29b0367238b8
+        bindkey -s '^g' 'tm\n'
+    else
+        function _ghq_fzf() {
+            local src=$(ghq list | fzf --prompt "[ghq] > ")
+            zle redisplay
+            if [ -n "$src" ]; then
+                BUFFER="cd $(ghq root)/$src"
+                zle accept-line
+            fi
+            zle -R -c
+        }
+        zle -N _ghq_fzf
+        bindkey '^g' _ghq_fzf
+    fi
     # cd (fzf + zoxide) with zz
     zz() {
         local dirpath=$(zoxide query -l | sed "s|$HOME|~|g" | fzf --prompt "> " --preview="eval echo {} | sed 's|~|$HOME|' | xargs exa -a --oneline --sort=ext")
