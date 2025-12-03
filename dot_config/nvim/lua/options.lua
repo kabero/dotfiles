@@ -32,6 +32,7 @@ vim.opt.visualbell = false
 vim.opt.wildmenu = true
 vim.opt.wildmode = "full"
 vim.opt.wrap = true
+vim.opt.cmdheight = 0
 vim.cmd([[set fillchars=eob:\ ]])
 
 -- Edit
