@@ -79,9 +79,11 @@ fi
 
 {{ if eq .chezmoi.os "darwin" }}
 source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#6272a4"
 {{ end }}
 {{ if eq .chezmoi.os "linux" }}
 source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#6272a4"
 fpath=(${ASDF_DIR}/completions $fpath)
 {{ end }}
 
