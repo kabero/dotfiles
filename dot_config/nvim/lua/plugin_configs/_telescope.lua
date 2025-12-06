@@ -257,8 +257,8 @@ vim.keymap.set('n', '<leader>fj', ':Telescope find_files<CR>', opts)
 -- vim.keymap.set("n", "<leader>fk", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
 vim.keymap.set('n', '<leader>fk', ':Telescope egrepify<CR>', opts)
 vim.keymap.set('n', '<leader>fl', ':Telescope grep_string<CR>', opts)
-vim.keymap.set('n', '<leader>fi', ':Telescope jumplist show_line=false<CR>', opts)
-vim.keymap.set('n', '<leader>fo', ':Telescope diagnostics<CR>', opts)
+-- vim.keymap.set('n', '<leader>fi', ':Telescope jumplist show_line=false<CR>', opts)
+-- vim.keymap.set('n', '<leader>fo', ':Telescope diagnostics<CR>', opts)
 vim.keymap.set('n', '<leader>fb', ':Telescope buffers<CR>', opts)
 
 -- Git
