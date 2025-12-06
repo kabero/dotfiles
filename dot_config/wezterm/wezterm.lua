@@ -1,7 +1,8 @@
 local wezterm = require 'wezterm'
 local config = {}
 
-config.color_scheme = 'Dracula'
+config.color_scheme = 'Kanagawa Dragon (Gogh)'
+
 config.window_decorations = "RESIZE"
 config.enable_tab_bar = false
 config.font = wezterm.font_with_fallback {
@@ -11,6 +12,7 @@ config.font = wezterm.font_with_fallback {
 config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
 config.use_ime = true
 config.font_size = 13.0
+config.term = "xterm-256color"
 config.window_background_opacity = 1.00
 
 config.window_padding = {
@@ -20,9 +22,9 @@ config.window_padding = {
   bottom = 0,
 }
 
-config.colors = {
-  background = '#100000',
-  compose_cursor = '#2b3261',
-}
+-- config.colors = {
+--   background = '#100000',
+--   compose_cursor = '#2b3261',
+-- }
 
 return config
