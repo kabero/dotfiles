@@ -308,13 +308,13 @@ require('lazy').setup({
                     layout = 'normal'
                 }
             })
-            vim.keymap.set('n', '<leader>,', "<Cmd>Lspsaga finder<CR>", { desc = 'Telescope: live grep args', })
+            -- vim.keymap.set('n', '<leader>,', "<Cmd>Lspsaga finder<CR>", { desc = 'Telescope: live grep args', })
 
             -- hover_doc
             vim.keymap.set('n', 'K', '<cmd>Lspsaga hover_doc ++quiet<CR>')
 
             -- lsp_finder
-            vim.keymap.set('n', 'gh', '<cmd>Lspsaga lsp_finder<CR>')
+            -- vim.keymap.set('n', 'gh', '<cmd>Lspsaga lsp_finder<CR>')
 
             -- code_action (quick access)
             vim.keymap.set('n', 'ga', '<cmd>Lspsaga code_action<CR>')
@@ -322,29 +322,29 @@ require('lazy').setup({
             -- goto_definition
             -- Due to issues with <c-i> and <c-o>, use vim.lsp.buf.definition
             -- vim.keymap.set('n', 'gd', '<cmd>Lspsaga goto_definition<CR>')
-            vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>zz')
+            -- vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>zz')
 
             -- peek_definition
             vim.keymap.set('n', 'gp', '<cmd>Lspsaga peek_definition<CR>')
 
             -- find references
-            vim.keymap.set('n', 'gr', '<cmd>Lspsaga finder ref<CR>')
+            -- vim.keymap.set('n', 'gr', '<cmd>Lspsaga finder ref<CR>')
 
             -- peek type definition
             -- vim.keymap.set('n', '', '<cmd>lua vim.lsp.buf.type_definition()<CR>')
 
             -- peek type declaration
-            vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
+            -- vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
 
             -- go to implementation
-            vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
+            -- vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>')
 
             -- open diagnostic
             vim.keymap.set('n', 'ge', '<cmd>lua vim.diagnostic.open_float()<CR>')
 
             -- call hierarchy (incoming, outgoing)
-            vim.keymap.set("n", "<Leader>ci", "<cmd>Lspsaga incoming_calls<CR>")
-            vim.keymap.set("n", "<Leader>co", "<cmd>Lspsaga outgoing_calls<CR>")
+            -- vim.keymap.set("n", "<Leader>ci", "<cmd>Lspsaga incoming_calls<CR>")
+            -- vim.keymap.set("n", "<Leader>co", "<cmd>Lspsaga outgoing_calls<CR>")
 
             -- rename (entire file)
             vim.keymap.set('n', 'gR', '<cmd>Lspsaga rename<CR>')
@@ -354,8 +354,8 @@ require('lazy').setup({
             vim.keymap.set('n', '[g', '<cmd>Lspsaga diagnostic_jump_prev<CR>')
 
             -- show all diagnostics (buffer, workspace)
-            vim.keymap.set('n', '<leader>fd', '<cmd>Lspsaga show_buf_diagnostics<CR>')
-            vim.keymap.set('n', '<leader>fw', '<cmd>Lspsaga show_workspace_diagnostics<CR>')
+            -- vim.keymap.set('n', '<leader>fd', '<cmd>Lspsaga show_buf_diagnostics<CR>')
+            -- vim.keymap.set('n', '<leader>fw', '<cmd>Lspsaga show_workspace_diagnostics<CR>')
 
             -- toggle outline
             vim.keymap.set('n', '<leader>0', '<cmd>Lspsaga outline<CR>')
@@ -1088,15 +1088,22 @@ require('lazy').setup({
             zen = { enabled = true },
         },
         keys = {
-            { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Find Files" },
+            -- General
+            { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
+            -- Search
             { "<leader>fj", function() Snacks.picker.files() end, desc = "Find Files" },
-            { "<leader>fh", function() Snacks.picker.recent() end, desc = "Recent" },
+            { "<leader>fh", function() Snacks.picker.smart() end, desc = "Recent" },
+            { "<leader>fH", function() Snacks.picker.recent() end, desc = "Recent" },
             { "<leader>fk", function() Snacks.picker.grep() end, desc = "Grep" },
             { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
             { "<leader>gs", function() Snacks.picker.git_diff({group=true}) end, desc = "Git Status" },
-            { "<leader>fi", function() Snacks.picker.lsp_incoming_calls() end, desc = "C[a]lls Incoming" },
-            { "<leader>fo", function() Snacks.picker.lsp_outgoing_calls() end, desc = "C[a]lls Outgoing" },
+            { "<leader>gl", function() Snacks.picker.git_log_line() end, desc = "Git Log Line" },
+            { "<leader>fl", function() Snacks.picker.grep_word() end, desc = "Visual selection or word", mode = { "n", "x" } },
             { "<leader>fn", function() Snacks.picker.explorer() end, desc = "File Browser" },
+            { "<leader>gg", function() Snacks.picker.git_grep() end, desc = "Git Grep" },
+            -- LSP
+            { "<leader>fi", function() Snacks.picker.lsp_incoming_calls() end, desc = "C[a]lls Incoming" },
+            {"<leader>fo", function() Snacks.picker.lsp_outgoing_calls() end, desc = "C[a]lls Outgoing" },
             {
                 "<leader>gd",
                 function()
@@ -1106,7 +1113,10 @@ require('lazy').setup({
                 end,
                 desc = "Git Diff (master/main)",
             },
-            { "<leader>gg", function() Snacks.picker.git_grep() end, desc = "Git Grep" },
+            { "gD", function() Snacks.picker.lsp_declarations() end, desc = "Goto Declaration" },
+            { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
+            { "gi", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation" },
+            { "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto T[y]pe Definition" },
         },
     }
 })
