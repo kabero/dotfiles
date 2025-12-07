@@ -843,6 +843,13 @@ require('lazy').setup({
             local devicons = require 'nvim-web-devicons'
             require('incline').setup {
                 render = function(props)
+                    -- Hide if cursor is near the top of the window (where incline overlaps)
+                    local cursor_line = vim.api.nvim_win_get_cursor(props.win)[1]
+                    local win_first_line = vim.fn.line('w0', props.win)
+                    if cursor_line - win_first_line < 5 then
+                        return nil
+                    end
+
                     local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ':.')
                     if filename == '' then
                         filename = '[No Name]'
