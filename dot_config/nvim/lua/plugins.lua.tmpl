@@ -654,18 +654,6 @@ require('lazy').setup({
     },
 
     {
-        "akinsho/toggleterm.nvim",
-        version = "*",
-        event = 'VeryLazy',
-        config = function()
-            require("toggleterm").setup {
-                size = 30,
-                open_mapping = [[<c-j>]]
-            }
-        end
-    },
-
-    {
         "rhysd/committia.vim",
         ft = "gitcommit",
     },
