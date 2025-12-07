@@ -16,16 +16,16 @@ require('lazy').setup({
         "LazyVim/LazyVim",
     },
 
-    {
-        "sainnhe/everforest",
-        priority = 1000,
-        lazy = false,
-        config = function()
-            vim.cmd [[ let g:everforest_background = 'hard' ]]
-            -- use the blue defined in everforest for highlighting constants
-            vim.cmd [[ autocmd Colorscheme * highlight @constant guifg=#7fbbb3 ]]
-        end
-    },
+    -- {
+    --     "sainnhe/everforest",
+    --     priority = 1000,
+    --     lazy = false,
+    --     config = function()
+    --         vim.cmd [[ let g:everforest_background = 'hard' ]]
+    --         -- use the blue defined in everforest for highlighting constants
+    --         vim.cmd [[ autocmd Colorscheme * highlight @constant guifg=#7fbbb3 ]]
+    --     end
+    -- },
 
     {
         "rebelot/kanagawa.nvim",
@@ -56,20 +56,20 @@ require('lazy').setup({
         end
     },
 
-    {
-        "catppuccin/nvim",
-        name = "catppuccin",
-        priority = 1000,
-        config = function()
-            require("catppuccin").setup({
-                flavour = "auto", -- latte, frappe, macchiato, mocha
-                background = { -- :h background
-                    light = "latte",
-                    dark = "mocha",
-                },
-            })
-        end
-    },
+    -- {
+    --     "catppuccin/nvim",
+    --     name = "catppuccin",
+    --     priority = 1000,
+    --     config = function()
+    --         require("catppuccin").setup({
+    --             flavour = "auto", -- latte, frappe, macchiato, mocha
+    --             background = { -- :h background
+    --                 light = "latte",
+    --                 dark = "mocha",
+    --             },
+    --         })
+    --     end
+    -- },
 
 --     {
 --         "nvim-telescope/telescope.nvim",
@@ -102,14 +102,14 @@ require('lazy').setup({
     --     end
     -- },
 
-    {
-        "nvim-telescope/telescope-frecency.nvim",
-        event = 'VeryLazy',
-        config = function()
-            require "telescope".load_extension("frecency")
-        end,
-        dependencies = { "kkharji/sqlite.lua" }
-    },
+    -- {
+    --     "nvim-telescope/telescope-frecency.nvim",
+    --     event = 'VeryLazy',
+    --     config = function()
+    --         require "telescope".load_extension("frecency")
+    --     end,
+    --     dependencies = { "kkharji/sqlite.lua" }
+    -- },
 
     {
         'nvim-lualine/lualine.nvim',
@@ -132,7 +132,10 @@ require('lazy').setup({
         end
     },
 
-    { 'tpope/vim-commentary', event = "VeryLazy" },
+    { 
+        'tpope/vim-commentary',
+        event = "VeryLazy" 
+    },
 
     {
         'nvim-treesitter/nvim-treesitter',
@@ -731,6 +734,8 @@ require('lazy').setup({
                 [".*"] = false,
                 -- Security sensitive files
                 [".env"] = false,
+                [".env.production"] = false,
+                [".env.prod"] = false,
                 ["env"] = false,
                 ["ssh_config"] = false,
                 ["passwd"] = false,
@@ -748,14 +753,10 @@ require('lazy').setup({
                 ["gpg"] = false,
                 ["asc"] = false,
                 -- Config files with potential secrets
-                ["yaml"] = false,
-                ["yml"] = false,
-                ["toml"] = false,
                 ["ini"] = false,
                 ["cfg"] = false,
                 ["conf"] = false,
                 ["config"] = false,
-                ["json"] = false,
                 -- Database files
                 ["sql"] = false,
                 ["sqlite"] = false,
@@ -923,31 +924,6 @@ require('lazy').setup({
     },
 
     {
-        "aznhe21/actions-preview.nvim",
-        lazy = true,
-        event = { 'LspAttach' },
-        dependencies = {
-            'kosayoda/nvim-lightbulb',
-            "neovim/nvim-lspconfig",
-        },
-        init = function()
-            vim.api.nvim_create_autocmd("LspAttach", {
-                desc = "Setup code action preview",
-                callback = function(args)
-                    local bufnr = args.buf
-
-                    -- vim.keymap.set("n", "<leader><space>", function()
-                    --     require("actions-preview").code_actions()
-                    -- end, { buffer = bufnr, desc = "LSP: Code action with preview" })
-                end,
-            })
-        end,
-        config = function()
-            require("actions-preview").setup {}
-        end,
-    },
-
-    {
         'cordx56/rustowl',
         version = '*',
         build = 'cargo install --path . --locked',
@@ -966,6 +942,7 @@ require('lazy').setup({
     {
         'folke/sidekick.nvim',
         version = '*',
+        event = 'VeryLazy',
         opts = {
             cli = {
                 mux = {
@@ -1028,6 +1005,7 @@ require('lazy').setup({
             },
         },
     },
+
     {
         'stevearc/oil.nvim',
         ---@module 'oil'
@@ -1039,6 +1017,7 @@ require('lazy').setup({
         -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
         lazy = false,
     },
+
     {
         "folke/snacks.nvim",
         priority = 1000,
