@@ -69,7 +69,11 @@ alias ave='aws-vault exec'
 alias code='cursor'
 alias dbash='docker build -t tmp . && docker run -it --rm --entrypoint /bin/bash tmp'
 
-BREW_PREFIX=$(brew --prefix)
+{{ if eq .chezmoi.arch "arm64" -}}
+BREW_PREFIX="/opt/homebrew"
+{{- else -}}
+BREW_PREFIX="/usr/local"
+{{- end }}
 
 source "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 if type brew &>/dev/null; then
@@ -185,7 +189,7 @@ if command_exists fzf; then
     fi
     # cd (fzf + zoxide) with zz
     zz() {
-        local dirpath=$(zoxide query -l | sed "s|$HOME|~|g" | fzf --prompt "> " --preview="eval echo {} | sed 's|~|$HOME|' | xargs exa -a --oneline --sort=ext")
+        local dirpath=$(zoxide query -l | sed "s|$HOME|~|g" | fzf --prompt "> " --preview="eval echo {} | sed 's|~|$HOME|' | xargs eza -a --oneline --sort=ext")
         cd $(eval echo $(echo $dirpath | sed 's|~|$HOME|'))
     }
 fi
