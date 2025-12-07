@@ -111,5 +111,66 @@ vim.api.nvim_create_user_command('HighlightInfo', function()
     get_highlight_info()
 end, {})
 
+-- Note command
+-- :Note - opens the note with the highest numeric index
+-- :Note new - creates a new note with the next available index
+-- :Note <name> - opens kabe/notes/<name>.md
+vim.api.nvim_create_user_command('Note', function(opts)
+    local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+    if vim.v.shell_error ~= 0 then
+        vim.notify('Not in a git repository', vim.log.levels.ERROR)
+        return
+    end
+
+    local notes_dir = git_root .. '/kabe/notes'
+    local arg = opts.args
+
+    -- Helper: find max numeric index
+    local function find_max_index()
+        local max_index = -1
+        local files = vim.fn.glob(notes_dir .. '/*.md', false, true)
+        for _, file in ipairs(files) do
+            local basename = vim.fn.fnamemodify(file, ':t:r')
+            local num = tonumber(basename)
+            if num and num > max_index then
+                max_index = num
+            end
+        end
+        return max_index
+    end
+
+    if arg == '' then
+        -- No argument: open the note with the highest numeric index (or 0 if none)
+        local max_index = find_max_index()
+        if max_index < 0 then
+            max_index = 0
+        end
+        vim.cmd('edit ' .. notes_dir .. '/' .. max_index .. '.md')
+    elseif arg == 'new' then
+        -- Create new note with next index
+        local max_index = find_max_index()
+        local new_index = max_index + 1
+        vim.cmd('edit ' .. notes_dir .. '/' .. new_index .. '.md')
+    else
+        -- Open specific note by name (e.g., "curl" -> curl.md, "5" -> 5.md)
+        vim.cmd('edit ' .. notes_dir .. '/' .. arg .. '.md')
+    end
+end, {
+    nargs = '?',
+    complete = function(_, _, _)
+        local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+        if vim.v.shell_error ~= 0 then
+            return { 'new' }
+        end
+        local notes_dir = git_root .. '/kabe/notes'
+        local files = vim.fn.glob(notes_dir .. '/*.md', false, true)
+        local completions = { 'new' }
+        for _, file in ipairs(files) do
+            table.insert(completions, vim.fn.fnamemodify(file, ':t:r'))
+        end
+        return completions
+    end,
+})
+
 -- Color settings should be at the bottom.
 require "colors"
