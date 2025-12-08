@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+ghq_root="$(ghq root)"
+
+sessions=$(tmux list-sessions -F "#S" 2>/dev/null | sed 's/^/* /' || true)
+
+repos=$(echo "chezmoi"; ghq list)
+
+selected=$( (echo "$sessions"; echo "$repos") | \
+  awk '!seen[$0]++ && NF' | \
+  fzf --height 100% --layout reverse --border --prompt "session/repo > ")
+
+[ -z "$selected" ] && exit 0
+
+if echo "$selected" | grep -q '^\* '; then
+  session=$(echo "$selected" | sed 's/^\* //')
+  tmux switch-client -t "$session"
+elif [ "$selected" = "chezmoi" ]; then
+  session="chezmoi"
+  dir="$HOME/.local/share/chezmoi"
+  tmux has-session -t "$session" 2>/dev/null || tmux new-session -d -c "$dir" -s "$session"
+  tmux switch-client -t "$session"
+else
+  session=$(basename "$selected")
+  dir="$ghq_root/$selected"
+  tmux has-session -t "$session" 2>/dev/null || tmux new-session -d -c "$dir" -s "$session"
+  tmux switch-client -t "$session"
+fi
