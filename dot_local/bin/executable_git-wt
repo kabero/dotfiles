@@ -1,17 +1,46 @@
 #!/bin/bash
 set -e
 
-branch="$1"
-if [ -z "$branch" ]; then
-  echo "Usage: git wt <branch>" >&2
+cmd="$1"
+branch="$2"
+
+usage() {
+  echo "Usage: git wt add <branch>    - create worktree" >&2
+  echo "       git wt rm <branch>     - remove worktree and tmux session" >&2
   exit 1
-fi
+}
 
 repo_name=$(basename "$(git rev-parse --show-toplevel)")
 ghq_root=$(ghq root)
 worktree_dir="$ghq_root/worktree"
-target="$worktree_dir/${repo_name}-${branch}"
 
-mkdir -p "$worktree_dir"
-git worktree add "$target" -b "$branch"
-echo "Created worktree at: $target"
+case "$cmd" in
+  add)
+    [ -z "$branch" ] && usage
+    target="$worktree_dir/${repo_name}-${branch}"
+
+    mkdir -p "$worktree_dir"
+    if git show-ref --verify --quiet "refs/heads/$branch"; then
+      git worktree add "$target" "$branch"
+    else
+      git worktree add "$target" -b "$branch"
+    fi
+    echo "Created worktree at: $target"
+    ;;
+  rm|remove)
+    [ -z "$branch" ] && usage
+    target="$worktree_dir/${repo_name}-${branch}"
+    session="${repo_name}-${branch}"
+
+    if tmux has-session -t "$session" 2>/dev/null; then
+      tmux kill-session -t "$session"
+      echo "Killed tmux session: $session"
+    fi
+
+    git worktree remove "$target"
+    echo "Removed worktree: $target"
+    ;;
+  *)
+    usage
+    ;;
+esac
