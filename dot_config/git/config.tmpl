@@ -37,6 +37,7 @@ root = {{ env "GHQ_ROOT" | default "~/ghq" }}
     lga = log --graph --all --pretty=format:'%Cred%h%Creset %C(bold blue)%an%Creset %Cgreen%cr%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
     ss = status
     co = checkout
+    wt = !git-wt
 
 [filter "lfs"]
     clean = git-lfs clean -- %f

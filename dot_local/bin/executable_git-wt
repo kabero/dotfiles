@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+branch="$1"
+if [ -z "$branch" ]; then
+  echo "Usage: git wt <branch>" >&2
+  exit 1
+fi
+
+repo_name=$(basename "$(git rev-parse --show-toplevel)")
+ghq_root=$(ghq root)
+worktree_dir="$ghq_root/worktree"
+target="$worktree_dir/${repo_name}-${branch}"
+
+mkdir -p "$worktree_dir"
+git worktree add "$target" -b "$branch"
+echo "Created worktree at: $target"
