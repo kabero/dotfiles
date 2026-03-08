@@ -154,6 +154,14 @@ if command_exists fzf; then
     zle -N select-history
     bindkey '^r' select-history
 
+    # history search by keyword
+    h() {
+        local selected=$(history -n -r 1 | awk '!seen[$0]++' | grep "$1" | fzf +m --prompt="[$1] > " --exact --preview='echo {} | sed "s/ -/\n  -/g"' --preview-window=down:70%:wrap)
+        if [ -n "$selected" ]; then
+            print -z "$selected"
+        fi
+    }
+
     # Enhanced <c-t>
     function select-file() {
         local result=$(rg --files --hidden --follow --glob "!**/.git/*" | fzf +m --prompt="[file] > ")
