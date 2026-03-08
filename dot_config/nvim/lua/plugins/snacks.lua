@@ -1,6 +1,6 @@
 ---@type snacks.Config
 local opts = {
-    bigfile = { enabled = true, },
+    bigfile = { enabled = true },
     dashboard = {
         enabled = true,
         preset = {
@@ -39,13 +39,13 @@ local opts = {
                     },
                 }
                 return vim.tbl_map(function(cmd)
-                        return vim.tbl_extend("force", {
-                            section = "terminal",
-                            enabled = in_git,
-                            padding = 1,
-                            ttl = 5 * 60,
-                            indent = 3,
-                        }, cmd)
+                    return vim.tbl_extend("force", {
+                        section = "terminal",
+                        enabled = in_git,
+                        padding = 1,
+                        ttl = 5 * 60,
+                        indent = 3,
+                    }, cmd)
                 end, cmds)
             end,
             { section = "startup" },
@@ -85,23 +85,19 @@ local opts = {
 }
 
 local keys = {
-    -- General
     { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
-    -- Search
     { "<leader>fj", function() Snacks.picker.files() end, desc = "Find Files" },
     { "<leader>fh", function() Snacks.picker.smart() end, desc = "Recent" },
     { "<leader>fH", function() Snacks.picker.recent() end, desc = "Recent" },
     { "<leader>fk", function() Snacks.picker.grep() end, desc = "Grep" },
     { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
-    -- { "<leader>gs", function() Snacks.picker.git_diff({group=true}) end, desc = "Git Status" },
     { "<leader>gs", function() Snacks.picker.git_status({group=true}) end, desc = "Git Status" },
     { "<leader>gl", function() Snacks.picker.git_log_line() end, desc = "Git Log Line" },
     { "<leader>fl", function() Snacks.picker.grep_word() end, desc = "Visual selection or word", mode = { "n", "x" } },
     { "<leader>fn", function() Snacks.picker.explorer() end, desc = "File Browser" },
     { "<leader>gg", function() Snacks.picker.git_grep() end, desc = "Git Grep" },
-    -- LSP
-    { "<leader>fi", function() Snacks.picker.lsp_incoming_calls() end, desc = "C[a]lls Incoming" },
-    {"<leader>fo", function() Snacks.picker.lsp_outgoing_calls() end, desc = "C[a]lls Outgoing" },
+    { "<leader>fi", function() Snacks.picker.lsp_incoming_calls() end, desc = "Calls Incoming" },
+    { "<leader>fo", function() Snacks.picker.lsp_outgoing_calls() end, desc = "Calls Outgoing" },
     {
         "<leader>gd",
         function()
@@ -118,6 +114,11 @@ local keys = {
 }
 
 return {
-    opts = opts,
-    keys = keys,
+    {
+        "folke/snacks.nvim",
+        priority = 1000,
+        lazy = false,
+        opts = opts,
+        keys = keys,
+    },
 }
