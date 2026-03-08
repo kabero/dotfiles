@@ -59,15 +59,9 @@ zstyle ':completion:*' completer _complete _approximate _prefix
 # aliases
 alias vim="nvim"
 alias view="nvim -R"
-alias tl='tldr'
 alias ls="eza --sort=ext"
 alias tree="eza -T"
 alias df="duf"
-alias grepc="grep --color=always"
-alias av='aws-vault'
-alias ave='aws-vault exec'
-alias code='cursor'
-alias dbash='docker build -t tmp . && docker run -it --rm --entrypoint /bin/bash tmp'
 
 {{ if eq .chezmoi.arch "arm64" -}}
 BREW_PREFIX="/opt/homebrew"
@@ -76,6 +70,7 @@ BREW_PREFIX="/usr/local"
 {{- end }}
 
 source "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source "$BREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh"
 if type brew &>/dev/null; then
     FPATH="$BREW_PREFIX/share/zsh-completions:$FPATH"
     FPATH="$BREW_PREFIX/share/zsh/site-functions:${FPATH}"
@@ -212,10 +207,6 @@ man() {
     command man "$@"
 }
 
-# docker compose
-d() {
-    docker compose exec $@
-}
 
 ## git status
 git-path() {
@@ -266,11 +257,17 @@ function ssh() {
   fi
 }
 
-alias c='claude'
-alias ccc='claude --dangerously-skip-permissions'
-
-# tmux
-alias ide='tmux split-window -h \; resize-pane -t 0 -x 20% \; resize-pane -t 1 -x 80%'
+# abbreviations
+abbr -q --session tl=tldr 2>/dev/null
+abbr -q --session grepc="grep --color=always" 2>/dev/null
+abbr -q --session av=aws-vault 2>/dev/null
+abbr -q --session ave="aws-vault exec" 2>/dev/null
+abbr -q --session code=cursor 2>/dev/null
+abbr -q --session dbash="docker build -t tmp . && docker run -it --rm --entrypoint /bin/bash tmp" 2>/dev/null
+abbr -q --session c=claude 2>/dev/null
+abbr -q --session ccc="claude --dangerously-skip-permissions" 2>/dev/null
+abbr -q --session d="docker compose exec" 2>/dev/null
+abbr -q --session ide="tmux split-window -h \; resize-pane -t 0 -x 20% \; resize-pane -t 1 -x 80%" 2>/dev/null
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/google-cloud-sdk/path.zsh.inc"; fi
