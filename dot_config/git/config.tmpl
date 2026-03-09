@@ -37,7 +37,8 @@ root = {{ env "GHQ_ROOT" | default "~/ghq" }}
     lga = log --graph --all --pretty=format:'%Cred%h%Creset %C(bold blue)%an%Creset %Cgreen%cr%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
     ss = status
     wt = !git-wt
-    co = "!f() { COMMITMSG=$(claude --no-session-persistence --print 'Generate ONLY a one-line Git commit message in English using imperative mood. The message should summarize what was changed and why, based strictly on the contents of `git diff --cached`. DO NOT add an explanation or a body. Output ONLY the commit summary line.'); git commit -m \"$COMMITMSG\" -e; }; f"
+    co = "!f() { COMMITMSG=$(claude --no-session-persistence --print 'Generate ONLY a one-line Git commit message in English based on `git diff --cached`. Use Conventional Commits format: <type>: <description>. Type must be one of: fix, feat, refactor, chore, docs, style, test, perf, ci, build. Use imperative mood. Output ONLY the commit message line.'); git commit -m \"$COMMITMSG\" -e; }; f"
+    coja = "!f() { COMMITMSG=$(claude --no-session-persistence --print '`git diff --cached` の内容に基づいて、一行のGitコミットメッセージを日本語で生成してください。Conventional Commits形式: <type>: <説明>。typeは fix, feat, refactor, chore, docs, style, test, perf, ci, build のいずれか。コミットメッセージの行だけを出力してください。'); git commit -m \"$COMMITMSG\" -e; }; f"
 
 [filter "lfs"]
     clean = git-lfs clean -- %f
