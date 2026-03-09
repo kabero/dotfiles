@@ -36,8 +36,8 @@ root = {{ env "GHQ_ROOT" | default "~/ghq" }}
     lg = log --graph --pretty=format:'%Cred%h%Creset %C(bold blue)%an%Creset %Cgreen%cr%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
     lga = log --graph --all --pretty=format:'%Cred%h%Creset %C(bold blue)%an%Creset %Cgreen%cr%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
     ss = status
-    co = checkout
     wt = !git-wt
+    co = "!f() { COMMITMSG=$(claude --no-session-persistence --print 'Generate ONLY a one-line Git commit message in English using imperative mood. The message should summarize what was changed and why, based strictly on the contents of `git diff --cached`. DO NOT add an explanation or a body. Output ONLY the commit summary line.'); git commit -m \"$COMMITMSG\" -e; }; f"
 
 [filter "lfs"]
     clean = git-lfs clean -- %f
