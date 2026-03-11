@@ -4,28 +4,34 @@ set -e
 ghq_root="$(ghq root)"
 active_sessions=$(tmux list-sessions -F "#S" 2>/dev/null || true)
 
-# Build repo list with submodules
-repo_list=$(
-  ghq list
-  ghq list | while read -r repo; do
-    if [ -f "$ghq_root/$repo/.gitmodules" ]; then
-      grep '^\s*path\s*=' "$ghq_root/$repo/.gitmodules" | sed "s/.*=\s*//" | while read -r sm_path; do
-        echo "$repo/$sm_path"
-      done
-    fi
-  done
-  echo "chezmoi"
-)
+# Build repo list with submodules, mark active sessions
+ghq_repos=$(ghq list)
 
-# Mark active sessions with awk (no per-line fork)
-marked_repos=$(echo "$repo_list" | awk -v sessions="$active_sessions" '
+# Find all .gitmodules in one shot and extract submodule paths
+submodules=$(find "$ghq_root" -maxdepth 4 -name .gitmodules -exec awk -v root="$ghq_root" '
+  BEGINFILE {
+    dir = FILENAME
+    sub(/\/.gitmodules$/, "", dir)
+    sub(root "/", "", dir)
+  }
+  /^\s*path\s*=/ {
+    sub(/.*=\s*/, "")
+    print dir "/" $0
+  }
+' {} + 2>/dev/null)
+
+marked_repos=$(
+  {
+    echo "$ghq_repos"
+    [ -n "$submodules" ] && echo "$submodules"
+    echo "chezmoi"
+  } | awk -v sessions="$active_sessions" '
   BEGIN {
     n = split(sessions, arr, "\n")
     for (i = 1; i <= n; i++) s[arr[i]] = 1
   }
   {
     repo = $0
-    # extract owner/name from path
     n = split(repo, parts, "/")
     if (n >= 2) sess = parts[n-1] "/" parts[n]
     else sess = repo
@@ -34,34 +40,10 @@ marked_repos=$(echo "$repo_list" | awk -v sessions="$active_sessions" '
   }
 ')
 
-preview_cmd='
-  repo="{}"
-  repo="${repo#\* }"
-  repo="${repo#  }"
-  ghq_root="$(ghq root)"
-  if [ "$repo" = "chezmoi" ]; then
-    dir="$HOME/.local/share/chezmoi"
-  else
-    dir="$ghq_root/$repo"
-  fi
-  if [ -d "$dir/.git" ] || [ -f "$dir/.git" ]; then
-    echo "Branch: $(git -C "$dir" branch --show-current 2>/dev/null || echo "detached")"
-    echo ""
-    status=$(git -C "$dir" status --short 2>/dev/null)
-    if [ -n "$status" ]; then
-      echo "$status"
-    else
-      echo "(clean)"
-    fi
-  fi
-'
-
 selected=$(echo "$marked_repos" | \
   awk 'NF' | \
   fzf --height 100% --layout reverse --border \
-      --prompt "session/repo > " \
-      --preview "$preview_cmd" \
-      --preview-window right:50%:wrap)
+      --prompt "session/repo > ")
 
 [ -z "$selected" ] && exit 0
 
