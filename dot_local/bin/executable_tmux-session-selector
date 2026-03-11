@@ -5,14 +5,14 @@ ghq_root="$(ghq root)"
 
 sessions=$(tmux list-sessions -F "#S" 2>/dev/null | sed 's/^/* /' || true)
 
-# List ghq repos + submodules within them
 repos=$(
   echo "chezmoi"
   ghq list
   ghq list | while read -r repo; do
-    dir="$ghq_root/$repo"
-    if [ -f "$dir/.gitmodules" ]; then
-      git -C "$dir" submodule --quiet foreach --recursive 'echo "'"$repo"'/$sm_path"'
+    if [ -f "$ghq_root/$repo/.gitmodules" ]; then
+      grep '^\s*path\s*=' "$ghq_root/$repo/.gitmodules" | sed "s/.*=\s*//" | while read -r sm_path; do
+        echo "$repo/$sm_path"
+      done
     fi
   done
 )
@@ -32,7 +32,6 @@ elif [ "$selected" = "chezmoi" ]; then
   tmux has-session -t "$session" 2>/dev/null || tmux new-session -d -c "$dir" -s "$session"
   tmux switch-client -t "$session"
 else
-  # Use owner/repo as session name to avoid collisions (e.g. github.com/user/repo -> user/repo)
   session=$(echo "$selected" | awk -F/ '{ print $(NF-1)"/"$NF }')
   dir="$ghq_root/$selected"
   tmux has-session -t "$session" 2>/dev/null || tmux new-session -d -c "$dir" -s "$session"
