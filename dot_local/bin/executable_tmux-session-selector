@@ -3,8 +3,10 @@ set -e
 
 ghq_root="$(ghq root)"
 
-sessions=$(tmux list-sessions -F "#S" 2>/dev/null | sed 's/^/* /' || true)
+# Existing tmux sessions (for marking active repos)
+active_sessions=$(tmux list-sessions -F "#S" 2>/dev/null || true)
 
+# Build repo list with active session markers
 repos=$(
   echo "chezmoi"
   ghq list
@@ -17,23 +19,56 @@ repos=$(
   done
 )
 
-selected=$( (echo "$sessions"; echo "$repos") | \
+# Mark repos that have an active tmux session
+marked_repos=$(echo "$repos" | while read -r repo; do
+  session=$(echo "$repo" | awk -F/ '{ print $(NF-1)"/"$NF }')
+  if [ "$repo" = "chezmoi" ]; then
+    session="chezmoi"
+  fi
+  if echo "$active_sessions" | grep -qxF "$session"; then
+    echo "* $repo"
+  else
+    echo "  $repo"
+  fi
+done)
+
+# Preview script: show branch + recent log
+preview_cmd='
+  repo="{}"
+  repo=$(echo "$repo" | sed "s/^[* ] //")
+  ghq_root="$(ghq root)"
+  if [ "$repo" = "chezmoi" ]; then
+    dir="$HOME/.local/share/chezmoi"
+  else
+    dir="$ghq_root/$repo"
+  fi
+  if [ -d "$dir/.git" ] || [ -f "$dir/.git" ]; then
+    branch=$(git -C "$dir" branch --show-current 2>/dev/null || echo "detached")
+    echo "Branch: $branch"
+    echo ""
+    git -C "$dir" log --oneline --graph -10 2>/dev/null
+  fi
+'
+
+selected=$(echo "$marked_repos" | \
   awk '!seen[$0]++ && NF' | \
-  fzf --height 100% --layout reverse --border --prompt "session/repo > ")
+  fzf --height 100% --layout reverse --border \
+      --prompt "session/repo > " \
+      --preview "$preview_cmd" \
+      --preview-window right:50%:wrap)
 
 [ -z "$selected" ] && exit 0
 
-if echo "$selected" | grep -q '^\* '; then
-  session=$(echo "$selected" | sed 's/^\* //')
-  tmux switch-client -t "$session"
-elif [ "$selected" = "chezmoi" ]; then
+# Strip marker prefix
+selected=$(echo "$selected" | sed 's/^[* ] //')
+
+if [ "$selected" = "chezmoi" ]; then
   session="chezmoi"
   dir="$HOME/.local/share/chezmoi"
-  tmux has-session -t "$session" 2>/dev/null || tmux new-session -d -c "$dir" -s "$session"
-  tmux switch-client -t "$session"
 else
   session=$(echo "$selected" | awk -F/ '{ print $(NF-1)"/"$NF }')
   dir="$ghq_root/$selected"
-  tmux has-session -t "$session" 2>/dev/null || tmux new-session -d -c "$dir" -s "$session"
-  tmux switch-client -t "$session"
 fi
+
+tmux has-session -t "$session" 2>/dev/null || tmux new-session -d -c "$dir" -s "$session"
+tmux switch-client -t "$session"
