@@ -8,17 +8,13 @@ active_sessions=$(tmux list-sessions -F "#S" 2>/dev/null || true)
 ghq_repos=$(ghq list)
 
 # Find all .gitmodules in one shot and extract submodule paths
-submodules=$(find "$ghq_root" -maxdepth 4 -name .gitmodules -exec awk -v root="$ghq_root" '
-  BEGINFILE {
-    dir = FILENAME
-    sub(/\/.gitmodules$/, "", dir)
-    sub(root "/", "", dir)
-  }
-  /^\s*path\s*=/ {
-    sub(/.*=\s*/, "")
-    print dir "/" $0
-  }
-' {} + 2>/dev/null)
+submodules=$(find "$ghq_root" -maxdepth 4 -name .gitmodules 2>/dev/null | while read -r f; do
+  repo="${f%/.gitmodules}"
+  repo="${repo#$ghq_root/}"
+  grep '^\s*path\s*=' "$f" | sed "s/.*=\s*//" | while read -r sm_path; do
+    echo "$repo/$sm_path"
+  done
+done)
 
 marked_repos=$(
   {
