@@ -3,39 +3,43 @@
 ghq_root="$(ghq root)"
 active_sessions=$(tmux list-sessions -F "#S" 2>/dev/null || true)
 
-# Build repo list with submodules
-ghq_repos=$(ghq list)
+# Build repo list: ghq repos + submodules + chezmoi
+repo_list=$(ghq list)
 
-submodules=$(find "$ghq_root" -maxdepth 4 -name .gitmodules 2>/dev/null | while read -r f; do
-  repo="${f%/.gitmodules}"
+# Append submodule paths
+for gitmodules in "$ghq_root"/*/*/*/.gitmodules; do
+  [ -f "$gitmodules" ] || continue
+  repo="${gitmodules%/.gitmodules}"
   repo="${repo#$ghq_root/}"
-  grep '^\s*path\s*=' "$f" | sed "s/.*=\s*//" | while read -r sm_path; do
-    echo "$repo/$sm_path"
-  done
-done)
+  while IFS='=' read -r key val; do
+    case "$key" in
+      *path*)
+        val="${val#"${val%%[![:space:]]*}"}"
+        repo_list="$repo_list
+$repo/$val"
+        ;;
+    esac
+  done < "$gitmodules"
+done
+
+repo_list="$repo_list
+chezmoi"
 
 # Mark active sessions
-marked_repos=$(
-  {
-    echo "$ghq_repos"
-    [ -n "$submodules" ] && echo "$submodules"
-    echo "chezmoi"
-  } | awk -v sessions="$active_sessions" '
-  BEGIN {
-    n = split(sessions, arr, "\n")
-    for (i = 1; i <= n; i++) s[arr[i]] = 1
-  }
-  {
-    repo = $0
-    n = split(repo, parts, "/")
-    sess = parts[n]
-    if (sess in s) print "* " repo
-    else print "  " repo
-  }
-')
+marked_repos=$(echo "$repo_list" | awk -v sessions="$active_sessions" '
+BEGIN {
+  n = split(sessions, arr, "\n")
+  for (i = 1; i <= n; i++) s[arr[i]] = 1
+}
+NF {
+  repo = $0
+  n = split(repo, parts, "/")
+  sess = parts[n]
+  if (sess in s) print "* " repo
+  else print "  " repo
+}')
 
 selected=$(echo "$marked_repos" | \
-  awk 'NF' | \
   fzf --height 100% --layout reverse --border \
       --prompt "session/repo > ") || exit 0
 
