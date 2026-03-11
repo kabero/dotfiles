@@ -49,7 +49,10 @@ NF {
 
 rm -f "$sess_file"
 
-selected=$(echo "$marked_repos" | \
+active=$(echo "$marked_repos" | grep '^\* ')
+inactive=$(echo "$marked_repos" | grep -v '^\* ')
+selected=$( (echo "$active"; echo "$inactive") | \
+  awk 'NF' | \
   fzf --height 100% --layout reverse --border \
       --prompt "session/repo > ") || exit 0
 
