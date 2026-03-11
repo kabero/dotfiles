@@ -34,7 +34,12 @@ BEGIN {
 NF {
   repo = $0
   n = split(repo, parts, "/")
-  sess = parts[n]
+  if (n > 3) {
+    sess = ""
+    for (i = 4; i <= n; i++) sess = sess (i > 4 ? "/" : "") parts[i]
+  } else {
+    sess = parts[n]
+  }
   if (sess in s) print "* " repo
   else print "  " repo
 }')
@@ -50,8 +55,15 @@ if [ "$selected" = "chezmoi" ]; then
   session="chezmoi"
   dir="$HOME/.local/share/chezmoi"
 else
-  session=$(basename "$selected")
   dir="$ghq_root/$selected"
+  # Check if this is a submodule (path has more than 3 segments: host/owner/repo/...)
+  depth=$(echo "$selected" | awk -F/ '{print NF}')
+  if [ "$depth" -gt 3 ]; then
+    # Submodule: use the path after host/owner/repo as session name
+    session=$(echo "$selected" | awk -F/ '{for(i=4;i<=NF;i++) printf "%s%s",$i,(i<NF?"/":"")}')
+  else
+    session=$(basename "$selected")
+  fi
 fi
 
 tmux has-session -t "$session" 2>/dev/null || tmux new-session -d -c "$dir" -s "$session"
