@@ -32,7 +32,7 @@ marked_repos=$(echo "$repos" | while read -r repo; do
   fi
 done)
 
-# Preview script: show branch + recent log
+# Preview: branch + git status
 preview_cmd='
   repo="{}"
   repo=$(echo "$repo" | sed "s/^[* ] //")
@@ -46,7 +46,12 @@ preview_cmd='
     branch=$(git -C "$dir" branch --show-current 2>/dev/null || echo "detached")
     echo "Branch: $branch"
     echo ""
-    git -C "$dir" log --oneline --graph -10 2>/dev/null
+    status=$(git -C "$dir" status --short 2>/dev/null)
+    if [ -n "$status" ]; then
+      echo "$status"
+    else
+      echo "(clean)"
+    fi
   fi
 '
 
