@@ -2,37 +2,37 @@
 set -e
 
 ghq_root="$(ghq root)"
-
-# Existing tmux sessions (for marking active repos)
 active_sessions=$(tmux list-sessions -F "#S" 2>/dev/null || true)
 
-# Build repo list with active session markers
-repos=$(
-  echo "chezmoi"
-  ghq list
-  ghq list | while read -r repo; do
+# Build repo list (with submodules) and mark active sessions in one pass
+ghq_repos=$(ghq list)
+marked_repos=$(
+  echo "$ghq_repos" | while read -r repo; do
+    session=$(echo "$repo" | awk -F/ '{ print $(NF-1)"/"$NF }')
+    if echo "$active_sessions" | grep -qxF "$session"; then
+      echo "* $repo"
+    else
+      echo "  $repo"
+    fi
     if [ -f "$ghq_root/$repo/.gitmodules" ]; then
       grep '^\s*path\s*=' "$ghq_root/$repo/.gitmodules" | sed "s/.*=\s*//" | while read -r sm_path; do
-        echo "$repo/$sm_path"
+        sm_session=$(echo "$repo/$sm_path" | awk -F/ '{ print $(NF-1)"/"$NF }')
+        if echo "$active_sessions" | grep -qxF "$sm_session"; then
+          echo "* $repo/$sm_path"
+        else
+          echo "  $repo/$sm_path"
+        fi
       done
     fi
   done
+  # chezmoi
+  if echo "$active_sessions" | grep -qxF "chezmoi"; then
+    echo "* chezmoi"
+  else
+    echo "  chezmoi"
+  fi
 )
 
-# Mark repos that have an active tmux session
-marked_repos=$(echo "$repos" | while read -r repo; do
-  session=$(echo "$repo" | awk -F/ '{ print $(NF-1)"/"$NF }')
-  if [ "$repo" = "chezmoi" ]; then
-    session="chezmoi"
-  fi
-  if echo "$active_sessions" | grep -qxF "$session"; then
-    echo "* $repo"
-  else
-    echo "  $repo"
-  fi
-done)
-
-# Preview: branch + git status
 preview_cmd='
   repo="{}"
   repo=$(echo "$repo" | sed "s/^[* ] //")
@@ -56,7 +56,7 @@ preview_cmd='
 '
 
 selected=$(echo "$marked_repos" | \
-  awk '!seen[$0]++ && NF' | \
+  awk 'NF' | \
   fzf --height 100% --layout reverse --border \
       --prompt "session/repo > " \
       --preview "$preview_cmd" \
@@ -64,7 +64,6 @@ selected=$(echo "$marked_repos" | \
 
 [ -z "$selected" ] && exit 0
 
-# Strip marker prefix
 selected=$(echo "$selected" | sed 's/^[* ] //')
 
 if [ "$selected" = "chezmoi" ]; then
