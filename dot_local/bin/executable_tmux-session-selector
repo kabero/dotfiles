@@ -1,7 +1,10 @@
 #!/bin/bash
 
 ghq_root="$(ghq root)"
-active_sessions=$(tmux list-sessions -F "#S" 2>/dev/null || true)
+
+# Write active sessions to temp file for awk
+sess_file=$(mktemp)
+tmux list-sessions -F "#S" 2>/dev/null > "$sess_file" || true
 
 # Build repo list: ghq repos + submodules + chezmoi
 repo_list=$(ghq list)
@@ -14,7 +17,7 @@ for gitmodules in "$ghq_root"/*/*/*/.gitmodules; do
   while IFS='=' read -r key val; do
     case "$key" in
       *path*)
-        val="${val#"${val%%[![:space:]]*}"}"
+        val=$(echo "$val" | sed 's/^[[:space:]]*//')
         repo_list="$repo_list
 $repo/$val"
         ;;
@@ -26,10 +29,10 @@ repo_list="$repo_list
 chezmoi"
 
 # Mark active sessions
-marked_repos=$(echo "$repo_list" | awk -v sessions="$active_sessions" '
+marked_repos=$(echo "$repo_list" | awk -v sf="$sess_file" '
 BEGIN {
-  n = split(sessions, arr, "\n")
-  for (i = 1; i <= n; i++) s[arr[i]] = 1
+  while ((getline line < sf) > 0) s[line] = 1
+  close(sf)
 }
 NF {
   repo = $0
@@ -44,6 +47,8 @@ NF {
   else print "  " repo
 }')
 
+rm -f "$sess_file"
+
 selected=$(echo "$marked_repos" | \
   fzf --height 100% --layout reverse --border \
       --prompt "session/repo > ") || exit 0
@@ -56,10 +61,8 @@ if [ "$selected" = "chezmoi" ]; then
   dir="$HOME/.local/share/chezmoi"
 else
   dir="$ghq_root/$selected"
-  # Check if this is a submodule (path has more than 3 segments: host/owner/repo/...)
   depth=$(echo "$selected" | awk -F/ '{print NF}')
   if [ "$depth" -gt 3 ]; then
-    # Submodule: use the path after host/owner/repo as session name
     session=$(echo "$selected" | awk -F/ '{for(i=4;i<=NF;i++) printf "%s%s",$i,(i<NF?"/":"")}')
   else
     session=$(basename "$selected")
