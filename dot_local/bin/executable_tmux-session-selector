@@ -1,13 +1,11 @@
 #!/bin/bash
-set -e
 
 ghq_root="$(ghq root)"
 active_sessions=$(tmux list-sessions -F "#S" 2>/dev/null || true)
 
-# Build repo list with submodules, mark active sessions
+# Build repo list with submodules
 ghq_repos=$(ghq list)
 
-# Find all .gitmodules in one shot and extract submodule paths
 submodules=$(find "$ghq_root" -maxdepth 4 -name .gitmodules 2>/dev/null | while read -r f; do
   repo="${f%/.gitmodules}"
   repo="${repo#$ghq_root/}"
@@ -16,6 +14,7 @@ submodules=$(find "$ghq_root" -maxdepth 4 -name .gitmodules 2>/dev/null | while 
   done
 done)
 
+# Mark active sessions
 marked_repos=$(
   {
     echo "$ghq_repos"
@@ -29,8 +28,7 @@ marked_repos=$(
   {
     repo = $0
     n = split(repo, parts, "/")
-    if (n >= 2) sess = parts[n-1] "/" parts[n]
-    else sess = repo
+    sess = parts[n]
     if (sess in s) print "* " repo
     else print "  " repo
   }
@@ -39,9 +37,7 @@ marked_repos=$(
 selected=$(echo "$marked_repos" | \
   awk 'NF' | \
   fzf --height 100% --layout reverse --border \
-      --prompt "session/repo > ")
-
-[ -z "$selected" ] && exit 0
+      --prompt "session/repo > ") || exit 0
 
 selected="${selected#\* }"
 selected="${selected#  }"
@@ -50,7 +46,7 @@ if [ "$selected" = "chezmoi" ]; then
   session="chezmoi"
   dir="$HOME/.local/share/chezmoi"
 else
-  session=$(echo "$selected" | awk -F/ '{ print $(NF-1)"/"$NF }')
+  session=$(basename "$selected")
   dir="$ghq_root/$selected"
 fi
 
