@@ -277,6 +277,10 @@ abbr -q --session ccc="claude --dangerously-skip-permissions" 2>/dev/null
 abbr -q --session d="docker compose exec" 2>/dev/null
 abbr -q --session ide="tmux split-window -h \; resize-pane -t 0 -x 20% \; resize-pane -t 1 -x 80%" 2>/dev/null
 
+
+## claude
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/google-cloud-sdk/path.zsh.inc"; fi
 
