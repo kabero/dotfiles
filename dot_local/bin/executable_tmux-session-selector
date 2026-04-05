@@ -51,6 +51,26 @@ rm -f "$sess_file"
 
 active=$(echo "$marked_repos" | grep '^\* ')
 inactive=$(echo "$marked_repos" | grep -v '^\* ')
+
+# Add tmux sessions not tied to any ghq repo
+matched_sessions=$(echo "$active" | sed 's/^\* //' | awk -F/ '{
+  n = split($0, parts, "/")
+  if (n > 3) {
+    sess = ""
+    for (i = 4; i <= n; i++) sess = sess (i > 4 ? "/" : "") parts[i]
+  } else {
+    sess = parts[n]
+  }
+  print sess
+}')
+orphan_sessions=$(tmux list-sessions -F "#S" 2>/dev/null | while read -r sess; do
+  if ! echo "$matched_sessions" | grep -qxF "$sess"; then
+    echo "* $sess"
+  fi
+done)
+if [ -n "$orphan_sessions" ]; then
+  active=$(printf '%s\n%s' "$active" "$orphan_sessions")
+fi
 selected=$( (echo "$active"; echo "$inactive") | \
   awk 'NF' | \
   fzf --height 100% --layout reverse --border \
