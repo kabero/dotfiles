@@ -45,7 +45,7 @@ return {
                     ["<CR>"]  = cmp.mapping.confirm { select = false },
                 }),
                 experimental = {
-                    ghost_text = true,
+                    ghost_text = false,
                 },
                 formatting = {
                     format = require('lspkind').cmp_format({
