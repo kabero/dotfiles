@@ -21,6 +21,7 @@ export PATH="$HOME/bin:$PATH"
 {{ end }}
 
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+export PATH="$PATH":"$HOME/.pub-cache/bin"
 
 export PATH="$HOME/.local/bin:$PATH"
 
