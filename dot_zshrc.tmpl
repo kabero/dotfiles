@@ -179,17 +179,40 @@ if command_exists fzf; then
         # tm command: https://zenn.dev/layerx/articles/8c29b0367238b8
         bindkey -s '^g' 'tm\n'
     else
+        # List repos under $(ghq root), including submodules.
+        # Prunes at .git so we don't walk .git/modules/* (which is why `ghq list` is slow on repos with many submodules).
+        function _ghq_fzf_build() {
+            local root=$(ghq root)
+            find -L "$root" -name .git -prune -print 2>/dev/null \
+                | sed "s|/\.git$||; s|^${root}/||"
+        }
         function _ghq_fzf() {
-            local src=$(ghq list | fzf --prompt "[ghq] > ")
+            local root=$(ghq root)
+            local cache=${XDG_CACHE_HOME:-$HOME/.cache}/ghq-fzf-list
+            [[ -f $cache ]] || { mkdir -p ${cache:h}; _ghq_fzf_build > $cache }
+            local src=$(cat $cache | fzf --prompt "[ghq] > ")
+            # Refresh in background if cache is older than 1h
+            if [[ -z $(find "$cache" -mmin -60 2>/dev/null) ]]; then
+                (_ghq_fzf_build > $cache.tmp && mv $cache.tmp $cache) &!
+            fi
             zle redisplay
             if [ -n "$src" ]; then
-                BUFFER="cd $(ghq root)/$src"
+                BUFFER="cd ${root}/${src}"
                 zle accept-line
             fi
             zle -R -c
         }
         zle -N _ghq_fzf
         bindkey '^g' _ghq_fzf
+        # Invalidate the fzf cache when repos are added/removed, so new clones show up immediately on the next <c-g>.
+        function ghq() {
+            command ghq "$@"
+            local ret=$?
+            case "$1" in
+                get|clone|create|rm) rm -f ${XDG_CACHE_HOME:-$HOME/.cache}/ghq-fzf-list ;;
+            esac
+            return $ret
+        }
     fi
     # cd (fzf + zoxide) with zz
     zz() {
