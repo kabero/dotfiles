@@ -30,6 +30,7 @@ local lualine_conditions = {
 return {
     {
         "nvim-tree/nvim-web-devicons",
+        lazy = true,
     },
 
     {
@@ -92,7 +93,7 @@ return {
             ins_right {
                 function()
                     local msg = 'No Active Lsp'
-                    local buf_ft = vim.api.nvim_buf_get_option(0, 'filetype')
+                    local buf_ft = vim.bo.filetype
                     local clients = vim.lsp.get_clients()
                     if next(clients) == nil then
                         return msg
@@ -256,23 +257,27 @@ return {
             wk.setup({})
             vim.api.nvim_set_keymap("n", "<leader>w", ":WhichKey<CR>", { noremap = true, silent = true })
 
+            -- Only group labels + chords whose plugin sets no inline desc.
+            -- snacks/lspsaga/gitsigns/jaq carry their own desc (auto-imported
+            -- by which-key v3), so no manual duplicates here — that avoids the
+            -- desc drift the old block had.
             wk.add({
                 { "<leader>f", group = "find" },
-                { "<leader>fh", desc = "oldfiles" },
-                { "<leader>fj", desc = "find_files" },
-                { "<leader>fk", desc = "live_grep" },
-                { "<leader>fl", desc = "grep_string" },
-                { "<leader>fi", desc = "incoming calls" },
-                { "<leader>fo", desc = "outgoing calls" },
-                { "<leader>fn", desc = "file browser" },
-                { "<leader>s", desc = "easymotion" },
+                { "<leader>g", group = "git" },
+                { "<leader>a", group = "ai / git hunks" },
+                { "<leader>s", desc = "Hop words" },
                 { "<leader>w", desc = "which-key" },
+                { "<leader>q", desc = "Run file (Jaq)" },
+                { "<leader>0", desc = "Outline (Lspsaga)" },
+                { "<leader>7", desc = "Toggle rainbow delimiters" },
+                { "<leader>9", desc = "Toggle diagnostics" },
+                { "<leader>1", desc = "Toggle git line blame" },
+                { "<leader>2", desc = "Toggle deleted hunks" },
+                { "<leader>gc", desc = "File git log (fugitive)" },
                 { "ga", desc = "[LSP] code action" },
-                { "gd", desc = "[LSP] go to definition" },
                 { "gp", desc = "[LSP] peek definition" },
-                { "gD", desc = "[LSP] peek declaration" },
-                { "gi", desc = "[LSP] go to implementation" },
-                { "gr", desc = "[LSP] references" },
+                { "gR", desc = "[LSP] rename" },
+                { "ge", desc = "[LSP] line diagnostics" },
             })
         end
     },

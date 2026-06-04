@@ -34,12 +34,12 @@ return {
                         border = 'single'
                     },
                     quickfix = {
-                        postion = 'bot',
+                        position = 'bot',
                         size = 10,
                     }
                 }
             }
-            vim.keymap.set('n', '<leader>q', '<cmd>Jaq<CR>')
+            vim.keymap.set('n', '<leader>q', '<cmd>Jaq<CR>', { desc = 'Run file (Jaq)' })
         end
     },
 
@@ -53,17 +53,15 @@ return {
     },
 
     {
-        'vim-denops/denops.vim',
-        event = "VeryLazy",
-    },
-
-    {
         'stevearc/oil.nvim',
         ---@module 'oil'
         ---@type oil.SetupOpts
         opts = {},
         dependencies = { { "nvim-mini/mini.icons", opts = {} } },
-        lazy = false,
+        cmd = "Oil",
+        keys = {
+            { "-", "<cmd>Oil<cr>", desc = "Open parent dir (Oil)" },
+        },
     },
 
     {
@@ -77,6 +75,10 @@ return {
                 vim.fn['copilot#Dismiss']()
                 vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-c>', true, true, true), 'n', true)
             end, { noremap = true, silent = true })
+            -- copilot.vim matches by exact &filetype, so only real filetype
+            -- names work here (the old extension/glob keys like "md", ".*",
+            -- "pem", "tf" never matched). Secret/credential FILES are blocked
+            -- by path in the BufEnter autocmd below, not here.
             vim.g.copilot_filetypes = {
                 ["*"] = true,
                 ["help"] = false,
@@ -85,43 +87,16 @@ return {
                 ["hgcommit"] = false,
                 ["svn"] = false,
                 ["cvs"] = false,
-                ["md"] = false,
-                [".*"] = false,
-                [".env"] = false,
-                [".env.production"] = false,
-                [".env.prod"] = false,
-                ["env"] = false,
-                ["ssh_config"] = false,
+                ["markdown"] = false,
+                ["terraform"] = false,
+                ["sshconfig"] = false,
+                ["dosini"] = false,
+                ["sql"] = false,
+                ["conf"] = false,
+                ["config"] = false,
                 ["passwd"] = false,
                 ["shadow"] = false,
                 ["sudoers"] = false,
-                ["pem"] = false,
-                ["key"] = false,
-                ["cert"] = false,
-                ["crt"] = false,
-                ["ca"] = false,
-                ["p12"] = false,
-                ["pfx"] = false,
-                ["jks"] = false,
-                ["gpg"] = false,
-                ["asc"] = false,
-                ["ini"] = false,
-                ["cfg"] = false,
-                ["conf"] = false,
-                ["config"] = false,
-                ["sql"] = false,
-                ["sqlite"] = false,
-                ["sqlite3"] = false,
-                ["db"] = false,
-                ["tf"] = false,
-                ["tfvars"] = false,
-                ["tfstate"] = false,
-                ["kubeconfig"] = false,
-                ["bin"] = false,
-                ["exe"] = false,
-                ["dll"] = false,
-                ["so"] = false,
-                ["dylib"] = false,
             }
             vim.g.copilot_enabled = true
             vim.g.copilot_show_ghost_text = true

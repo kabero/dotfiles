@@ -12,11 +12,11 @@ return {
 
                     map('n', ']c', "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", { expr = true })
                     map('n', '[c', "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", { expr = true })
-                    map('n', '<leader>aj', '<cmd>Gitsigns preview_hunk<CR>')
-                    map('n', '<leader>ak', '<cmd>lua require"gitsigns".blame_line{full=true}<CR>')
-                    map('n', '<leader>al', '<cmd>lua require"gitsigns".diffthis(nill, {vertical=true})<CR>')
-                    map('n', '<leader>1', '<cmd>Gitsigns toggle_current_line_blame<CR>')
-                    map('n', '<leader>2', '<cmd>Gitsigns toggle_deleted<CR>')
+                    map('n', '<leader>aj', '<cmd>Gitsigns preview_hunk<CR>', { desc = 'Preview hunk' })
+                    map('n', '<leader>ak', '<cmd>lua require"gitsigns".blame_line{full=true}<CR>', { desc = 'Blame line' })
+                    map('n', '<leader>al', '<cmd>lua require"gitsigns".diffthis(nil, {vertical=true})<CR>', { desc = 'Diff this (vertical)' })
+                    map('n', '<leader>1', '<cmd>Gitsigns toggle_current_line_blame<CR>', { desc = 'Toggle line blame' })
+                    map('n', '<leader>2', '<cmd>Gitsigns toggle_deleted<CR>', { desc = 'Toggle deleted' })
                 end
             }
         end
@@ -24,15 +24,18 @@ return {
 
     {
         "tpope/vim-fugitive",
-        event = 'VeryLazy',
-        init = function()
-            vim.api.nvim_set_keymap("n", "<leader>gc", ":0Gclog<CR>", { noremap = true, silent = true })
-        end,
+        cmd = { "Git", "G", "Gclog", "Gdiffsplit", "Gread", "Gwrite", "Gedit", "Gblame", "GBrowse" },
+        keys = {
+            { "<leader>gc", ":0Gclog<CR>", silent = true, desc = "File git log (fugitive)" },
+        },
     },
 
     {
         'sindrets/diffview.nvim',
-        event = 'VeryLazy',
+        cmd = {
+            "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory",
+            "DiffviewToggleFiles", "DiffviewFocusFiles", "DiffviewRefresh", "DiffviewLog",
+        },
     },
 
     {

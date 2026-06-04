@@ -38,9 +38,6 @@ return {
             hop.setup({
                 create_hl_autocmd = false,
             })
-            vim.keymap.set('n', '<leader>s', function()
-                hop.hint_words({ current_line_only = false, create_hl_autocmd = false })
-            end, { remap = true })
             vim.api.nvim_set_keymap("n", "<leader>s", ":HopWordMW<CR>", { noremap = true, silent = true })
 
             vim.api.nvim_set_hl(0, 'HopNextKey', { fg = '#4cc9f0', bold = true, cterm = { bold = true, italic = true } })

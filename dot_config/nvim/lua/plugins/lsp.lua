@@ -61,27 +61,13 @@ return {
                 },
                 signs = true,
                 underline = true,
+                update_in_insert = false,
             }
 
-            vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-                vim.lsp.diagnostic.on_publish_diagnostics, {
-                    update_in_insert = false,
-                }
-            )
-
             function ToggleDisplayDiagnostics()
-                if ShowingDiagnostics == nil then
-                    ShowingDiagnostics = true
-                end
-
-                if ShowingDiagnostics then
-                    vim.diagnostic.disable()
-                    print("Diagnostics disabled")
-                else
-                    vim.diagnostic.enable()
-                    print("Diagnostics enabled")
-                end
-                ShowingDiagnostics = not ShowingDiagnostics
+                local enabled = vim.diagnostic.is_enabled()
+                vim.diagnostic.enable(not enabled)
+                print(enabled and "Diagnostics disabled" or "Diagnostics enabled")
             end
 
             vim.keymap.set('n', '<leader>9', '<cmd>lua ToggleDisplayDiagnostics()<CR>', { noremap = true, silent = true })
@@ -138,7 +124,10 @@ return {
 
     {
         'nvimtools/none-ls.nvim',
-        event = "VeryLazy",
+        -- sources = {} -> none-ls does nothing at startup, so don't eagerly
+        -- load it (and plenary) on VeryLazy. It loads on demand; add real
+        -- sources here and switch back to an event/ft trigger when needed.
+        cmd = "NullLsInfo",
         dependencies = { "nvim-lua/plenary.nvim" },
         config = function()
             local null_ls = require("null-ls")
