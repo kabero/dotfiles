@@ -71,22 +71,10 @@ done)
 if [ -n "$orphan_sessions" ]; then
   active=$(printf '%s\n%s' "$active" "$orphan_sessions")
 fi
-fzf_out=$( (echo "$active"; echo "$inactive") | \
+selected=$( (echo "$active"; echo "$inactive") | \
   awk 'NF' | \
   fzf --height 100% --layout reverse --border \
-      --expect=ctrl-g \
-      --header 'C-g: jump back to last session' \
       --prompt "session/repo > ") || exit 0
-
-# <c-g><c-g>: the first C-g opens this popup; a second C-g jumps straight
-# back to the previously-active session without picking anything.
-key=$(printf '%s\n' "$fzf_out" | head -n 1)
-if [ "$key" = "ctrl-g" ]; then
-  tmux switch-client -l 2>/dev/null || true
-  exit 0
-fi
-
-selected=$(printf '%s\n' "$fzf_out" | sed -n '2p')
 
 selected="${selected#\* }"
 selected="${selected#  }"

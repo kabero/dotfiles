@@ -1,0 +1,12 @@
+#!/bin/bash
+# Fallback for the prefix-less C-g double-tap (see dot_tmux.conf).
+#
+# The first C-g puts the client into the 'cg' key-table and schedules this
+# script ~0.18s later. If a second C-g arrives in time it fires the
+# 'bind -T cg C-g' binding, which leaves the 'cg' table and jumps to the last
+# session — so by the time we run, the table is no longer 'cg' and we do
+# nothing. Otherwise it was a single tap and we open the session selector.
+if [ "$(tmux display-message -p '#{client_key_table}')" = "cg" ]; then
+    tmux switch-client -T root
+    tmux display-popup -xC -yC -w80% -h60% -E '~/.local/bin/tmux-session-selector'
+fi
