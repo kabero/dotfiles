@@ -1,6 +1,11 @@
 #!/bin/bash
 
 ghq_root="$(ghq root)"
+cur_sess=$(tmux display-message -p '#S' 2>/dev/null)
+now=$(date +%s)
+
+# Clean up all scratch files no matter how we exit (fzf cancel, error, etc.).
+trap 'rm -f "$sess_file" "$att_file" "$cc_file"' EXIT
 
 # Write active sessions to temp file for awk
 sess_file=$(mktemp)
@@ -47,8 +52,6 @@ NF {
   else print "  " repo
 }')
 
-rm -f "$sess_file"
-
 active=$(echo "$marked_repos" | grep '^\* ')
 inactive=$(echo "$marked_repos" | grep -v '^\* ')
 
@@ -77,7 +80,7 @@ fi
 # by it descending gives MRU order (current session at the top).
 att_file=$(mktemp)
 tmux list-sessions -F '#{session_last_attached} #{session_name}' 2>/dev/null > "$att_file"
-active=$(echo "$active" | awk 'NF' | awk -v af="$att_file" '
+active=$(echo "$active" | awk 'NF' | awk -v af="$att_file" -v cur="$cur_sess" '
   BEGIN {
     while ((getline l < af) > 0) {
       sp = index(l, " "); if (sp == 0) continue
@@ -91,9 +94,9 @@ active=$(echo "$active" | awk 'NF' | awk -v af="$att_file" '
     if (repo == "chezmoi") sess = "chezmoi"
     else if (n > 3) { sess = ""; for (i = 4; i <= n; i++) sess = sess (i > 4 ? "/" : "") parts[i] }
     else sess = parts[n]
+    if (cur != "" && sess == cur) next   # drop the session we are already in
     printf "%s\t%s\n", (sess in att ? att[sess] : 0), $0
   }' | sort -t"$(printf '\t')" -k1,1 -rn | cut -f2-)
-rm -f "$att_file"
 
 # Annotate lines whose tmux session has a Claude instance running (hook-free,
 # via tmux-claude-status). The summary is appended as a hidden TSV field so the
@@ -106,7 +109,7 @@ tmux-claude-status --by-session > "$cc_file" 2>/dev/null
 # path is appended as a hidden trailing TSV field for the resolution below;
 # fzf shows only field 1 (--with-nth=1) but still searches the whole line.
 selected=$( (echo "$active"; echo "$inactive") | awk 'NF' | \
-  awk -v cf="$cc_file" '
+  awk -v cf="$cc_file" -v af="$att_file" -v now="$now" '
     # Color each Claude state token to match the status bar / dashboard:
     # working (>) green, done (check) yellow, idle (dot) grey.
     function colorcc(s,   k, toks, out, t, g) {
@@ -120,14 +123,28 @@ selected=$( (echo "$active"; echo "$inactive") | awk 'NF' | \
       }
       return out
     }
+    # Compact "time since last attached" tag, e.g. 45s / 12m / 3h / 2d.
+    function ageof(t,   d) {
+      if (t == "" || t + 0 == 0 || now + 0 == 0) return ""
+      d = now - t; if (d < 0) d = 0
+      if (d < 60)    return d "s"
+      if (d < 3600)  return int(d / 60) "m"
+      if (d < 86400) return int(d / 3600) "h"
+      return int(d / 86400) "d"
+    }
     BEGIN {
       while ((getline line < cf) > 0) {
         split(line, a, "\t"); if (a[1] != "") m[a[1]] = a[2]
       }
       close(cf)
+      while ((getline line < af) > 0) {
+        sp = index(line, " "); if (sp == 0) continue
+        att[substr(line, sp + 1)] = substr(line, 1, sp - 1)
+      }
+      close(af)
       R="\033[0m"; DOT="\033[38;5;75m"; ON="\033[1;38;5;255m";
-      OFF="\033[38;5;250m"; OWN="\033[38;5;243m";
-      maxl=0; cnt=0
+      OFF="\033[38;5;250m"; OWN="\033[38;5;243m"; AGE="\033[38;5;240m";
+      maxl=0; maxa=0; cnt=0
     }
     {
       isact = ($0 ~ /^\* /) ? 1 : 0
@@ -143,8 +160,10 @@ selected=$( (echo "$active"; echo "$inactive") | awk 'NF' | \
       }
       cnt++
       A[cnt]=isact; NM[cnt]=nm; OW[cnt]=ow; PA[cnt]=repo; CCv[cnt]=(ss in m ? m[ss] : "")
+      AGv[cnt] = (ss in att ? ageof(att[ss]) : "")
       labw = (ow == "" ? length(nm) : length(ow) + 1 + length(nm))
       if (labw > maxl) maxl = labw
+      if (length(AGv[cnt]) > maxa) maxa = length(AGv[cnt])
     }
     END {
       for (i = 1; i <= cnt; i++) {
@@ -154,6 +173,10 @@ selected=$( (echo "$active"; echo "$inactive") | awk 'NF' | \
         nmc  = A[i] ? (ON NM[i] R) : (OFF NM[i] R)
         lab  = (OW[i] == "" ? nmc : OWN OW[i] "/" R nmc)
         line = mark "  " lab pad
+        if (maxa > 0) {
+          asp=""; for (j = length(AGv[i]); j < maxa; j++) asp = asp " "
+          line = line "  " asp (AGv[i] == "" ? "" : AGE AGv[i] R)
+        }
         if (CCv[i] != "") line = line "  " colorcc(CCv[i])
         printf "%s\t%s\n", line, PA[i]
       }
@@ -162,8 +185,7 @@ selected=$( (echo "$active"; echo "$inactive") | awk 'NF' | \
       --border rounded --border-label " session / repo " \
       --color "fg:-1,bg:-1,fg+:255,bg+:236,hl:75,hl+:75,pointer:75,marker:75,border:238,label:75,prompt:75,info:243,header:243,gutter:-1,spinner:75" \
       --pointer "▌" --prompt "> " \
-      --delimiter='\t' --with-nth=1 --highlight-line) || { rm -f "$cc_file"; exit 0; }
-rm -f "$cc_file"
+      --delimiter='\t' --with-nth=1 --highlight-line) || exit 0
 
 selected="${selected##*$'\t'}"
 
