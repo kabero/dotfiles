@@ -64,7 +64,13 @@ return {
             vim.diagnostic.config {
                 virtual_text = {
                     format = function(diagnostic)
-                        return string.format("%s (%s: %s)", diagnostic.message, diagnostic.source, diagnostic.code)
+                        -- Only append source/code when present, so diagnostics
+                        -- without a code don't render "(nil: nil)".
+                        local tag = diagnostic.source or ""
+                        if diagnostic.code then
+                            tag = tag ~= "" and (tag .. ": " .. diagnostic.code) or tostring(diagnostic.code)
+                        end
+                        return tag ~= "" and string.format("%s (%s)", diagnostic.message, tag) or diagnostic.message
                     end,
                 },
                 signs = true,
