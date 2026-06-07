@@ -30,18 +30,32 @@ export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 TAB=$(printf '\t')
 DONE_WINDOW=${CLAUDE_DONE_WINDOW:-600}
 
+# Epoch mtime of "when this Claude last did something", from the newest session
+# transcript under ~/.claude/projects/<cwd-encoded>/ (Claude appends per turn,
+# and viewing a pane doesn't touch it — unlike the tty). Falls back to the tty
+# mtime when no transcript is found (e.g. cwd changed mid-session).
+#   $1 = pane cwd   $2 = pane tty
+cc_mtime() {
+  local enc newest m
+  enc=$(printf '%s' "$1" | sed 's/[^a-zA-Z0-9]/-/g')
+  newest=$(ls -t "$HOME/.claude/projects/$enc"/*.jsonl 2>/dev/null | head -1)
+  [ -n "$newest" ] && m=$(stat -f %m "$newest" 2>/dev/null || stat -c %Y "$newest" 2>/dev/null)
+  [ -z "$m" ] && m=$(stat -f %m "$2" 2>/dev/null || stat -c %Y "$2" 2>/dev/null)
+  printf '%s' "${m:-0}"
+}
+
 raw() {
-  local now sess cmd win pane tty title m age status task
+  local now sess cmd win pane tty path title m age status task
   now=$(date +%s)
   tmux list-panes -a \
-    -F "#{session_name}${TAB}#{pane_current_command}${TAB}#{window_index}${TAB}#{pane_id}${TAB}#{pane_tty}${TAB}#{pane_title}" \
+    -F "#{session_name}${TAB}#{pane_current_command}${TAB}#{window_index}${TAB}#{pane_id}${TAB}#{pane_tty}${TAB}#{pane_current_path}${TAB}#{pane_title}" \
     2>/dev/null \
-  | while IFS="$TAB" read -r sess cmd win pane tty title; do
+  | while IFS="$TAB" read -r sess cmd win pane tty path title; do
       case "$cmd" in
         [0-9]*.[0-9]*.[0-9]*) ;;          # claude: version-like process name
         *) continue ;;
       esac
-      m=$(stat -f %m "$tty" 2>/dev/null || stat -c %Y "$tty" 2>/dev/null || echo "$now")
+      m=$(cc_mtime "$path" "$tty")
       age=$(( now - m ))
       case "$title" in
         ✳*) [ "$age" -lt "$DONE_WINDOW" ] && status=done || status=idle ;;
@@ -84,10 +98,10 @@ case "$1" in
     fi
     now=$(date +%s)
     glyphs=""; cc=0; lasttask=""
-    while IFS="$TAB" read -r cmd tty title; do
+    while IFS="$TAB" read -r cmd tty path title; do
       case "$cmd" in [0-9]*.[0-9]*.[0-9]*) ;; *) continue ;; esac
       cc=$((cc + 1))
-      m=$(stat -f %m "$tty" 2>/dev/null || stat -c %Y "$tty" 2>/dev/null || echo "$now")
+      m=$(cc_mtime "$path" "$tty")
       age=$((now - m))
       case "$title" in
         ✳*) if [ "$age" -lt "$DONE_WINDOW" ]; then glyphs="$glyphs#[fg=$cD]✓"
@@ -96,7 +110,7 @@ case "$1" in
       esac
       lasttask="${title#* }"
     done <<EOF
-$(tmux list-panes -t "$win" -F "#{pane_current_command}${TAB}#{pane_tty}${TAB}#{pane_title}" 2>/dev/null)
+$(tmux list-panes -t "$win" -F "#{pane_current_command}${TAB}#{pane_tty}${TAB}#{pane_current_path}${TAB}#{pane_title}" 2>/dev/null)
 EOF
     if [ "$cc" -eq 0 ]; then
       printf '%s' "$name"

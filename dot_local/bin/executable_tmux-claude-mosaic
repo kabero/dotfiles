@@ -1,0 +1,65 @@
+#!/bin/bash
+# Claude mosaic ("command room"): tile a read-only live view of every running
+# Claude Code pane into one window, so you can eyeball all agents at once.
+# Builds a dedicated `cc-mosaic` session of tiled tmux-claude-mirror panes.
+# Toggle with `prefix U` (see dot_tmux.conf): open here, kill when inside it.
+export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+
+SESSION=cc-mosaic
+CAP=16   # tmux can't tile arbitrarily many panes; cap and report the rest.
+
+# Toggle: if invoked from within the mosaic, return to the previous session
+# FIRST, then tear the mosaic down (killing the attached session would
+# otherwise detach the client).
+if [ "$(tmux display -p '#{session_name}' 2>/dev/null)" = "$SESSION" ]; then
+  if ! tmux switch-client -l 2>/dev/null; then
+    other=$(tmux list-sessions -F '#{session_name}' 2>/dev/null | grep -vxF "$SESSION" | head -1)
+    [ -n "$other" ] && tmux switch-client -t "$other"
+  fi
+  tmux kill-session -t "$SESSION" 2>/dev/null
+  exit 0
+fi
+
+# Collect Claude pane ids (field 4 of the raw status output).
+targets=()
+while IFS= read -r p; do
+  [ -n "$p" ] && targets+=("$p")
+done < <(tmux-claude-status | awk -F'\t' '{print $4}')
+
+if [ "${#targets[@]}" -eq 0 ]; then
+  tmux display-message "No Claude Code instances running."
+  exit 0
+fi
+
+# Always rebuild fresh.
+tmux kill-session -t "$SESSION" 2>/dev/null
+
+w=$(tmux display -p '#{client_width}')
+h=$(tmux display -p '#{client_height}')
+tmux new-session -d -s "$SESSION" -x "${w:-200}" -y "${h:-50}" \
+  "exec tmux-claude-mirror ${targets[0]}"
+
+n=1
+for t in "${targets[@]:1}"; do
+  [ "$n" -ge "$CAP" ] && break
+  tmux split-window -t "$SESSION" "exec tmux-claude-mirror $t" 2>/dev/null \
+    && tmux select-layout -t "$SESSION" tiled >/dev/null 2>&1
+  n=$((n + 1))
+done
+
+tmux set-option -t "$SESSION" status off
+# Give mirror tiles an explicit light fg + dark bg, so Claude's "default
+# foreground" / faint text doesn't sink into the tile background.
+tmux set-option -t "$SESSION" window-style "fg=colour250,bg=colour234"
+tmux set-option -t "$SESSION" window-active-style "fg=colour252,bg=colour233"
+tmux set-option -t "$SESSION" pane-border-status top
+tmux set-option -t "$SESSION" pane-border-format ' #{pane_title} '
+tmux set-option -t "$SESSION" automatic-rename off
+tmux rename-window -t "$SESSION" mosaic
+tmux select-layout -t "$SESSION" tiled
+
+if [ "${#targets[@]}" -gt "$CAP" ]; then
+  tmux display-message "mosaic: showing $CAP of ${#targets[@]} Claude panes"
+fi
+# CLAUDE_MOSAIC_NOSWITCH lets tests build without yanking the user's view.
+[ -z "$CLAUDE_MOSAIC_NOSWITCH" ] && tmux switch-client -t "$SESSION"
