@@ -79,7 +79,7 @@ while :; do
           if ($c + $cw > $w - 1) { $cut = 1; last }   # reserve 1 col for the …
           $o .= $tok; $c += $cw;
         }
-        $o .= "\e[38;5;245m…" if $cut;                # line was cut: mark it
+        $o .= "\e[38;5;245m\x{2026}" if $cut;         # line was cut: mark it (… )
         print $o, "\e[0m\n";
       ')
   printf '\033[H\033[2J%s' "$body"
