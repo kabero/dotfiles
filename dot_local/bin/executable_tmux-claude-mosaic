@@ -2,7 +2,7 @@
 # Claude mosaic ("command room"): tile a read-only live view of every running
 # Claude Code pane into one window, so you can eyeball all agents at once.
 # Builds a dedicated `cc-mosaic` session of tiled tmux-claude-mirror panes.
-# Toggle with `prefix U` (see dot_tmux.conf): open here, kill when inside it.
+# Toggle with `prefix m` (see dot_tmux.conf): open here, kill when inside it.
 export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 
 SESSION=cc-mosaic
