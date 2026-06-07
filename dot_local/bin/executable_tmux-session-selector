@@ -71,36 +71,101 @@ done)
 if [ -n "$orphan_sessions" ]; then
   active=$(printf '%s\n%s' "$active" "$orphan_sessions")
 fi
+
+# Order active sessions most-recently-visited first. tmux bumps
+# session_last_attached every time you switch-client to a session, so sorting
+# by it descending gives MRU order (current session at the top).
+att_file=$(mktemp)
+tmux list-sessions -F '#{session_last_attached} #{session_name}' 2>/dev/null > "$att_file"
+active=$(echo "$active" | awk 'NF' | awk -v af="$att_file" '
+  BEGIN {
+    while ((getline l < af) > 0) {
+      sp = index(l, " "); if (sp == 0) continue
+      att[substr(l, sp + 1)] = substr(l, 1, sp - 1)
+    }
+    close(af)
+  }
+  {
+    repo = $0; sub(/^\* /, "", repo); sub(/^  /, "", repo)
+    n = split(repo, parts, "/")
+    if (repo == "chezmoi") sess = "chezmoi"
+    else if (n > 3) { sess = ""; for (i = 4; i <= n; i++) sess = sess (i > 4 ? "/" : "") parts[i] }
+    else sess = parts[n]
+    printf "%s\t%s\n", (sess in att ? att[sess] : 0), $0
+  }' | sort -t"$(printf '\t')" -k1,1 -rn | cut -f2-)
+rm -f "$att_file"
+
 # Annotate lines whose tmux session has a Claude instance running (hook-free,
 # via tmux-claude-status). The summary is appended as a hidden TSV field so the
 # existing selection-parsing below is unaffected.
 cc_file=$(mktemp)
 tmux-claude-status --by-session > "$cc_file" 2>/dev/null
 
+# Reformat each row so the repo name leads (bold), the owner trails (dimmed),
+# and active sessions get a blue dot + any Claude summary. The canonical repo
+# path is appended as a hidden trailing TSV field for the resolution below;
+# fzf shows only field 1 (--with-nth=1) but still searches the whole line.
 selected=$( (echo "$active"; echo "$inactive") | awk 'NF' | \
-  awk -F'\t' -v cf="$cc_file" '
+  awk -v cf="$cc_file" '
+    # Color each Claude state token to match the status bar / dashboard:
+    # working (>) green, done (check) yellow, idle (dot) grey.
+    function colorcc(s,   k, toks, out, t, g) {
+      k = split(s, toks, " ")
+      for (t = 1; t <= k; t++) {
+        if (toks[t] == "") continue
+        if (index(toks[t], "\xe2\x96\xb6") == 1)      g = "\033[1;38;5;82m"
+        else if (index(toks[t], "\xe2\x9c\x93") == 1) g = "\033[1;38;5;226m"
+        else                                          g = "\033[38;5;250m"
+        out = out (out == "" ? "" : " ") g toks[t] "\033[0m"
+      }
+      return out
+    }
     BEGIN {
       while ((getline line < cf) > 0) {
         split(line, a, "\t"); if (a[1] != "") m[a[1]] = a[2]
       }
       close(cf)
+      R="\033[0m"; DOT="\033[38;5;75m"; ON="\033[1;38;5;255m";
+      OFF="\033[38;5;250m"; OWN="\033[38;5;243m";
+      maxl=0; cnt=0
     }
     {
+      isact = ($0 ~ /^\* /) ? 1 : 0
       repo = $0; sub(/^\* /, "", repo); sub(/^  /, "", repo)
-      n = split(repo, parts, "/")
-      if (n > 3) { sess = ""; for (i = 4; i <= n; i++) sess = sess (i > 4 ? "/" : "") parts[i] }
-      else sess = parts[n]
-      if (sess in m) printf "%s\t%s\n", $0, m[sess]
-      else print $0
+      n = split(repo, p, "/")
+      if (repo == "chezmoi") { nm="chezmoi"; ow=""; ss="chezmoi" }
+      else if (n == 1) { nm=repo; ow=""; ss=repo }
+      else {
+        ow = p[2]; nm = ""
+        for (i = 3; i <= n; i++) nm = nm (i > 3 ? "/" : "") p[i]
+        if (n > 3) { ss = ""; for (i = 4; i <= n; i++) ss = ss (i > 4 ? "/" : "") p[i] }
+        else ss = p[n]
+      }
+      cnt++
+      A[cnt]=isact; NM[cnt]=nm; OW[cnt]=ow; PA[cnt]=repo; CCv[cnt]=(ss in m ? m[ss] : "")
+      labw = (ow == "" ? length(nm) : length(ow) + 1 + length(nm))
+      if (labw > maxl) maxl = labw
+    }
+    END {
+      for (i = 1; i <= cnt; i++) {
+        labw = (OW[i] == "" ? length(NM[i]) : length(OW[i]) + 1 + length(NM[i]))
+        pad=""; for (j = labw; j < maxl; j++) pad = pad " "
+        mark = A[i] ? (DOT "\xe2\x97\x8f" R) : " "
+        nmc  = A[i] ? (ON NM[i] R) : (OFF NM[i] R)
+        lab  = (OW[i] == "" ? nmc : OWN OW[i] "/" R nmc)
+        line = mark "  " lab pad
+        if (CCv[i] != "") line = line "  " colorcc(CCv[i])
+        printf "%s\t%s\n", line, PA[i]
+      }
     }' | \
-  fzf --height 100% --layout reverse --border \
-      --delimiter='\t' --with-nth=1,2 \
-      --prompt "session/repo > ") || { rm -f "$cc_file"; exit 0; }
+  fzf --ansi --height 100% --layout reverse \
+      --border rounded --border-label " session / repo " \
+      --color "fg:-1,bg:-1,fg+:255,bg+:236,hl:75,hl+:75,pointer:75,marker:75,border:238,label:75,prompt:75,info:243,header:243,gutter:-1,spinner:75" \
+      --pointer "▌" --prompt "> " \
+      --delimiter='\t' --with-nth=1 --highlight-line) || { rm -f "$cc_file"; exit 0; }
 rm -f "$cc_file"
 
-selected="${selected%%$'\t'*}"
-selected="${selected#\* }"
-selected="${selected#  }"
+selected="${selected##*$'\t'}"
 
 if [ "$selected" = "chezmoi" ]; then
   session="chezmoi"
