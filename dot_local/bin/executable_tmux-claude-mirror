@@ -89,12 +89,13 @@ while :; do
   # key just triggers an early refresh. Tiles that aren't focused get no input
   # and simply refresh on timeout.
   if read -rsn1 -t 1 ch 2>/dev/null && [ -z "$ch" ]; then
+    mw=$(tmux display -p -t "$self" '#{window_id}')   # the mosaic window
     if tmux list-panes -a -F '#{pane_id}' | grep -qxF "$target"; then
       tmux switch-client -t "$target"
       tmux select-window -t "$target"
       tmux select-pane -t "$target"
     fi
-    tmux kill-session -t cc-mosaic 2>/dev/null
-    exit 0
+    tmux kill-window -t "$mw" 2>/dev/null              # close mosaic (a window,
+    exit 0                                             # so last-session is kept)
   fi
 done
