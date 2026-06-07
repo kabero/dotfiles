@@ -118,7 +118,7 @@ selected=$( (echo "$active"; echo "$inactive") | awk 'NF' | \
         if (toks[t] == "") continue
         if (index(toks[t], "\xe2\x96\xb6") == 1)      g = "\033[1;38;5;82m"
         else if (index(toks[t], "\xe2\x9c\x93") == 1) g = "\033[1;38;5;226m"
-        else                                          g = "\033[38;5;250m"
+        else                                          g = "\033[38;5;110m"
         out = out (out == "" ? "" : " ") g toks[t] "\033[0m"
       }
       return out

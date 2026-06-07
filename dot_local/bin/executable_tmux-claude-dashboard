@@ -28,8 +28,8 @@ display=$(echo "$list" | awk -F'\t' -v OFS='\t' '
   { icon = ($1=="work") ? "▶" : ($1=="done") ? "✓" : "●"
     pk   = ($1=="work") ? 0   : ($1=="done") ? 1   : 2
     age  = ($1=="work") ? "live" : hum($5)
-    # color: working=green, just-finished=bold yellow, stale=dim
-    col  = ($1=="work") ? "\033[32m" : ($1=="done") ? "\033[1;33m" : "\033[2m"
+    # color: working=green, just-finished=bold yellow, stale=soft cyan
+    col  = ($1=="work") ? "\033[32m" : ($1=="done") ? "\033[1;33m" : "\033[38;5;110m"
     line = sprintf("%s%s  %-18s %-5s %s\033[0m", col, icon, $2, age, $6)
     print pk, $5+0, line, $4 }' \
   | sort -t"$TAB" -k1,1n -k2,2n \

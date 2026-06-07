@@ -92,9 +92,9 @@ case "$1" in
     #   $5 = cur|off — current (bright glyphs) vs other window (dim glyphs)
     win="$2"; name="$3"; base="${4:-colour252}"; mode="${5:-cur}"
     if [ "$mode" = off ]; then
-      cW=colour65;  cD=colour136; cI=colour242   # inactive window: dim glyphs
+      cW=colour65;  cD=colour136; cI=colour66    # inactive window: dim glyphs
     else
-      cW=colour82;  cD=colour226; cI=colour250   # current window: bright glyphs
+      cW=colour82;  cD=colour226; cI=colour110   # current window: bright glyphs
     fi
     now=$(date +%s)
     glyphs=""; cc=0; lasttask=""
@@ -127,7 +127,7 @@ EOF
         s=""
         if (w) s = s sprintf("#[fg=colour82,bold]▶%d ", w)
         if (d) s = s sprintf("#[fg=colour226,bold]✓%d ", d)
-        if (i) s = s sprintf("#[fg=colour250]●%d ", i)
+        if (i) s = s sprintf("#[fg=colour110]●%d ", i)
         if (s != "") printf "%s#[default]", s
       }'
     ;;
