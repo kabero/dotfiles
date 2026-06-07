@@ -30,6 +30,14 @@ return {
             'neovim/nvim-lspconfig'
         },
         config = function()
+            -- Broadcast nvim-cmp's completion capabilities (snippets,
+            -- additionalTextEdits/auto-import, etc.) to every server that
+            -- mason-lspconfig auto-enables. Without this, automatic_enable
+            -- only advertises Neovim's default capabilities.
+            vim.lsp.config('*', {
+                capabilities = require('cmp_nvim_lsp').default_capabilities(),
+            })
+
             require('mason-lspconfig').setup {
                 automatic_enable = true,
             }
