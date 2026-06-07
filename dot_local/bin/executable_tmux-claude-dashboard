@@ -1,0 +1,49 @@
+#!/bin/bash
+# Claude Code dashboard: list every Claude instance across all tmux panes and
+# jump straight to the chosen one. Status + task + age come from
+# tmux-claude-status.
+#   ▶ working    ✓ just finished (needs review)    ● idle (stale)
+# Sorted: working first, then most-recently-finished, then stale.
+# The age column shows how long since each pane last printed.
+# Enter jumps to that exact pane (session + window + pane).
+
+TAB=$(printf '\t')
+
+list=$(tmux-claude-status)
+if [ -z "$list" ]; then
+  echo "No Claude Code instances running."
+  sleep 1.2
+  exit 0
+fi
+
+# Build "<sortkey>\t<age>\t<display>\t<pane_id>", sort, then drop sort keys.
+# Display carries the pane id in a hidden trailing field for the jump.
+display=$(echo "$list" | awk -F'\t' -v OFS='\t' '
+  function hum(a) {
+    if (a < 60)    return a "s"
+    if (a < 3600)  return int(a/60) "m"
+    if (a < 86400) return int(a/3600) "h"
+    return int(a/86400) "d"
+  }
+  { icon = ($1=="work") ? "▶" : ($1=="done") ? "✓" : "●"
+    pk   = ($1=="work") ? 0   : ($1=="done") ? 1   : 2
+    age  = ($1=="work") ? "live" : hum($5)
+    # color: working=green, just-finished=bold yellow, stale=dim
+    col  = ($1=="work") ? "\033[32m" : ($1=="done") ? "\033[1;33m" : "\033[2m"
+    line = sprintf("%s%s  %-18s %-5s %s\033[0m", col, icon, $2, age, $6)
+    print pk, $5+0, line, $4 }' \
+  | sort -t"$TAB" -k1,1n -k2,2n \
+  | cut -f3-)
+
+sel=$(printf '%s\n' "$display" | fzf \
+  --delimiter="$TAB" --with-nth=1 --ansi \
+  --height 100% --layout reverse --border \
+  --prompt "claude > " \
+  --header "▶ working   ✓ just finished   ● idle   ·   enter: jump to pane") || exit 0
+
+pane=$(printf "%s" "$sel" | cut -f2)
+[ -n "$pane" ] || exit 0
+
+tmux switch-client -t "$pane"
+tmux select-window -t "$pane"
+tmux select-pane -t "$pane"

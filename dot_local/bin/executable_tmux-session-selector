@@ -71,11 +71,34 @@ done)
 if [ -n "$orphan_sessions" ]; then
   active=$(printf '%s\n%s' "$active" "$orphan_sessions")
 fi
-selected=$( (echo "$active"; echo "$inactive") | \
-  awk 'NF' | \
-  fzf --height 100% --layout reverse --border \
-      --prompt "session/repo > ") || exit 0
+# Annotate lines whose tmux session has a Claude instance running (hook-free,
+# via tmux-claude-status). The summary is appended as a hidden TSV field so the
+# existing selection-parsing below is unaffected.
+cc_file=$(mktemp)
+tmux-claude-status --by-session > "$cc_file" 2>/dev/null
 
+selected=$( (echo "$active"; echo "$inactive") | awk 'NF' | \
+  awk -F'\t' -v cf="$cc_file" '
+    BEGIN {
+      while ((getline line < cf) > 0) {
+        split(line, a, "\t"); if (a[1] != "") m[a[1]] = a[2]
+      }
+      close(cf)
+    }
+    {
+      repo = $0; sub(/^\* /, "", repo); sub(/^  /, "", repo)
+      n = split(repo, parts, "/")
+      if (n > 3) { sess = ""; for (i = 4; i <= n; i++) sess = sess (i > 4 ? "/" : "") parts[i] }
+      else sess = parts[n]
+      if (sess in m) printf "%s\t%s\n", $0, m[sess]
+      else print $0
+    }' | \
+  fzf --height 100% --layout reverse --border \
+      --delimiter='\t' --with-nth=1,2 \
+      --prompt "session/repo > ") || { rm -f "$cc_file"; exit 0; }
+rm -f "$cc_file"
+
+selected="${selected%%$'\t'*}"
 selected="${selected#\* }"
 selected="${selected#  }"
 
