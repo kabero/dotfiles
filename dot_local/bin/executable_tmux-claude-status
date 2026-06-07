@@ -20,6 +20,12 @@
 #                  (age = seconds since the pane last printed)
 #   --by-session   one line per session with Claude panes, TSV:
 #                  session<TAB>summary   (summary e.g. "▶2 ✓1 ●3")
+#   --summary      one colored line totaling all instances by state, for the
+#                  tmux status bar (e.g. "▶2 ✓3 ●9"); empty if no Claude.
+
+# tmux runs status-bar #() jobs with a minimal PATH, so ensure tmux/stat/etc
+# are findable when invoked from the status line.
+export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 
 TAB=$(printf '\t')
 DONE_WINDOW=${CLAUDE_DONE_WINDOW:-600}
@@ -59,6 +65,56 @@ case "$1" in
           if (i[s]) sum = sum (sum ? " " : "") "●" i[s]
           printf "%s\t%s\n", s, sum
         }
+      }'
+    ;;
+  --window)
+    # Decorate one window for the status bar's window list. Scans ALL panes of
+    # the window (a window may run several Claude instances) and emits one
+    # colored glyph per Claude pane, in 3 states:
+    #   ▶ working   ✓ just finished (recent)   ● idle (stale)
+    # If exactly one Claude pane, also append its task. Non-Claude windows fall
+    # back to the passed-in window name ($3).
+    #   $4 = base text color (so the task matches other windows' brightness)
+    #   $5 = cur|off — current (bright glyphs) vs other window (dim glyphs)
+    win="$2"; name="$3"; base="${4:-colour252}"; mode="${5:-cur}"
+    if [ "$mode" = off ]; then
+      cW=colour65;  cD=colour136; cI=colour242   # inactive window: dim glyphs
+    else
+      cW=colour82;  cD=colour226; cI=colour250   # current window: bright glyphs
+    fi
+    now=$(date +%s)
+    glyphs=""; cc=0; lasttask=""
+    while IFS="$TAB" read -r cmd tty title; do
+      case "$cmd" in [0-9]*.[0-9]*.[0-9]*) ;; *) continue ;; esac
+      cc=$((cc + 1))
+      m=$(stat -f %m "$tty" 2>/dev/null || stat -c %Y "$tty" 2>/dev/null || echo "$now")
+      age=$((now - m))
+      case "$title" in
+        ✳*) if [ "$age" -lt "$DONE_WINDOW" ]; then glyphs="$glyphs#[fg=$cD]✓"
+            else glyphs="$glyphs#[fg=$cI]●"; fi ;;
+        *)  glyphs="$glyphs#[fg=$cW]▶" ;;
+      esac
+      lasttask="${title#* }"
+    done <<EOF
+$(tmux list-panes -t "$win" -F "#{pane_current_command}${TAB}#{pane_tty}${TAB}#{pane_title}" 2>/dev/null)
+EOF
+    if [ "$cc" -eq 0 ]; then
+      printf '%s' "$name"
+    else
+      out="$glyphs#[fg=$base]"
+      [ "$cc" -eq 1 ] && out="$out ${lasttask:0:16}"
+      printf '%s' "$out"
+    fi
+    ;;
+  --summary)
+    raw | awk -F'\t' '
+      { if ($1=="work") w++; else if ($1=="done") d++; else i++ }
+      END {
+        s=""
+        if (w) s = s sprintf("#[fg=colour82,bold]▶%d ", w)
+        if (d) s = s sprintf("#[fg=colour226,bold]✓%d ", d)
+        if (i) s = s sprintf("#[fg=colour250]●%d ", i)
+        if (s != "") printf "%s#[default]", s
       }'
     ;;
   *)
