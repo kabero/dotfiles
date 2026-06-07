@@ -48,12 +48,19 @@ for t in "${targets[@]:1}"; do
 done
 
 tmux set-option -t "$SESSION" status off
-# Give mirror tiles an explicit light fg + dark bg, so Claude's "default
-# foreground" / faint text doesn't sink into the tile background.
-tmux set-option -t "$SESSION" window-style "fg=colour250,bg=colour234"
-tmux set-option -t "$SESSION" window-active-style "fg=colour252,bg=colour233"
+# Use the terminal's bright default foreground (same as a real Claude pane) so
+# the bulk "default fg" text isn't dimmed; near-black/faint text is brightened
+# in tmux-claude-mirror instead.
+tmux set-option -t "$SESSION" window-style "default,bg=colour234"
+tmux set-option -t "$SESSION" window-active-style "default,bg=colour233"
 tmux set-option -t "$SESSION" pane-border-status top
-tmux set-option -t "$SESSION" pane-border-format ' #{pane_title} '
+# The global pane-border-style uses a near-black fg, which would make the title
+# (state + location + task) invisible — override with readable colors here.
+tmux set-option -t "$SESSION" pane-border-style "fg=colour240,bg=colour234"
+tmux set-option -t "$SESSION" pane-active-border-style "fg=colour110,bg=colour233"
+# Border label: state glyph (colored by @ccst) + location (soft blue) + task.
+#   ▶ green working   ✓ yellow just-finished   ● cyan idle
+tmux set-option -t "$SESSION" pane-border-format ' #{?#{==:#{@ccst},work},#[fg=colour82]▶,#{?#{==:#{@ccst},done},#[fg=colour226]✓,#[fg=colour110]●}} #[fg=colour111,bold]#{@ccloc}#[default] #[fg=colour250]#{pane_title}#[default] '
 tmux set-option -t "$SESSION" automatic-rename off
 tmux rename-window -t "$SESSION" mosaic
 tmux select-layout -t "$SESSION" tiled
