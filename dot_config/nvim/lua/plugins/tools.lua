@@ -184,10 +184,19 @@ return {
             {
                 "<tab>",
                 function()
+                    -- Single owner of <Tab>: NES first, then native inline
+                    -- completion, then confirm a visible nvim-cmp menu, else a
+                    -- literal <Tab>. (cmp's own <TAB> mapping was removed so the
+                    -- two no longer shadow each other depending on load order.)
                     if require("sidekick").nes_jump_or_apply() then
                         return
                     end
                     if vim.lsp.inline_completion and vim.lsp.inline_completion.get and vim.lsp.inline_completion.get() then
+                        return
+                    end
+                    local ok, cmp = pcall(require, "cmp")
+                    if ok and cmp.visible() then
+                        cmp.confirm({ select = true })
                         return
                     end
                     return "<tab>"

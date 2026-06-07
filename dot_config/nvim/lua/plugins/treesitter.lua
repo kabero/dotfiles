@@ -4,7 +4,12 @@ return {
         branch = 'master',
         build = ':TSUpdate',
         event = { "BufReadPost", "BufNewFile" },
-        dependencies = 'windwp/nvim-ts-autotag',
+        dependencies = {
+            'windwp/nvim-ts-autotag',
+            -- Pin to master to match nvim-treesitter's classic (master) API;
+            -- the default `main` branch is the incompatible rewrite.
+            { 'nvim-treesitter/nvim-treesitter-textobjects', branch = 'master' },
+        },
         config = function()
             require('nvim-treesitter.configs').setup {
                 ensure_installed = {
@@ -30,7 +35,27 @@ return {
                     end,
                 },
                 autotag = { enable = true },
-                indent = { enable = true }
+                indent = { enable = true },
+                textobjects = {
+                    select = {
+                        enable = true,
+                        lookahead = true, -- jump forward to the textobject like targets.vim
+                        keymaps = {
+                            ["af"] = "@function.outer",
+                            ["if"] = "@function.inner",
+                            ["ac"] = "@class.outer",
+                            ["ic"] = "@class.inner",
+                            ["aa"] = "@parameter.outer",
+                            ["ia"] = "@parameter.inner",
+                        },
+                    },
+                    move = {
+                        enable = true,
+                        set_jumps = true, -- record positions in the jumplist
+                        goto_next_start = { ["]m"] = "@function.outer", ["]]"] = "@class.outer" },
+                        goto_previous_start = { ["[m"] = "@function.outer", ["[["] = "@class.outer" },
+                    },
+                },
             }
         end
     },

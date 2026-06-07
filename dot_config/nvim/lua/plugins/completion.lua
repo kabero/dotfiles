@@ -41,7 +41,9 @@ return {
                     ["<C-p>"] = cmp.mapping.select_prev_item(),
                     ["<C-n>"] = cmp.mapping.select_next_item(),
                     ["<C-f>"] = cmp.mapping.confirm { select = true },
-                    ["<TAB>"] = cmp.mapping.confirm { select = true },
+                    -- <Tab> confirm is owned by the unified sidekick handler in
+                    -- tools.lua (NES -> inline -> cmp.confirm), so it is not
+                    -- mapped here to avoid a load-order shadowing conflict.
                     ["<CR>"]  = cmp.mapping.confirm { select = false },
                 }),
                 experimental = {
