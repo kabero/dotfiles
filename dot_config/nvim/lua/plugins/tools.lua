@@ -8,7 +8,7 @@ return {
                     internal = {
                         lua = 'luafile %',
                         vim = 'source %',
-                        markdown = 'PreviewMarkdown'
+                        markdown = 'RenderMarkdown toggle'
                     },
                     external = {
                         c          = 'gcc %; ./a.out; rm a.out',

@@ -36,6 +36,54 @@ return {
             "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory",
             "DiffviewToggleFiles", "DiffviewFocusFiles", "DiffviewRefresh", "DiffviewLog",
         },
+        keys = {
+            {
+                "<leader>gv",
+                function()
+                    -- Toggle: review uncommitted working-tree changes.
+                    if require("diffview.lib").get_current_view() then
+                        vim.cmd("DiffviewClose")
+                    else
+                        vim.cmd("DiffviewOpen")
+                    end
+                end,
+                desc = "Diffview: working tree (toggle)",
+            },
+            {
+                "<leader>gV",
+                function()
+                    if require("diffview.lib").get_current_view() then
+                        vim.cmd("DiffviewClose")
+                        return
+                    end
+                    -- PR-style review: merge-base diff of this branch vs the
+                    -- default branch (master/main, matching <leader>gd).
+                    vim.fn.system("git rev-parse --verify master")
+                    local base = vim.v.shell_error == 0 and "master" or "main"
+                    vim.cmd("DiffviewOpen " .. base .. "...HEAD --imply-local")
+                end,
+                desc = "Diffview: branch vs master/main (PR review)",
+            },
+            { "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: current file history" },
+            { "<leader>gH", "<cmd>DiffviewFileHistory<cr>",   desc = "Diffview: repo history" },
+        },
+        opts = {
+            enhanced_diff_hl = true,
+            view = {
+                -- 3-way layout makes merge-conflict review legible.
+                merge_tool = { layout = "diff3_mixed" },
+            },
+            keymaps = {
+                -- `q` closes from the list panels (non-editable); the diff
+                -- windows themselves are left alone so `q` keeps recording macros.
+                file_panel = {
+                    { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
+                },
+                file_history_panel = {
+                    { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
+                },
+            },
+        },
     },
 
     {

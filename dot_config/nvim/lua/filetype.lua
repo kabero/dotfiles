@@ -65,6 +65,33 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 
+-- Per-window markdown tweaks, re-evaluated on enter so they follow the
+-- buffer's filetype even when a window is reused for another file. Limited to
+-- normal buffers so plugin/terminal windows are left alone.
+--   * No cursorline (it clashes with render-markdown's rendered current line /
+--     heading bars).
+--   * Highlight circled numbers (①②③ …) — they render cramped at single-cell
+--     width, so a bright bold match (priority above treesitter) keeps them
+--     readable. matchadd is window-local, hence the per-window refresh.
+vim.api.nvim_create_autocmd({ 'BufWinEnter', 'WinEnter' }, {
+    group = filetype_group,
+    callback = function()
+        if vim.bo.buftype ~= '' then return end
+        local is_markdown = vim.bo.filetype == 'markdown'
+
+        vim.wo.cursorline = not is_markdown
+
+        for _, m in ipairs(vim.fn.getmatches()) do
+            if m.group == 'CircledNumber' then
+                vim.fn.matchdelete(m.id)
+            end
+        end
+        if is_markdown then
+            vim.fn.matchadd('CircledNumber', "[⓪①-⑳⓫-⓴㉑-㉟㊱-㊿❶-❿⓿]", 120)
+        end
+    end,
+})
+
 -- Disable search highlighting color for specific file types
 vim.api.nvim_create_autocmd('FileType', {
     pattern = { 'sagafinder', 'TelescopePrompt' },

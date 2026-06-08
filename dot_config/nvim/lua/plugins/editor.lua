@@ -65,4 +65,20 @@ return {
             }
         end
     },
+
+    {
+        "MeanderingProgrammer/render-markdown.nvim",
+        ft = { "markdown" },
+        dependencies = {
+            "nvim-treesitter/nvim-treesitter",
+            "nvim-tree/nvim-web-devicons",
+        },
+        -- Renders markdown inline in the buffer (headings, lists, code blocks,
+        -- tables, checkboxes). Toggle with <leader>q via jaq (see tools.lua).
+        -- anti_conceal disabled so the cursor line stays rendered too, instead
+        -- of revealing its raw markdown.
+        opts = {
+            anti_conceal = { enabled = false },
+        },
+    },
 }

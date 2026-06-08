@@ -68,10 +68,7 @@ brew bundle --file=~/.local/share/chezmoi/excludes/Brewfile
 # Setup Alacritty theme
 ~/.local/share/chezmoi/excludes/setup.sh
 
-# Setup bufpreview (Neovim plugin)
-cd $LAZYDIR/bufpreview.vim && deno task prepare
-
-# Install language runtimes with asdf
+# Install language runtimes with asdf (per-project .tool-versions)
 asdf install
 ```
 
@@ -109,7 +106,7 @@ Custom completions are stored in `$HOME/.zsh/completions/`
 ```
 ~/.local/share/chezmoi/
 ├── dot_config/
-│   ├── nvim/                 # Neovim configuration (Lua-based)
+│   ├── nvim/                 # Neovim configuration (Lua-based, has its own README.md)
 │   ├── git/                  # Git configuration
 │   │   └── config.tmpl       # Git config with template variables
 │   ├── alacritty/            # Alacritty terminal configuration
@@ -118,14 +115,13 @@ Custom completions are stored in `$HOME/.zsh/completions/`
 ├── dot_zshrc.tmpl            # Zsh configuration (main)
 ├── dot_tmux.conf             # tmux configuration
 ├── dot_asdfrc                # asdf configuration
-├── dot_tool-versions         # asdf tool versions
+├── dot_vimrc                 # Vim configuration (lightweight, plugin-free)
 ├── excludes/
 │   ├── Brewfile              # Homebrew package list
 │   └── setup.sh              # Additional setup scripts
 ├── examples/
 │   ├── .nvim.lua.template    # Project-specific Neovim config template
 │   └── README.md             # Detailed usage guide
-├── CLAUDE.local.md           # Claude Code project settings
 └── README.md                 # This file
 ```
 
@@ -155,11 +151,13 @@ chezmoi cd
 
 ### Neovim
 
+📖 **See [`dot_config/nvim/README.md`](./dot_config/nvim/README.md)** for the full configuration overview, distinctive settings, and the keybinding cheatsheet.
+
 #### Basic Usage
 
-- **Measure startup time**: `vim-startuptime -vimpath nvim`
-- **Plugin manager**: Lazy.nvim
-- **LSP support**: Built-in LSP configuration
+- **Plugin manager**: lazy.nvim (specs under `dot_config/nvim/lua/plugins/`)
+- **LSP**: mason + mason-lspconfig with native `vim.lsp` (Neovim 0.11+)
+- **Measure startup time**: `nvim --startuptime /tmp/nvim.log` then inspect the log
 
 #### Project-Specific Configuration (.nvim.lua)
 
@@ -306,17 +304,13 @@ chezmoi apply --force
 # Open Neovim and sync plugins
 nvim
 :Lazy sync
-
-# For bufpreview specifically
-cd $LAZYDIR/bufpreview.vim
-deno task prepare
 ```
 
 ## 📚 Additional Resources
 
 - [Chezmoi Documentation](https://www.chezmoi.io/)
+- [Neovim configuration & keybindings](./dot_config/nvim/README.md)
 - [Project-specific Neovim settings](./examples/README.md)
-- [Claude Code integration](./CLAUDE.local.md)
 
 ## 🤝 Contributing
 
