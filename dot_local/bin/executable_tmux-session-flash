@@ -11,5 +11,5 @@ inner="    $name    "
 tmux display-popup -e "INNER=$inner" \
   -w "$(( ${#inner} + 2 ))" -h 3 -x C -y C -b rounded -S "fg=colour110" -E '
     printf "\033[1;38;5;117m%s\033[0m" "$INNER"
-    sleep 0.6
+    sleep 0.35
   '

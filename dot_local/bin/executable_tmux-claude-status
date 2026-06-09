@@ -121,14 +121,20 @@ EOF
     fi
     ;;
   --summary)
-    raw | awk -F'\t' '
-      { if ($1=="work") w++; else if ($1=="done") d++; else i++ }
+    # $2 = current session name. Split the counts into the current session
+    # (bright) and all other sessions (dim), separated by │. Always show all
+    # three marks; a 0 is rendered dim so the layout stays stable.
+    raw | awk -F'\t' -v cur="$2" '
+      function m(g, n, col) {
+        return (n > 0) ? sprintf("#[fg=%s]%s%d ", col, g, n) \
+                       : sprintf("#[fg=colour240]%s%d ", g, n)
+      }
+      { if ($2 == cur) { if($1=="work")cw++; else if($1=="done")cd++; else ci++ }
+        else           { if($1=="work")ow++; else if($1=="done")od++; else oi++ } }
       END {
-        s=""
-        if (w) s = s sprintf("#[fg=colour82,bold]▶%d ", w)
-        if (d) s = s sprintf("#[fg=colour226,bold]✓%d ", d)
-        if (i) s = s sprintf("#[fg=colour110]●%d ", i)
-        if (s != "") printf "%s#[default]", s
+        c = m("▶", cw, "colour82,bold") m("✓", cd, "colour226,bold") m("●", ci, "colour110,bold")
+        o = m("▶", ow, "colour65")      m("✓", od, "colour136")      m("●", oi, "colour66")
+        if (cw+cd+ci+ow+od+oi > 0) printf "%s#[fg=colour238]│ %s#[default]", c, o
       }'
     ;;
   *)
