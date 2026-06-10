@@ -1,0 +1,75 @@
+#!/bin/bash
+# Open the file path under a mouse click in nvim, inside a tmux popup.
+# Bound to Option+click (M-MouseDown1Pane) in dot_tmux.conf.
+#
+# We get the whole clicked line + column (#{mouse_line} / #{mouse_x}) instead
+# of #{mouse_word}, because the default word-separators split paths at / . : -
+# and we don't want to change them (that would alter double-click selection).
+#
+#   $1 = #{mouse_line}   text of the clicked line
+#   $2 = #{mouse_x}      column of the click
+#   $3 = pane cwd        to resolve relative paths
+#
+# TMUX_OPENFILE_PRINT=1 prints the resolved target instead of opening (tests).
+export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+
+if [ "$1" = "--token" ]; then
+  # Called from WezTerm's open-uri hook with the hyperlink text directly; the
+  # cwd comes from the attached client's active pane.
+  token="$2"
+  cwd=$(tmux display-message -p '#{pane_current_path}' 2>/dev/null)
+  cwd="${cwd:-$HOME}"
+else
+  line="$1"; col="${2:-0}"; cwd="${3:-$HOME}"
+
+  # Whitespace-delimited token covering the clicked column; fallback to the
+  # first token containing a slash (useful when wide chars skew the column).
+  token=$(LINE="$line" COL="$col" perl -CSDA -e '
+    my $l = $ENV{LINE}; my $c = $ENV{COL} + 0;
+    my @t; while ($l =~ /(\S+)/g) { push @t, [$-[0], $+[0], $1] }
+    my $tok;
+    for (@t) { if ($c >= $_->[0] && $c < $_->[1]) { $tok = $_->[2]; last } }
+    if (!defined $tok) { for (@t) { if ($_->[2] =~ m{/}) { $tok = $_->[2]; last } } }
+    print $tok // "";
+  ')
+fi
+[ -n "$token" ] || exit 0
+
+# Trim wrapping punctuation/quotes, then a trailing :line[:col] suffix.
+token="${token#[\(\[\{\'\"\`<]}"
+token="${token%[\)\]\}\'\"\`>,;]}"
+lineno=""
+case "$token" in
+  *:[0-9]*)
+    rest="${token##*[!0-9:]}"               # e.g. ":12:5" tail
+    base="${token%"$rest"}$( : )"
+    # split file:NN[:NN] -> file + first NN
+    f="${token%%:[0-9]*}"
+    n="${token#"$f":}"; n="${n%%[!0-9]*}"
+    [ -n "$n" ] && { token="$f"; lineno="$n"; }
+    ;;
+esac
+token="${token%:}"
+
+# ~ expansion and relative-path resolution.
+case "$token" in "~/"*) token="$HOME/${token#\~/}" ;; esac
+case "$token" in /*) file="$token" ;; *) file="$cwd/$token" ;; esac
+
+# git-diff style a/foo b/foo prefixes.
+if [ ! -e "$file" ]; then
+  case "$token" in
+    a/*|b/*) [ -e "$cwd/${token#?/}" ] && file="$cwd/${token#?/}" ;;
+  esac
+fi
+
+if [ ! -e "$file" ]; then
+  tmux display-message "no file: $token"
+  exit 0
+fi
+
+if [ -n "$TMUX_OPENFILE_PRINT" ]; then
+  printf '%s%s\n' "$file" "${lineno:+ +$lineno}"
+  exit 0
+fi
+
+tmux display-popup -d "$cwd" -xC -yC -w92% -h88% -E "nvim ${lineno:++$lineno} '$file'"
