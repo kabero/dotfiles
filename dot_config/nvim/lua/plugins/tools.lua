@@ -58,7 +58,9 @@ return {
         ---@type oil.SetupOpts
         opts = {},
         dependencies = { { "nvim-mini/mini.icons", opts = {} } },
-        cmd = "Oil",
+        -- No lazy-loading (upstream recommendation): oil must hijack directory
+        -- buffers, so `nvim <dir>` shows nothing if it loads on cmd/keys only.
+        lazy = false,
         keys = {
             { "-", "<cmd>Oil<cr>", desc = "Open parent dir (Oil)" },
         },
