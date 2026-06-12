@@ -36,7 +36,7 @@ root = {{ env "GHQ_ROOT" | default "~/ghq" }}
     lg = log --graph --pretty=format:'%Cred%h%Creset %C(bold blue)%an%Creset %Cgreen%cr%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
     lga = log --graph --all --pretty=format:'%Cred%h%Creset %C(bold blue)%an%Creset %Cgreen%cr%Creset %s%C(yellow)%d%Creset' --abbrev-commit --date=relative
     ss = status
-    br = branch --sort=committerdate
+    br = !git branch --sort=-committerdate | head -n 5
     wt = !git-wt
 
 [filter "lfs"]
