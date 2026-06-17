@@ -98,24 +98,56 @@ return {
         opts = {
             default_mappings = false,   -- buffer-local maps wired below, only in conflicted buffers
             disable_diagnostics = false,
-            highlights = {
-                current  = "GitConflictOursBase",   -- HEAD / ours
-                incoming = "GitConflictTheirsBase",  -- merged-in / theirs
-                ancestor = "GitConflictBaseBase",    -- common ancestor (diff3)
-            },
         },
         config = function(_, opts)
-            -- Base colours the plugin reads to derive the region (darker) and
-            -- the marker-line label (this shade). Re-applied on colorscheme.
+            require("git-conflict").setup(opts)
+
+            -- Set the final highlight groups directly (rather than letting the
+            -- plugin derive loud bands from a base colour). Keep it calm: the
+            -- conflict-body REGIONS get only a faint tint so the code stays
+            -- readable, and the marker LINES (<<<<<<< ||||||| ======= >>>>>>>)
+            -- carry a clear, bold band that identifies ours/base/theirs. Run
+            -- after setup() so this wins over the plugin's own defaults, and on
+            -- every ColorScheme (registered after the plugin's hook → runs last).
             local function set_conflict_colors()
-                vim.api.nvim_set_hl(0, "GitConflictOursBase",   { bg = "#475540" }) -- green
-                vim.api.nvim_set_hl(0, "GitConflictTheirsBase", { bg = "#46526d" }) -- blue
-                vim.api.nvim_set_hl(0, "GitConflictBaseBase",   { bg = "#602829" }) -- red
+                -- region bodies: barely-there tint
+                vim.api.nvim_set_hl(0, "GitConflictCurrent",  { bg = "#20271e" }) -- ours   (faint green)
+                vim.api.nvim_set_hl(0, "GitConflictIncoming", { bg = "#1d2430" }) -- theirs (faint blue)
+                vim.api.nvim_set_hl(0, "GitConflictAncestor", { bg = "#262021" }) -- base   (faint warm grey)
+                -- marker lines: clear + bold, but not neon
+                vim.api.nvim_set_hl(0, "GitConflictCurrentLabel",  { bg = "#38492f", fg = "#c5d9b8", bold = true })
+                vim.api.nvim_set_hl(0, "GitConflictIncomingLabel", { bg = "#2c3a52", fg = "#b8c8e0", bold = true })
+                vim.api.nvim_set_hl(0, "GitConflictAncestorLabel", { bg = "#43383a", fg = "#d6c2c2", bold = true })
+                -- floating key-hint shown above each conflict
+                vim.api.nvim_set_hl(0, "GitConflictHint",    { fg = "#6f6f6f", italic = true })
+                vim.api.nvim_set_hl(0, "GitConflictHintKey", { fg = "#e6c384", bold = true })
             end
             set_conflict_colors()
             vim.api.nvim_create_autocmd("ColorScheme", { callback = set_conflict_colors })
 
-            require("git-conflict").setup(opts)
+            -- Float a key-hint line above each conflict so the (rarely-used)
+            -- resolution maps are right there when you need them. Re-scan the
+            -- buffer for <<<<<<< markers and drop a virt_lines extmark above each.
+            local hint_ns = vim.api.nvim_create_namespace("git_conflict_hints")
+            local function place_hints(buf)
+                if not vim.api.nvim_buf_is_valid(buf) then return end
+                vim.api.nvim_buf_clear_namespace(buf, hint_ns, 0, -1)
+                for i, line in ipairs(vim.api.nvim_buf_get_lines(buf, 0, -1, false)) do
+                    if line:match("^<<<<<<<") then
+                        vim.api.nvim_buf_set_extmark(buf, hint_ns, i - 1, 0, {
+                            virt_lines_above = true,
+                            virt_lines = { {
+                                { "  ▌conflict  ", "GitConflictHint" },
+                                { "co", "GitConflictHintKey" }, { " ours  ", "GitConflictHint" },
+                                { "ct", "GitConflictHintKey" }, { " theirs  ", "GitConflictHint" },
+                                { "cb", "GitConflictHintKey" }, { " both  ", "GitConflictHint" },
+                                { "c0", "GitConflictHintKey" }, { " none    ", "GitConflictHint" },
+                                { "]x [x", "GitConflictHintKey" }, { " move", "GitConflictHint" },
+                            } },
+                        })
+                    end
+                end
+            end
 
             -- Maps live only while a buffer actually has conflicts, so co/ct/cb/c0
             -- never shadow anything in normal editing.
@@ -131,7 +163,17 @@ return {
                     map("c0", "<Plug>(git-conflict-none)",        "Conflict: take none")
                     map("]x", "<Plug>(git-conflict-next-conflict)", "Conflict: next")
                     map("[x", "<Plug>(git-conflict-prev-conflict)", "Conflict: prev")
+                    place_hints(ev.buf)
+                    -- keep the hints in sync as conflicts get resolved/edited
+                    vim.api.nvim_create_autocmd({ "TextChanged", "InsertLeave" }, {
+                        buffer = ev.buf,
+                        callback = function() place_hints(ev.buf) end,
+                    })
                 end,
+            })
+            vim.api.nvim_create_autocmd("User", {
+                pattern = "GitConflictResolved",
+                callback = function(ev) place_hints(ev.buf) end,
             })
         end,
     },
