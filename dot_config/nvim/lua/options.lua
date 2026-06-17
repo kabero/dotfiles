@@ -65,6 +65,10 @@ vim.opt.shiftwidth = 4
 vim.opt.smartindent = true
 vim.opt.tabstop = 4
 
+-- Diff: never fold the unchanged lines in diff mode (<leader>al diffthis,
+-- Diffview, :diffthis). A huge context keeps every line expanded.
+vim.opt.diffopt:append("context:99999")
+
 -- Others
 vim.api.nvim_command('filetype plugin indent on')
 vim.opt.autoread = true

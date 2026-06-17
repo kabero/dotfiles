@@ -85,6 +85,20 @@ local function setup_highlights()
         -- bold color keeps them readable. Applied as a window match in markdown
         -- buffers (see filetype.lua).
         vim.api.nvim_set_hl(0, 'CircledNumber', { fg = '#e6c384', bold = true })
+
+        -- Native diff mode (used by <leader>al gitsigns.diffthis, :diffthis,
+        -- Diffview). Mimic the `delta` pager palette kabe likes: green = added,
+        -- red = removed, with the changed WORD emphasised in brighter green --
+        -- all while keeping the original syntax fg intact (bg-only). Native diff
+        -- can't colour the two windows differently, so a modified line shows the
+        -- same green band on both sides (DiffChange = calm green, DiffText = the
+        -- bright word emphasis). add/del/chg/txt strengths are the knobs to nudge.
+        vim.api.nvim_set_hl(0, 'DiffAdd',    { bg = blend(0x76946a, normal_bg, 0.42) }) -- green        (added line)
+        vim.api.nvim_set_hl(0, 'DiffDelete', { bg = blend(0xc34043, normal_bg, 0.42), -- red          (removed/filler)
+            fg = blend(0xc34043, normal_bg, 0.65) })                                    -- tint the ---- filler glyphs
+        vim.api.nvim_set_hl(0, 'DiffChange', { bg = blend(0x76946a, normal_bg, 0.24) }) -- pale green   (changed line)
+        vim.api.nvim_set_hl(0, 'DiffText',   { bg = blend(0x98bb6c, normal_bg, 0.55),  -- bright green (the exact change)
+            bold = true })
     end
 end
 
