@@ -65,9 +65,14 @@ vim.opt.shiftwidth = 4
 vim.opt.smartindent = true
 vim.opt.tabstop = 4
 
--- Diff: never fold the unchanged lines in diff mode (<leader>al diffthis,
--- Diffview, :diffthis). A huge context keeps every line expanded.
+-- Diff (<leader>al diffthis, <leader>gv Diffview, :diffthis):
+--   context:99999  never fold the unchanged lines; keep everything expanded.
+--   linematch:60   pair up changed lines better so DiffText lands on the
+--                  actually-changed run, not the whole line — the precise
+--                  word-emphasis delta does. (inline:char would refine this
+--                  further but needs nvim 0.12.)
 vim.opt.diffopt:append("context:99999")
+vim.opt.diffopt:append("linematch:60")
 
 -- Others
 vim.api.nvim_command('filetype plugin indent on')
