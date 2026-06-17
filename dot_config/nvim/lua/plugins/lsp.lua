@@ -54,15 +54,17 @@ return {
                         client.server_capabilities.documentRangeFormattingProvider = false
                     end
 
-                    local bufopts = { noremap = true, silent = true, buffer = bufnr }
-                    vim.keymap.set('n', 'gl', function()
-                        vim.lsp.buf.format { async = true }
-                    end, bufopts)
+                    -- Formatting is owned by conform.nvim (gl / :Format), which
+                    -- falls back to the LSP — nothing to bind here.
                 end,
             })
 
             vim.diagnostic.config {
+                severity_sort = true,   -- errors sort above warnings in signs/virt_text
+                underline = true,
+                update_in_insert = false,
                 virtual_text = {
+                    prefix = "●",
                     format = function(diagnostic)
                         -- Only append source/code when present, so diagnostics
                         -- without a code don't render "(nil: nil)".
@@ -73,9 +75,18 @@ return {
                         return tag ~= "" and string.format("%s (%s)", diagnostic.message, tag) or diagnostic.message
                     end,
                 },
-                signs = true,
-                underline = true,
-                update_in_insert = false,
+                signs = {
+                    text = {
+                        [vim.diagnostic.severity.ERROR] = "",
+                        [vim.diagnostic.severity.WARN]  = "",
+                        [vim.diagnostic.severity.INFO]  = "",
+                        [vim.diagnostic.severity.HINT]  = "",
+                    },
+                },
+                float = {
+                    border = "rounded",
+                    source = true,
+                },
             }
 
             function ToggleDisplayDiagnostics()
@@ -137,23 +148,56 @@ return {
     },
 
     {
-        'nvimtools/none-ls.nvim',
-        -- sources = {} -> none-ls does nothing at startup, so don't eagerly
-        -- load it (and plenary) on VeryLazy. It loads on demand; add real
-        -- sources here and switch back to an event/ft trigger when needed.
-        cmd = "NullLsInfo",
-        dependencies = { "nvim-lua/plenary.nvim" },
+        -- Formatting. none-ls is gone (its sources list was empty, so it did
+        -- nothing). conform formats via `gl` / `:Format` and, crucially, takes
+        -- NO global ft→formatter map: it falls back to the LSP everywhere, and
+        -- each project registers its own formatters through exrc. Drop a
+        -- `.nvim.lua` at a project root (exrc is enabled in options.lua):
+        --     local cf = require("conform").formatters_by_ft
+        --     cf.python     = { "ruff_format" }
+        --     cf.javascript = { "prettierd" }
+        --     cf.lua        = { "stylua" }
+        -- The needed binaries are installed by mason-tool-installer below.
+        'stevearc/conform.nvim',
+        event = { "BufReadPre", "BufNewFile" },
+        cmd = { "ConformInfo", "Format" },
         config = function()
-            local null_ls = require("null-ls")
-            null_ls.setup({
-                diagnostics_format = "#{m} (#{s}: #{c})",
-                sources            = {},
-                debug              = false,
-                defaults           = {},
-                on_attach          = function(client)
-                    client.server_capabilities.documentFormattingProvider = true
-                    client.server_capabilities.documentRangeFormattingProvider = true
+            local conform = require("conform")
+            conform.setup({
+                formatters_by_ft = {},
+                default_format_opts = { lsp_format = "fallback", timeout_ms = 3000 },
+            })
+
+            -- gl: format the buffer (registered formatter, else LSP).
+            vim.keymap.set("n", "gl", function()
+                conform.format({ async = true })
+            end, { silent = true, desc = "Format buffer (conform → LSP)" })
+
+            -- :Format [range] — whole buffer, or the given range when used as '<,'>:Format
+            vim.api.nvim_create_user_command("Format", function(a)
+                local opts = { async = true }
+                if a.range > 0 then
+                    opts.range = {
+                        start  = { a.line1, 0 },
+                        ["end"] = { a.line2, math.huge },
+                    }
                 end
+                conform.format(opts)
+            end, { range = true, desc = "Format buffer/range (conform → LSP)" })
+        end
+    },
+
+    {
+        -- Installs the formatter/linter binaries conform & friends call. Which
+        -- formatter a project *uses* is chosen per-project (see conform above);
+        -- this just makes the common ones available on the machine.
+        'WhoIsSethDaniel/mason-tool-installer.nvim',
+        event = "VeryLazy",
+        dependencies = { 'williamboman/mason.nvim' },
+        config = function()
+            require('mason-tool-installer').setup({
+                ensure_installed = { 'stylua', 'prettierd', 'shfmt', 'ruff' },
+                run_on_start = true,
             })
         end
     },

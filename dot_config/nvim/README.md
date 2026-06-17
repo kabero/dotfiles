@@ -16,11 +16,13 @@ lua/
   filetype.lua            -- chezmoi/.tmpl/env 等のファイルタイプ判定
   colors.lua              -- colorscheme 指定 + ハイライト上書き
   plugins/
-    lsp.lua               -- mason / lspconfig / lspsaga / none-ls / fidget
+    lsp.lua               -- mason / lspconfig / lspsaga / conform / fidget
+    -- 整形は conform.nvim。グローバルで formatter を固定せず、各プロジェクトの
+    -- exrc(.nvim.lua)で require("conform").formatters_by_ft.<ft> = {...} で登録する。
     completion.lua        -- nvim-cmp
     snacks.lua            -- picker / dashboard / 各種 QoL
     treesitter.lua        -- treesitter + textobjects
-    git.lua               -- gitsigns / fugitive / diffview / committia
+    git.lua               -- gitsigns / fugitive / diffview / git-conflict / committia
     editor.lua            -- autopairs / surround / commentary / hop 等
     tools.lua             -- oil / copilot / sidekick / jaq / rustowl 等
     ui.lua                -- lualine / incline / which-key / colorizer 等
