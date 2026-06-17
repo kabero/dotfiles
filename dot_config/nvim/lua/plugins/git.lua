@@ -87,6 +87,56 @@ return {
     },
 
     {
+        -- Colorise merge-conflict regions in any buffer (git leaves the raw
+        -- <<<<<<< ======= >>>>>>> markers uncoloured). Highlights ours/theirs/
+        -- ancestor as distinct bands, jumps between conflicts, and resolves
+        -- with one key. Colours match the diff palette (ours = green like an
+        -- "add", theirs = blue, base = red).
+        "akinsho/git-conflict.nvim",
+        version = "*",
+        event = { "BufReadPost", "BufNewFile" },
+        opts = {
+            default_mappings = false,   -- buffer-local maps wired below, only in conflicted buffers
+            disable_diagnostics = false,
+            highlights = {
+                current  = "GitConflictOursBase",   -- HEAD / ours
+                incoming = "GitConflictTheirsBase",  -- merged-in / theirs
+                ancestor = "GitConflictBaseBase",    -- common ancestor (diff3)
+            },
+        },
+        config = function(_, opts)
+            -- Base colours the plugin reads to derive the region (darker) and
+            -- the marker-line label (this shade). Re-applied on colorscheme.
+            local function set_conflict_colors()
+                vim.api.nvim_set_hl(0, "GitConflictOursBase",   { bg = "#475540" }) -- green
+                vim.api.nvim_set_hl(0, "GitConflictTheirsBase", { bg = "#46526d" }) -- blue
+                vim.api.nvim_set_hl(0, "GitConflictBaseBase",   { bg = "#602829" }) -- red
+            end
+            set_conflict_colors()
+            vim.api.nvim_create_autocmd("ColorScheme", { callback = set_conflict_colors })
+
+            require("git-conflict").setup(opts)
+
+            -- Maps live only while a buffer actually has conflicts, so co/ct/cb/c0
+            -- never shadow anything in normal editing.
+            vim.api.nvim_create_autocmd("User", {
+                pattern = "GitConflictDetected",
+                callback = function(ev)
+                    local function map(lhs, plug, desc)
+                        vim.keymap.set("n", lhs, plug, { buffer = ev.buf, silent = true, desc = desc })
+                    end
+                    map("co", "<Plug>(git-conflict-ours)",        "Conflict: take ours")
+                    map("ct", "<Plug>(git-conflict-theirs)",      "Conflict: take theirs")
+                    map("cb", "<Plug>(git-conflict-both)",        "Conflict: take both")
+                    map("c0", "<Plug>(git-conflict-none)",        "Conflict: take none")
+                    map("]x", "<Plug>(git-conflict-next-conflict)", "Conflict: next")
+                    map("[x", "<Plug>(git-conflict-prev-conflict)", "Conflict: prev")
+                end,
+            })
+        end,
+    },
+
+    {
         "rhysd/committia.vim",
         ft = "gitcommit",
     },
