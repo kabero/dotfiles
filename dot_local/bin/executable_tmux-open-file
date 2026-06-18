@@ -72,4 +72,14 @@ if [ -n "$TMUX_OPENFILE_PRINT" ]; then
   exit 0
 fi
 
+# Images: just hand off to the macOS default app (Preview). Rendering images in
+# the terminal via wezterm imgcat is a minefield through tmux (popups report a
+# zero cell-pixel size → imgcat divide-by-zero panic), so don't bother.
+case "${file##*.}" in
+  png|PNG|jpg|JPG|jpeg|JPEG|gif|GIF|webp|WEBP|bmp|BMP|tif|tiff|TIFF|ico|ICO|svg|SVG|heic|HEIC|pdf|PDF)
+    open "$file"
+    exit 0
+    ;;
+esac
+
 tmux display-popup -d "$cwd" -xC -yC -w92% -h88% -E "nvim ${lineno:++$lineno} '$file'"
