@@ -1,4 +1,7 @@
 {
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "permissions": {
     "allow": [
       "List(*)",
@@ -102,7 +105,8 @@
       "Bash(python3:*)",
       "Bash(cargo:*)",
       "Bash(rustc:*)",
-      "WebSearch"
+      "WebSearch"{{ if eq .chezmoi.hostname "saury" }},
+      "Read(~/.local/share/nvim/lazy/copilot.vim/**)"{{ end }}
     ],
     "deny": [
       "Bash(git reset:*)",
@@ -134,7 +138,8 @@
       "Write(**/*.pem)",
       "Bash(rm -rf /:*)",
       "Bash(chmod 777:*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "hooks": {
     "Stop": [
@@ -148,5 +153,15 @@
         ]
       }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "imessage@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": true,
+    "clangd-lsp@claude-plugins-official": true
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "skipAutoPermissionPrompt": true,
+  "voiceEnabled": true
 }
