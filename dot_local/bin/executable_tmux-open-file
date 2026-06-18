@@ -82,4 +82,45 @@ case "${file##*.}" in
     ;;
 esac
 
+# Markdown: render to a self-contained HTML file and open it in the GUI browser,
+# the same "open it in a real app" approach as images — not a terminal/TUI
+# viewer. pandoc does the conversion; a little GitHub-ish CSS makes it readable.
+case "${file##*.}" in
+  md|MD|markdown|Markdown|MARKDOWN|mdown|mkd|mkdn)
+    if command -v pandoc >/dev/null 2>&1; then
+      out="/tmp/md-preview/$(basename "${file%.*}").html"
+      mkdir -p /tmp/md-preview
+      css='
+        body{max-width:820px;margin:40px auto;padding:0 20px;
+          font:16px/1.6 -apple-system,"Hiragino Sans",sans-serif;color:#1f2328}
+        h1,h2{border-bottom:1px solid #d8dee4;padding-bottom:.3em}
+        code{background:#afb8c133;padding:.2em .4em;border-radius:6px;
+          font:90% ui-monospace,Menlo,monospace}
+        pre{background:#f6f8fa;padding:16px;border-radius:6px;overflow:auto}
+        pre code{background:none;padding:0}
+        blockquote{color:#59636e;border-left:.25em solid #d1d9e0;
+          margin:0;padding:0 1em}
+        table{border-collapse:collapse}td,th{border:1px solid #d1d9e0;padding:6px 13px}
+        img{max-width:100%}a{color:#0969da}
+        @media(prefers-color-scheme:dark){body{background:#0d1117;color:#e6edf3}
+          pre{background:#161b22}h1,h2{border-color:#30363d}a{color:#4493f8}}'
+      if pandoc "$file" -s --metadata title="$(basename "$file")" \
+           -H <(printf '<meta charset="utf-8"><style>%s</style>' "$css") \
+           -o "$out" 2>/dev/null; then
+        # Open in its own chromeless Chrome window (--app), popup-style, rather
+        # than a new tab in the existing window. Invoke the binary directly so a
+        # running Chrome just spawns the extra window instead of locking.
+        chrome="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+        if [ -x "$chrome" ]; then
+          "$chrome" --app="file://$out" --window-size=1000,1150 >/dev/null 2>&1 &
+        else
+          open "$out"
+        fi
+        exit 0
+      fi
+    fi
+    # pandoc missing or failed → fall through to nvim below.
+    ;;
+esac
+
 tmux display-popup -d "$cwd" -xC -yC -w92% -h88% -E "nvim ${lineno:++$lineno} '$file'"
