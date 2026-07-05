@@ -1,0 +1,82 @@
+#!/bin/bash
+# ghq repo launcher for herdr — counterpart of tmux-session-selector (C-g).
+# Lists ghq repos (+ submodules + chezmoi), marks the ones already open as a
+# herdr workspace with a blue dot, and on selection focuses that workspace or
+# creates one at the repo directory. Bound to prefix+g via [[keys.command]] in
+# ~/.config/herdr/config.toml — bare C-g (goto) navigates the EXISTING tree,
+# prefix+g opens something NEW.
+
+set -u
+ghq_root="$(ghq root)"
+
+# Build repo list: ghq repos + submodules + chezmoi (same as the tmux version)
+repo_list=$(ghq list)
+for gitmodules in "$ghq_root"/*/*/*/.gitmodules; do
+  [ -f "$gitmodules" ] || continue
+  repo="${gitmodules%/.gitmodules}"
+  repo="${repo#$ghq_root/}"
+  while IFS='=' read -r key val; do
+    case "$key" in
+      *path*)
+        val=$(echo "$val" | sed 's/^[[:space:]]*//')
+        repo_list="$repo_list
+$repo/$val"
+        ;;
+    esac
+  done < "$gitmodules"
+done
+repo_list="$repo_list
+chezmoi"
+
+# Workspace label = same naming as tmux sessions: path parts after host/owner
+# (nested submodules keep their subpath), else the basename.
+label_of() {
+  case "$1" in
+    chezmoi) echo chezmoi ;;
+    *) echo "$1" | awk -F/ '{
+         if (NF > 3) { s = ""; for (i = 4; i <= NF; i++) s = s (i > 4 ? "/" : "") $i; print s }
+         else print $NF
+       }' ;;
+  esac
+}
+
+# Existing herdr workspaces: label \t id
+ws_tsv=$(herdr workspace list 2>/dev/null \
+  | jq -r '.result.workspaces[] | [.label, .workspace_id] | @tsv' 2>/dev/null)
+
+# Render: open workspaces first (blue dot, bright), rest dimmed. The canonical
+# repo path rides along as a hidden TSV field (fzf shows field 1 only).
+render() {
+  local mode="$1" repo label
+  while IFS= read -r repo; do
+    [ -n "$repo" ] || continue
+    label=$(label_of "$repo")
+    if printf '%s\n' "$ws_tsv" | cut -f1 | grep -qxF "$label"; then
+      [ "$mode" = open ] && printf '\033[38;5;75m●\033[0m  \033[1;38;5;255m%s\033[0m\t%s\n' "$repo" "$repo"
+    else
+      [ "$mode" = closed ] && printf '   \033[38;5;250m%s\033[0m\t%s\n' "$repo" "$repo"
+    fi
+  done <<< "$repo_list"
+}
+
+selected=$( { render open; render closed; } | \
+  fzf --ansi --height 100% --layout reverse \
+      --border rounded --border-label " repo (herdr) " \
+      --color "fg:-1,bg:-1,fg+:255,bg+:236,hl:75,hl+:75,pointer:75,marker:75,border:238,label:75,prompt:75,info:243,header:243,gutter:-1,spinner:75" \
+      --pointer "▌" --prompt "> " \
+      --delimiter='\t' --with-nth=1 --highlight-line) || exit 0
+
+repo="${selected##*$'\t'}"
+label=$(label_of "$repo")
+if [ "$repo" = chezmoi ]; then
+  dir="$HOME/.local/share/chezmoi"
+else
+  dir="$ghq_root/$repo"
+fi
+
+ws_id=$(printf '%s\n' "$ws_tsv" | awk -F'\t' -v l="$label" '$1 == l { print $2; exit }')
+if [ -n "$ws_id" ]; then
+  herdr workspace focus "$ws_id" >/dev/null
+else
+  herdr workspace create --cwd "$dir" --label "$label" --focus >/dev/null
+fi

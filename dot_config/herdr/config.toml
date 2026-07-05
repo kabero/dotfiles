@@ -1,3 +1,13 @@
+[theme]
+# Match the rest of the environment: wezterm Kanagawa Dragon, nvim kanagawa.
+name = "kanagawa"
+
+[ui.toast]
+# Route notifications to macOS itself (terminal-notifier, else osascript)
+# instead of in-UI toasts, so background-agent pings surface even when
+# herdr is hidden behind other windows.
+delivery = "system"
+
 [keys]
 # Aligned with the tmux bindings (see dot_tmux.conf) so muscle memory carries
 # over. herdr defaults that already match tmux are not repeated here:
@@ -22,3 +32,10 @@ split_vertical = "prefix+%"
 # tmux: bare C-g opens the session selector; herdr's goto picker is the
 # closest equivalent, bound prefix-free the same way.
 goto = "ctrl+g"
+
+# ghq repo launcher (the "open something new" half of tmux's C-g selector;
+# goto above covers the "jump to something open" half).
+[[keys.command]]
+key = "prefix+g"
+type = "pane"
+command = "~/.local/bin/herdr-repo-selector"
