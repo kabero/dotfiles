@@ -8,11 +8,6 @@ return {
     },
 
     {
-        'tpope/vim-commentary',
-        event = "VeryLazy",
-    },
-
-    {
         "kylechui/nvim-surround",
         event = "VeryLazy",
         config = function()
