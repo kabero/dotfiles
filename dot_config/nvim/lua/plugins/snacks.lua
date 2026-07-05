@@ -1,56 +1,7 @@
 ---@type snacks.Config
 local opts = {
     bigfile = { enabled = true },
-    dashboard = {
-        enabled = true,
-        preset = {
-            keys = {},
-        },
-        sections = {
-            { section = "header" },
-            {
-                icon = " ",
-                desc = "Browse Repo",
-                padding = 1,
-                action = function()
-                    Snacks.gitbrowse()
-                end,
-            },
-            function()
-                local in_git = Snacks.git.get_root() ~= nil
-                local cmds = {
-                    {
-                        icon = " ",
-                        title = "Open PRs",
-                        cmd = "gh pr list -L 3",
-                        action = function()
-                            vim.fn.jobstart("gh pr list --web", { detach = true })
-                        end,
-                        height = 7,
-                    },
-                    {
-                        title = "Open Issues",
-                        cmd = "gh issue list -L 3",
-                        action = function()
-                            vim.fn.jobstart("gh issue list --web", { detach = true })
-                        end,
-                        icon = " ",
-                        height = 7,
-                    },
-                }
-                return vim.tbl_map(function(cmd)
-                    return vim.tbl_extend("force", {
-                        section = "terminal",
-                        enabled = in_git,
-                        padding = 1,
-                        ttl = 5 * 60,
-                        indent = 3,
-                    }, cmd)
-                end, cmds)
-            end,
-            { section = "startup" },
-        },
-    },
+    dashboard = { enabled = false },
     explorer = { enabled = false },
     indent = { enabled = false },
     input = { enabled = true },
