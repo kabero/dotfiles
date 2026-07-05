@@ -1,2 +1,0 @@
-regex=root
-colours=red
