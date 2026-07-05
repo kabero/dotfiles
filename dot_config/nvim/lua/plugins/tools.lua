@@ -175,9 +175,11 @@ return {
                 "<tab>",
                 function()
                     -- Single owner of <Tab>: NES first, then native inline
-                    -- completion, then confirm a visible nvim-cmp menu, else a
-                    -- literal <Tab>. (cmp's own <TAB> mapping was removed so the
-                    -- two no longer shadow each other depending on load order.)
+                    -- completion, then confirm a visible nvim-cmp menu, then
+                    -- snippet-placeholder jump, else a literal <Tab>. (cmp's own
+                    -- <TAB> mapping was removed so the two no longer shadow each
+                    -- other depending on load order; the snippet branch replaces
+                    -- nvim's default <Tab> jump map, which this mapping shadows.)
                     if require("sidekick").nes_jump_or_apply() then
                         return
                     end
@@ -188,6 +190,9 @@ return {
                     if ok and cmp.visible() then
                         cmp.confirm({ select = true })
                         return
+                    end
+                    if vim.snippet.active({ direction = 1 }) then
+                        return "<cmd>lua vim.snippet.jump(1)<CR>"
                     end
                     return "<tab>"
                 end,
