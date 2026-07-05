@@ -131,20 +131,20 @@ return {
                 "<tab>",
                 function()
                     -- Single owner of <Tab>: NES first, then native inline
-                    -- completion, then confirm a visible nvim-cmp menu, then
-                    -- snippet-placeholder jump, else a literal <Tab>. (cmp's own
-                    -- <TAB> mapping was removed so the two no longer shadow each
-                    -- other depending on load order; the snippet branch replaces
-                    -- nvim's default <Tab> jump map, which this mapping shadows.)
+                    -- completion, then accept a visible blink.cmp menu, then
+                    -- snippet-placeholder jump, else a literal <Tab>. (blink's
+                    -- keymap deliberately leaves <Tab> unbound; the snippet
+                    -- branch replaces nvim's default <Tab> jump map, which this
+                    -- mapping shadows.)
                     if require("sidekick").nes_jump_or_apply() then
                         return
                     end
                     if vim.lsp.inline_completion and vim.lsp.inline_completion.get and vim.lsp.inline_completion.get() then
                         return
                     end
-                    local ok, cmp = pcall(require, "cmp")
-                    if ok and cmp.visible() then
-                        cmp.confirm({ select = true })
+                    local blink = package.loaded["blink.cmp"]
+                    if blink and blink.is_visible() then
+                        blink.select_and_accept()
                         return
                     end
                     if vim.snippet.active({ direction = 1 }) then

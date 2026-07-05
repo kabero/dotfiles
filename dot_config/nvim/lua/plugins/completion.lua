@@ -1,80 +1,44 @@
 return {
     {
-        'hrsh7th/nvim-cmp',
+        -- Replaces the nvim-cmp stack (cmp + 7 source/format plugins).
+        -- Same keys as before: <C-p>/<C-n> select, <C-f> accept-first,
+        -- <CR> accept-only-if-selected; <Tab> accept lives in the unified
+        -- sidekick handler (tools.lua). LSP snippets expand via the built-in
+        -- vim.snippet, matching the earlier vsnip removal.
+        'saghen/blink.cmp',
+        version = '1.*', -- prebuilt fuzzy-matcher binary
         event = { 'InsertEnter', 'CmdlineEnter' },
-        dependencies = {
-            'hrsh7th/cmp-nvim-lsp',
-            'hrsh7th/cmp-path',
-            'hrsh7th/cmp-buffer',
-            'hrsh7th/cmp-cmdline',
-            'hrsh7th/cmp-nvim-lsp-signature-help',
-            'hrsh7th/cmp-nvim-lsp-document-symbol',
-            'onsails/lspkind.nvim',
+        opts = {
+            keymap = {
+                preset = 'none',
+                ['<C-p>'] = { 'select_prev', 'fallback' },
+                ['<C-n>'] = { 'select_next', 'fallback' },
+                ['<C-f>'] = { 'select_and_accept', 'fallback' },
+                ['<CR>']  = { 'accept', 'fallback' },
+            },
+            completion = {
+                menu = { border = 'single' },
+                documentation = {
+                    auto_show = true,
+                    auto_show_delay_ms = 200,
+                    window = { border = 'single' },
+                },
+                -- preselect=false keeps the old cmp semantics: <CR> is a plain
+                -- newline unless an item was explicitly selected.
+                list = { selection = { preselect = false, auto_insert = true } },
+            },
+            sources = {
+                default = { 'lsp', 'path', 'buffer' },
+                providers = {
+                    buffer = { min_keyword_length = 2 },
+                },
+            },
+            cmdline = {
+                keymap = { preset = 'cmdline' },
+                completion = { menu = { auto_show = true } },
+            },
+            fuzzy = { implementation = 'prefer_rust_with_warning' },
         },
-        config = function()
-            local cmp = require('cmp')
-            cmp.setup({
-                window = {
-                    completion = cmp.config.window.bordered({
-                        border = 'single'
-                    }),
-                    documentation = cmp.config.window.bordered({
-                        border = 'single'
-                    }),
-                },
-                snippet = {
-                    expand = function(args)
-                        vim.snippet.expand(args.body)
-                    end,
-                },
-                sources = cmp.config.sources({
-                    { name = "path" },
-                    { name = "nvim_lsp" },
-                    { name = "nvim_lsp_signature_help" },
-                }, {
-                    { name = "buffer", keyword_length = 2 }
-                }),
-                mapping = cmp.mapping.preset.insert({
-                    ["<C-p>"] = cmp.mapping.select_prev_item(),
-                    ["<C-n>"] = cmp.mapping.select_next_item(),
-                    ["<C-f>"] = cmp.mapping.confirm { select = true },
-                    -- <Tab> confirm is owned by the unified sidekick handler in
-                    -- tools.lua (NES -> inline -> cmp.confirm), so it is not
-                    -- mapped here to avoid a load-order shadowing conflict.
-                    ["<CR>"]  = cmp.mapping.confirm { select = false },
-                }),
-                experimental = {
-                    ghost_text = false,
-                },
-                formatting = {
-                    format = require('lspkind').cmp_format({
-                        mode = 'symbol',
-                        maxwidth = 50,
-                        ellipsis_char = '...',
-                    })
-                }
-            })
-
-            cmp.setup.cmdline({ '/', '?' }, {
-                mapping = cmp.mapping.preset.cmdline(),
-                sources = cmp.config.sources({
-                    { name = 'nvim_lsp_document_symbol' }
-                }, {
-                    { name = 'buffer' }
-                })
-            })
-
-            cmp.setup.cmdline(":", {
-                mapping = cmp.mapping.preset.cmdline(),
-                sources = cmp.config.sources({
-                    { name = "path" },
-                }, {
-                    { name = "cmdline", keyword_length = 2 },
-                }),
-                performance = {
-                    max_view_entries = 30
-                }
-            })
-        end
+        opts_extend = { 'sources.default' },
     },
 }
