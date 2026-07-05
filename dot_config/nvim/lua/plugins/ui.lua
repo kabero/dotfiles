@@ -217,23 +217,6 @@ return {
     },
 
     {
-        'RRethy/vim-illuminate',
-        event = "BufReadPost",
-        config = function()
-            require('illuminate').configure({
-                filetypes_denylist = {
-                    'dirbuf',
-                    'dirvish',
-                    'fugitive',
-                    'markdown',
-                    'sagafinder',
-                },
-                under_cursor = false,
-            })
-        end
-    },
-
-    {
         "norcalli/nvim-colorizer.lua",
         ft = { "css", "scss", "html", "javascript", "typescript", "blade" },
     },
