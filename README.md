@@ -2,7 +2,7 @@
 
 Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/)
 
-**Included tools**: alacritty, asdf, git, neovim, starship, tmux, vim, zsh, chezmoi, obsidian, fzf, navi, pet
+**Included tools**: asdf, git, neovim, starship, tmux, wezterm, herdr, vim, zsh, chezmoi, obsidian, fzf
 
 ## Table of Contents
 
@@ -65,9 +65,6 @@ brew bundle --file=~/.local/share/chezmoi/excludes/Brewfile
 #### 5. Additional setup
 
 ```sh
-# Setup Alacritty theme
-~/.local/share/chezmoi/excludes/setup.sh
-
 # Install language runtimes with asdf (per-project .tool-versions)
 asdf install
 ```
@@ -109,7 +106,7 @@ Custom completions are stored in `$HOME/.zsh/completions/`
 │   ├── nvim/                 # Neovim configuration (Lua-based, has its own README.md)
 │   ├── git/                  # Git configuration
 │   │   └── config.tmpl       # Git config with template variables
-│   ├── alacritty/            # Alacritty terminal configuration
+│   ├── wezterm/              # WezTerm terminal configuration
 │   ├── starship.toml         # Starship prompt configuration
 │   └── ...
 ├── dot_zshrc.tmpl            # Zsh configuration (main)
@@ -180,14 +177,13 @@ You can configure project-specific LSP settings, formatters, and more using `.nv
 
 #### fzf
 
-- `Ctrl+S`: pet (command snippets)
 - `Ctrl+R`: command history search
 - `Ctrl+G`: ghq (repository navigation)
 - `Ctrl+T`: file selection in current directory
 
 #### tmux
 
-- `Ctrl-g`: navi integration - popup window for searching and selecting command snippets, selected text is loaded into tmux buffer
+- `Ctrl-g`: session selector — fzf over ghq repos and running sessions; double-tap jumps to the last session
 
 ## 💡 Customization
 
