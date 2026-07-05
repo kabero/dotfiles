@@ -23,6 +23,27 @@ vim.keymap.set("n", "<leader>Q", "<cmd>confirm qa<CR>", { desc = "Quit all (conf
 vim.keymap.set("n", "<leader>r", [[:%s/\<<C-r><C-w>\>//gI<Left><Left><Left>]],
     { noremap = true, desc = "Replace word under cursor" })
 
+-- go: open the URL under the cursor / selection, else web-search it
+-- (replaces open-browser.vim's openbrowser-smart-search)
+local function open_or_search(text)
+    text = vim.trim(text)
+    if text == '' then return end
+    if text:match('^https?://') then
+        vim.ui.open(text)
+    else
+        vim.ui.open('https://www.google.com/search?q=' .. vim.uri_encode(text, 'rfc3986'))
+    end
+end
+vim.keymap.set('n', 'go', function()
+    -- <cfile> picks up full URLs; fall back to the plain word for search
+    local cfile = vim.fn.expand('<cfile>')
+    open_or_search(cfile:match('^https?://') and cfile or vim.fn.expand('<cword>'))
+end, { desc = 'Open URL / web-search word' })
+vim.keymap.set('x', 'go', function()
+    local lines = vim.fn.getregion(vim.fn.getpos('v'), vim.fn.getpos('.'), { type = vim.fn.mode() })
+    open_or_search(table.concat(lines, ' '))
+end, { desc = 'Open URL / web-search selection' })
+
 -- Insert
 ------------------------------------
 

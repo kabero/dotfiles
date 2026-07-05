@@ -44,15 +44,6 @@ return {
     },
 
     {
-        "tyru/open-browser.vim",
-        event = 'VeryLazy',
-        config = function()
-            vim.keymap.set('n', 'go', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
-            vim.keymap.set('v', 'go', '<Plug>(openbrowser-smart-search)', { noremap = false, silent = true })
-        end
-    },
-
-    {
         'stevearc/oil.nvim',
         ---@module 'oil'
         ---@type oil.SetupOpts
