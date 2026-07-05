@@ -94,7 +94,7 @@ vim.api.nvim_create_autocmd({ 'BufWinEnter', 'WinEnter' }, {
 
 -- Disable search highlighting color for specific file types
 vim.api.nvim_create_autocmd('FileType', {
-    pattern = { 'sagafinder', 'TelescopePrompt' },
+    pattern = { 'sagafinder' },
     group = filetype_group,
     callback = function()
         vim.cmd('highlight Search ctermbg=NONE ctermfg=NONE guibg=NONE guifg=NONE')

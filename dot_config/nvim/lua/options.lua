@@ -26,39 +26,29 @@ vim.g.loaded_2html_plugin = 1
 vim.g.loaded_rrhelper = 1
 vim.g.loaded_remote_plugins = 1
 
-vim.opt.ambiwidth = "single"
 vim.opt.clipboard:append { 'unnamedplus' }
 vim.opt.fileformats = 'unix'
 vim.opt.mouse = 'a'
 vim.o.exrc = true
 
 -- Search
-vim.opt.hlsearch = true
 vim.opt.ignorecase = true
-vim.opt.incsearch = true
 vim.opt.smartcase = true
-vim.opt.wrapscan = true
 
 -- View
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "both"
 vim.opt.laststatus = 3
 vim.opt.number = true
-vim.opt.numberwidth = 4
-vim.opt.ruler = true
 vim.opt.showmatch = true
 vim.opt.showtabline = 0
 vim.opt.signcolumn = 'yes'
 vim.opt.termguicolors = true
-vim.opt.visualbell = false
-vim.opt.wildmenu = true
-vim.opt.wildmode = "full"
 vim.opt.wrap = true
 vim.opt.cmdheight = 0
 vim.cmd([[set fillchars=eob:\ ]])
 
 -- Edit
-vim.opt.autoindent = true
 vim.opt.expandtab = true
 vim.opt.shiftround = true
 vim.opt.shiftwidth = 4
@@ -75,13 +65,8 @@ vim.opt.diffopt:append("context:99999")
 vim.opt.diffopt:append("linematch:60")
 
 -- Others
-vim.api.nvim_command('filetype plugin indent on')
-vim.opt.autoread = true
-vim.opt.compatible = false
-vim.opt.hidden = true
 vim.opt.swapfile = false
-vim.opt.timeout = true
-vim.opt.timeoutlen = 300
+vim.opt.timeoutlen = 800
 vim.opt.undodir = vim.fn.stdpath('cache') .. '/undo'
 vim.opt.undofile = true
 vim.opt.updatetime = 250

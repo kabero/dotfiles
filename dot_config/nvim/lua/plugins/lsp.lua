@@ -1,10 +1,5 @@
 return {
     {
-        'neovim/nvim-lspconfig',
-        event = 'VeryLazy',
-    },
-
-    {
         'williamboman/mason.nvim',
         version = '^2.0.0',
         event = "VeryLazy",

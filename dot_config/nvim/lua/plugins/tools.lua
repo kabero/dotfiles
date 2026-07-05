@@ -100,9 +100,6 @@ return {
                 ["shadow"] = false,
                 ["sudoers"] = false,
             }
-            vim.g.copilot_enabled = true
-            vim.g.copilot_show_ghost_text = true
-
             vim.api.nvim_create_autocmd({"BufEnter", "BufNewFile"}, {
                 pattern = "*",
                 callback = function()

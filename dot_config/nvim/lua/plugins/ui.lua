@@ -1,16 +1,12 @@
 local lualine_colors = {
-    bg       = '#202328',
-    fg       = '#bbc2cf',
-    yellow   = '#ECBE7B',
-    cyan     = '#008080',
-    darkblue = '#081633',
-    green    = '#98be65',
-    orange   = '#FF8800',
-    violet   = '#a9a1e1',
-    magenta  = '#c678dd',
-    blue     = '#51afef',
-    red      = '#ec5f67',
-    white    = '#AAAAAA',
+    bg     = '#202328',
+    fg     = '#bbc2cf',
+    yellow = '#ECBE7B',
+    cyan   = '#008080',
+    green  = '#98be65',
+    orange = '#FF8800',
+    red    = '#ec5f67',
+    white  = '#AAAAAA',
 }
 
 local lualine_conditions = {
@@ -19,11 +15,6 @@ local lualine_conditions = {
     end,
     hide_in_width = function()
         return vim.fn.winwidth(0) > 80
-    end,
-    check_git_workspace = function()
-        local filepath = vim.fn.expand('%:p:h')
-        local gitdir = vim.fn.finddir('.git', filepath .. ';')
-        return gitdir and #gitdir > 0 and #gitdir < #filepath
     end,
 }
 
@@ -245,40 +236,5 @@ return {
     {
         "norcalli/nvim-colorizer.lua",
         ft = { "css", "scss", "html", "javascript", "typescript", "blade" },
-    },
-
-    {
-        "folke/which-key.nvim",
-        event = "VeryLazy",
-        config = function()
-            vim.opt.timeout = true
-            vim.opt.timeoutlen = 800
-            local wk = require("which-key")
-            wk.setup({})
-            vim.api.nvim_set_keymap("n", "<leader>w", ":WhichKey<CR>", { noremap = true, silent = true })
-
-            -- Only group labels + chords whose plugin sets no inline desc.
-            -- snacks/lspsaga/gitsigns/jaq carry their own desc (auto-imported
-            -- by which-key v3), so no manual duplicates here — that avoids the
-            -- desc drift the old block had.
-            wk.add({
-                { "<leader>f", group = "find" },
-                { "<leader>g", group = "git" },
-                { "<leader>a", group = "ai / git hunks" },
-                { "<leader>s", desc = "Hop words" },
-                { "<leader>w", desc = "which-key" },
-                { "<leader>q", desc = "Run file (Jaq)" },
-                { "<leader>0", desc = "Outline (Lspsaga)" },
-                { "<leader>7", desc = "Toggle rainbow delimiters" },
-                { "<leader>9", desc = "Toggle diagnostics" },
-                { "<leader>1", desc = "Toggle git line blame" },
-                { "<leader>2", desc = "Toggle deleted hunks" },
-                { "<leader>gc", desc = "File git log (fugitive)" },
-                { "ga", desc = "[LSP] code action" },
-                { "gp", desc = "[LSP] peek definition" },
-                { "gR", desc = "[LSP] rename" },
-                { "ge", desc = "[LSP] line diagnostics" },
-            })
-        end
     },
 }
