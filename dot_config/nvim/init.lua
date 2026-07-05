@@ -104,6 +104,40 @@ vim.api.nvim_create_autocmd('TermOpen', {
     end,
 })
 
+-- :Run / <leader>q — run the current file by filetype (replaces jaq-nvim).
+-- In the shell commands `%` is expanded by vim to the current file name,
+-- so `[ -d .bundle ] && bundle exec ruby % || ruby %` works as-is.
+local run_internal = {
+    lua      = 'luafile %',
+    vim      = 'source %',
+    markdown = 'RenderMarkdown toggle',
+}
+local run_shell = {
+    c          = 'gcc %; ./a.out; rm a.out',
+    cpp        = 'g++ %; ./a.out; rm a.out',
+    go         = 'go run %',
+    python     = 'python %',
+    ruby       = '[ -d .bundle ] && bundle exec ruby % || ruby %',
+    rust       = 'rustc % -o tmp.out; ./tmp.out; rm tmp.out',
+    sh         = 'sh %',
+    zig        = 'zig build run',
+    javascript = 'node %',
+    typescript = './node_modules/.bin/ts-node %',
+}
+vim.api.nvim_create_user_command('Run', function()
+    local ft = vim.bo.filetype
+    local internal, shell = run_internal[ft], run_shell[ft]
+    if not internal and not shell then
+        vim.notify('Run: no command for filetype "' .. ft .. '"', vim.log.levels.WARN)
+        return
+    end
+    if vim.bo.modified then
+        vim.cmd('silent! write')
+    end
+    vim.cmd(internal or ('!' .. shell))
+end, { desc = 'Run current file by filetype' })
+vim.keymap.set('n', '<leader>q', '<cmd>Run<CR>', { desc = 'Run file' })
+
 -- Note command
 -- :Note - opens the note with the highest numeric index
 -- :Note new - creates a new note with the next available index

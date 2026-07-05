@@ -69,7 +69,7 @@ return {
             "nvim-tree/nvim-web-devicons",
         },
         -- Renders markdown inline in the buffer (headings, lists, code blocks,
-        -- tables, checkboxes). Toggle with <leader>q via jaq (see tools.lua).
+        -- tables, checkboxes). Toggle with <leader>q via :Run (see init.lua).
         -- anti_conceal disabled so the cursor line stays rendered too, instead
         -- of revealing its raw markdown.
         opts = {
