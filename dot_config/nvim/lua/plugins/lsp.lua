@@ -33,6 +33,23 @@ return {
                 capabilities = require('blink.cmp').get_lsp_capabilities(),
             })
 
+            -- emmylua_ls: index lazy.nvim's plugin dir so require('mason') & co.
+            -- resolve while editing the nvim config (kills unresolved-require
+            -- noise, enables plugin API completion/hover). Must be static client
+            -- settings under the "emmylua" section: emmylua applies settings
+            -- PUSHED via didChangeConfiguration (its own section only) and
+            -- ignores workspace/configuration pull responses, which is why
+            -- lazydev.nvim has no effect with it (verified 2026-07).
+            vim.lsp.config('emmylua_ls', {
+                settings = {
+                    emmylua = {
+                        workspace = {
+                            library = { vim.fn.stdpath('data') .. '/lazy' },
+                        },
+                    },
+                },
+            })
+
             require('mason-lspconfig').setup {
                 automatic_enable = true,
             }
