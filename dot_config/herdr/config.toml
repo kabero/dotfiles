@@ -1,0 +1,24 @@
+[keys]
+# Aligned with the tmux bindings (see dot_tmux.conf) so muscle memory carries
+# over. herdr defaults that already match tmux are not repeated here:
+# pane nav prefix+h/j/k/l, new tab prefix+c, next/prev tab prefix+n/p,
+# picker prefix+w, zoom prefix+z, close pane prefix+x.
+# When herdr runs INSIDE tmux, tmux eats C-q first — press C-q C-q
+# (send-prefix) to reach herdr.
+prefix = "ctrl+q"
+
+# tmux: C-q d detaches (herdr default was prefix+q).
+detach = "prefix+d"
+
+# tmux: C-q r reloads the config; resize moves to shift+r (tmux used
+# H/J/K/L repeat-resize, which herdr models as a resize MODE instead).
+reload_config = "prefix+r"
+resize_mode = "prefix+shift+r"
+
+# tmux: C-q " splits below, C-q % splits right.
+split_horizontal = 'prefix+"'
+split_vertical = "prefix+%"
+
+# tmux: bare C-g opens the session selector; herdr's goto picker is the
+# closest equivalent, bound prefix-free the same way.
+goto = "ctrl+g"
