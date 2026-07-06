@@ -2,6 +2,11 @@
 # Match the rest of the environment: wezterm Kanagawa Dragon, nvim kanagawa.
 name = "kanagawa"
 
+[ui]
+# tmux: prefix+c creates a window immediately; skip herdr's tab-name prompt
+# (tabs get generated names, rename later with prefix+shift+t).
+prompt_new_tab_name = false
+
 [ui.toast]
 # Route notifications to macOS itself (terminal-notifier, else osascript)
 # instead of in-UI toasts, so background-agent pings surface even when
