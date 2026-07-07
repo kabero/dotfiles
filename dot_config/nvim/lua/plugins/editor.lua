@@ -66,7 +66,6 @@ return {
         ft = { "markdown" },
         dependencies = {
             "nvim-treesitter/nvim-treesitter",
-            "nvim-tree/nvim-web-devicons",
         },
         -- Renders markdown inline in the buffer (headings, lists, code blocks,
         -- tables, checkboxes). Toggle with <leader>q via :Run (see init.lua).

@@ -20,14 +20,23 @@ local lualine_conditions = {
 
 return {
     {
-        "nvim-tree/nvim-web-devicons",
+        -- Single icon provider: mini.icons mocks nvim-web-devicons, so
+        -- consumers that require("nvim-web-devicons") (incline below) keep
+        -- working. The preload shim makes the mock lazy-safe.
+        "nvim-mini/mini.icons",
         lazy = true,
+        opts = {},
+        init = function()
+            package.preload["nvim-web-devicons"] = function()
+                require("mini.icons").mock_nvim_web_devicons()
+                return package.loaded["nvim-web-devicons"]
+            end
+        end,
     },
 
     {
         'nvim-lualine/lualine.nvim',
         event = 'VeryLazy',
-        dependencies = { 'nvim-tree/nvim-web-devicons' },
         config = function()
             local lualine = require('lualine')
             local colors = lualine_colors
@@ -124,7 +133,6 @@ return {
     {
         'b0o/incline.nvim',
         event = 'VeryLazy',
-        dependencies = { 'nvim-tree/nvim-web-devicons' },
         config = function()
             local devicons = require 'nvim-web-devicons'
             require('incline').setup {

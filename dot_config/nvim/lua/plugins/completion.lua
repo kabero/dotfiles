@@ -27,6 +27,8 @@ return {
                 -- newline unless an item was explicitly selected.
                 list = { selection = { preselect = false, auto_insert = true } },
             },
+            -- Built-in signature help replaces lsp_signature.nvim.
+            signature = { enabled = true, window = { border = 'single' } },
             sources = {
                 default = { 'lsp', 'path', 'buffer' },
                 providers = {

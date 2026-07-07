@@ -4,7 +4,7 @@ return {
         ---@module 'oil'
         ---@type oil.SetupOpts
         opts = {},
-        dependencies = { { "nvim-mini/mini.icons", opts = {} } },
+        dependencies = { "nvim-mini/mini.icons" },
         -- No lazy-loading (upstream recommendation): oil must hijack directory
         -- buffers, so `nvim <dir>` shows nothing if it loads on cmd/keys only.
         lazy = false,

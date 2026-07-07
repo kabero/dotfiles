@@ -108,13 +108,29 @@ return {
             end
 
             vim.keymap.set('n', '<leader>9', '<cmd>lua ToggleDisplayDiagnostics()<CR>', { noremap = true, silent = true })
+
+            -- LSP progress as a self-replacing snacks notification (replaces
+            -- fidget.nvim; snacks.notifier keys notifications by id).
+            vim.api.nvim_create_autocmd('LspProgress', {
+                callback = function(ev)
+                    local spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' }
+                    vim.notify(vim.lsp.status(), vim.log.levels.INFO, {
+                        id = 'lsp_progress',
+                        title = 'LSP Progress',
+                        opts = function(notif)
+                            notif.icon = ev.data.params.value.kind == 'end' and ''
+                                or spinner[math.floor(vim.uv.hrtime() / (1e6 * 80)) % #spinner + 1]
+                        end,
+                    })
+                end,
+            })
         end
     },
 
     {
         'glepnir/lspsaga.nvim',
         event = 'LspAttach',
-        dependencies = { { 'nvim-tree/nvim-web-devicons' }, { 'nvim-treesitter/nvim-treesitter' } },
+        dependencies = { { 'nvim-treesitter/nvim-treesitter' } },
         config = function()
             require('lspsaga').setup({
                 lightbulb = {
@@ -214,18 +230,4 @@ return {
         end
     },
 
-    {
-        "ray-x/lsp_signature.nvim",
-        event = "InsertEnter",
-        opts = {},
-    },
-
-    {
-        'j-hui/fidget.nvim',
-        event = 'LspAttach',
-        tag = 'legacy',
-        config = function()
-            require('fidget').setup({})
-        end
-    },
 }
