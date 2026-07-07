@@ -68,10 +68,12 @@ return {
             "nvim-treesitter/nvim-treesitter",
         },
         -- Renders markdown inline in the buffer (headings, lists, code blocks,
-        -- tables, checkboxes). Toggle with <leader>q via :Run (see init.lua).
-        -- anti_conceal disabled so the cursor line stays rendered too, instead
-        -- of revealing its raw markdown.
+        -- tables, checkboxes). OFF when a buffer opens; toggle on demand with
+        -- <leader>q via :Run (see init.lua). anti_conceal disabled so the
+        -- cursor line stays rendered too, instead of revealing its raw
+        -- markdown.
         opts = {
+            enabled = false,
             anti_conceal = { enabled = false },
         },
     },
