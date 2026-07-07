@@ -51,6 +51,10 @@ goto = "prefix+g"
 previous_workspace = "prefix+up"
 next_workspace = "prefix+down"
 
+# Jump back to the last focused pane, across workspaces — herdr's closest
+# thing to "last workspace". Same key as tmux's last-pane.
+last_pane = "prefix+;"
+
 # ghq repo launcher on bare C-g, same as the tmux session selector: jump to
 # an open workspace or create one from a ghq repo. Inside tmux, tmux's own
 # C-g binding wins — this applies when herdr runs directly in the terminal.
