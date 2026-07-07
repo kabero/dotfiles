@@ -318,7 +318,7 @@ function ssh() {
 # Renames go over the socket only when the label actually changes.
 if [[ -n $(printenv HERDR_ENV) && -n $HERDR_PANE_ID ]] ; then
   _herdr_pane_label() {
-      [[ $1 == $_herdr_label_current ]] && return
+      [[ ${+_herdr_label_current} -eq 1 && $1 == $_herdr_label_current ]] && return
       _herdr_label_current=$1
       if [[ -n $1 ]] ; then
           herdr pane rename "$HERDR_PANE_ID" "$1" >/dev/null 2>&1
@@ -335,6 +335,9 @@ if [[ -n $(printenv HERDR_ENV) && -n $HERDR_PANE_ID ]] ; then
       _herdr_pane_label "$(_herdr_repo_label)"
   }
   _herdr_label_preexec() {
+      # Any command may spawn a subshell whose own hooks rename this pane
+      # (chezmoi cd); drop the cache so the next precmd re-asserts the label.
+      unset _herdr_label_current
       case "$1" in
           claude*|codex*|copilot*|gemini*)
               local repo=$(_herdr_repo_label)
