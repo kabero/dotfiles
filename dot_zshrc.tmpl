@@ -276,7 +276,23 @@ g() {
 
 # ssh
 function ssh() {
-  if [[ -n $(printenv TMUX) ]] ; then
+  # Check HERDR_ENV before TMUX: herdr panes can inherit a stale $TMUX from
+  # the environment the herdr server was started in (dead socket errors).
+  if [[ -n $(printenv HERDR_ENV) ]] ; then
+      # herdr has no select-pane equivalent, but each pane is its own
+      # terminal: OSC 11 sets the background, OSC 111 restores the default.
+      if [[ `echo $1 | grep -E 'prd|prod|production'` ]] ; then
+          printf '\e]11;#330000\a'
+      elif [[ `echo $1 | grep -E 'stg|staging'` ]] ; then
+          printf '\e]11;#000033\a'
+      fi
+
+      command ssh "$@"
+      local ssh_status=$?
+
+      printf '\e]111\a'
+      return $ssh_status
+  elif [[ -n $(printenv TMUX) ]] ; then
       local pane_id=$(tmux display -p '#{pane_id}')
       local original_bg=$(tmux show-options -gqv pane-active-border-style | grep -o 'bg=[^,]*')
 
