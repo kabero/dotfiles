@@ -31,6 +31,7 @@ NF {
   } else {
     sess = parts[n]
   }
+  gsub(/[.:]/, "_", sess)   # tmux rewrites . and : to _ in session names
   if (sess in s) print "* " repo
   else print "  " repo
 }')
@@ -47,6 +48,7 @@ matched_sessions=$(echo "$active" | sed 's/^\* //' | awk -F/ '{
   } else {
     sess = parts[n]
   }
+  gsub(/[.:]/, "_", sess)
   print sess
 }')
 orphan_sessions=$(tmux list-sessions -F "#S" 2>/dev/null | while read -r sess; do
@@ -77,6 +79,7 @@ active=$(echo "$active" | awk 'NF' | awk -v af="$att_file" -v cur="$cur_sess" '
     if (repo == "chezmoi") sess = "chezmoi"
     else if (n > 3) { sess = ""; for (i = 4; i <= n; i++) sess = sess (i > 4 ? "/" : "") parts[i] }
     else sess = parts[n]
+    gsub(/[.:]/, "_", sess)
     if (cur != "" && sess == cur) next   # drop the session we are already in
     printf "%s\t%s\n", (sess in att ? att[sess] : 0), $0
   }' | sort -t"$(printf '\t')" -k1,1 -rn | cut -f2-)
@@ -141,6 +144,7 @@ selected=$( (echo "$active"; echo "$inactive") | awk 'NF' | \
         if (n > 3) { ss = ""; for (i = 4; i <= n; i++) ss = ss (i > 4 ? "/" : "") p[i] }
         else ss = p[n]
       }
+      gsub(/[.:]/, "_", ss)
       cnt++
       A[cnt]=isact; NM[cnt]=nm; OW[cnt]=ow; PA[cnt]=repo; CCv[cnt]=(ss in m ? m[ss] : "")
       AGv[cnt] = (ss in att ? ageof(att[ss]) : "")
@@ -184,6 +188,9 @@ else
     session=$(basename "$selected")
   fi
 fi
+# tmux rewrites . and : to _ when creating sessions; match that up front so
+# has-session/switch-client target the name tmux actually uses.
+session=${session//[.:]/_}
 
 tmux has-session -t "$session" 2>/dev/null || tmux new-session -d -c "$dir" -s "$session"
 tmux switch-client -t "$session"
