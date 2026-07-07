@@ -320,19 +320,26 @@ if [[ -n $(printenv HERDR_ENV) && -n $HERDR_PANE_ID ]] ; then
   _herdr_pane_label() {
       [[ ${+_herdr_label_current} -eq 1 && $1 == $_herdr_label_current ]] && return
       _herdr_label_current=$1
+      # Disowned background rename: keeps the ~12ms fork+socket roundtrip
+      # off the prompt's critical path.
       if [[ -n $1 ]] ; then
-          herdr pane rename "$HERDR_PANE_ID" "$1" >/dev/null 2>&1
+          herdr pane rename "$HERDR_PANE_ID" "$1" >/dev/null 2>&1 &!
       else
-          herdr pane rename "$HERDR_PANE_ID" --clear >/dev/null 2>&1
+          herdr pane rename "$HERDR_PANE_ID" --clear >/dev/null 2>&1 &!
       fi
   }
-  _herdr_repo_label() {
-      local root=$(git rev-parse --show-toplevel 2>/dev/null)
-      [[ -z $root || $root == $HOME ]] && return
-      print -r -- "${root:t}"
-  }
   _herdr_label_precmd() {
-      _herdr_pane_label "$(_herdr_repo_label)"
+      # Repo name cached by PWD: the git fork (~13ms) only runs on cd.
+      if [[ $PWD != $_herdr_repo_pwd ]] ; then
+          _herdr_repo_pwd=$PWD
+          local root=$(git rev-parse --show-toplevel 2>/dev/null)
+          if [[ -z $root || $root == $HOME ]] ; then
+              _herdr_repo_name=""
+          else
+              _herdr_repo_name=${root:t}
+          fi
+      fi
+      _herdr_pane_label "$_herdr_repo_name"
   }
   _herdr_label_preexec() {
       # Any command may spawn a subshell whose own hooks rename this pane
@@ -340,8 +347,7 @@ if [[ -n $(printenv HERDR_ENV) && -n $HERDR_PANE_ID ]] ; then
       unset _herdr_label_current
       case "$1" in
           claude*|codex*|copilot*|gemini*)
-              local repo=$(_herdr_repo_label)
-              _herdr_pane_label "${repo:+$repo · }${1%% *}"
+              _herdr_pane_label "${_herdr_repo_name:+$_herdr_repo_name · }${1%% *}"
               ;;
       esac
   }
