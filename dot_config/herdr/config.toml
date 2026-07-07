@@ -1,3 +1,6 @@
+# Written back by herdr itself after the first-run notification prompt.
+onboarding = false
+
 [theme]
 # Match the rest of the environment: wezterm Kanagawa Dragon, nvim kanagawa.
 name = "kanagawa"
@@ -42,6 +45,12 @@ split_vertical = "prefix+%"
 # fzf+ghq launcher below instead (tmux muscle memory).
 goto = "prefix+g"
 
+# Cycle workspaces with prefix+arrow (unset in herdr by default), matching
+# the sidebar's vertical workspace list. Note in tmux prefix+up/down means
+# select-pane — here it moves whole workspaces.
+previous_workspace = "prefix+up"
+next_workspace = "prefix+down"
+
 # ghq repo launcher on bare C-g, same as the tmux session selector: jump to
 # an open workspace or create one from a ghq repo. Inside tmux, tmux's own
 # C-g binding wins — this applies when herdr runs directly in the terminal.
@@ -49,3 +58,9 @@ goto = "prefix+g"
 key = "ctrl+g"
 type = "pane"
 command = "~/.local/bin/herdr-repo-selector"
+
+[experimental]
+# While prefix mode is active, flip the macOS input source to an ASCII
+# layout and restore it after, so C-q commands register even with the
+# Japanese IME on. macOS-only, best-effort.
+switch_ascii_input_source_in_prefix = true
