@@ -30,22 +30,29 @@ label_of() {
 ws_tsv=$(herdr workspace list 2>/dev/null \
   | jq -r '.result.workspaces[] | [.label, .workspace_id] | @tsv' 2>/dev/null)
 
-# Render: open workspaces first (blue dot, bright), rest dimmed. The canonical
-# repo path rides along as a hidden TSV field (fzf shows field 1 only).
-render() {
-  local mode="$1" repo label
-  while IFS= read -r repo; do
-    [ -n "$repo" ] || continue
-    label=$(label_of "$repo")
-    if printf '%s\n' "$ws_tsv" | cut -f1 | grep -qxF "$label"; then
-      [ "$mode" = open ] && printf '\033[38;5;75m●\033[0m  \033[1;38;5;255m%s\033[0m\t%s\n' "$repo" "$repo"
+# Render: open workspaces first (blue dot, bright), rest dimmed, in one awk
+# pass (a per-repo bash loop forks several processes per repo and gets slow).
+# The canonical repo path rides along as a hidden TSV field (fzf shows field 1
+# only). Workspace labels come in via the environment to sidestep awk's
+# empty-first-file NR==FNR pitfall.
+selected=$(WS_LABELS="$(printf '%s\n' "$ws_tsv" | cut -f1)" awk -F/ '
+  BEGIN {
+    n = split(ENVIRON["WS_LABELS"], l, "\n")
+    for (i = 1; i <= n; i++) if (l[i] != "") open[l[i]] = 1
+  }
+  !NF { next }
+  {
+    repo = $0
+    if (repo == "chezmoi") label = "chezmoi"
+    else if (NF > 3) { label = ""; for (i = 4; i <= NF; i++) label = label (i > 4 ? "/" : "") $i }
+    else label = $NF
+    if (label in open)
+      printf "\033[38;5;75m●\033[0m  \033[1;38;5;255m%s\033[0m\t%s\n", repo, repo
     else
-      [ "$mode" = closed ] && printf '   \033[38;5;250m%s\033[0m\t%s\n' "$repo" "$repo"
-    fi
-  done <<< "$repo_list"
-}
-
-selected=$( { render open; render closed; } | \
+      closed[++c] = sprintf("   \033[38;5;250m%s\033[0m\t%s", repo, repo)
+  }
+  END { for (i = 1; i <= c; i++) print closed[i] }
+' <<< "$repo_list" | \
   fzf --ansi --height 100% --layout reverse \
       --border rounded --border-label " repo (herdr) " \
       --color "fg:-1,bg:-1,fg+:255,bg+:236,hl:75,hl+:75,pointer:75,marker:75,border:238,label:75,prompt:75,info:243,header:243,gutter:-1,spinner:75" \
