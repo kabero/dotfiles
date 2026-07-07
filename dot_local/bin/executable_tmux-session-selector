@@ -11,25 +11,8 @@ trap 'rm -f "$sess_file" "$att_file" "$cc_file"' EXIT
 sess_file=$(mktemp)
 tmux list-sessions -F "#S" 2>/dev/null > "$sess_file" || true
 
-# Build repo list: ghq repos + submodules + chezmoi
+# Build repo list: ghq repos + chezmoi
 repo_list=$(ghq list)
-
-# Append submodule paths
-for gitmodules in "$ghq_root"/*/*/*/.gitmodules; do
-  [ -f "$gitmodules" ] || continue
-  repo="${gitmodules%/.gitmodules}"
-  repo="${repo#$ghq_root/}"
-  while IFS='=' read -r key val; do
-    case "$key" in
-      *path*)
-        val=$(echo "$val" | sed 's/^[[:space:]]*//')
-        repo_list="$repo_list
-$repo/$val"
-        ;;
-    esac
-  done < "$gitmodules"
-done
-
 repo_list="$repo_list
 chezmoi"
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # ghq repo launcher for herdr — counterpart of tmux-session-selector (C-g).
-# Lists ghq repos (+ submodules + chezmoi), marks the ones already open as a
+# Lists ghq repos (+ chezmoi), marks the ones already open as a
 # herdr workspace with a blue dot, and on selection focuses that workspace or
 # creates one at the repo directory. Bound to prefix+g via [[keys.command]] in
 # ~/.config/herdr/config.toml — bare C-g (goto) navigates the EXISTING tree,
@@ -9,22 +9,8 @@
 set -u
 ghq_root="$(ghq root)"
 
-# Build repo list: ghq repos + submodules + chezmoi (same as the tmux version)
+# Build repo list: ghq repos + chezmoi (same as the tmux version)
 repo_list=$(ghq list)
-for gitmodules in "$ghq_root"/*/*/*/.gitmodules; do
-  [ -f "$gitmodules" ] || continue
-  repo="${gitmodules%/.gitmodules}"
-  repo="${repo#$ghq_root/}"
-  while IFS='=' read -r key val; do
-    case "$key" in
-      *path*)
-        val=$(echo "$val" | sed 's/^[[:space:]]*//')
-        repo_list="$repo_list
-$repo/$val"
-        ;;
-    esac
-  done < "$gitmodules"
-done
 repo_list="$repo_list
 chezmoi"
 
