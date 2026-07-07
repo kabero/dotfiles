@@ -310,32 +310,41 @@ function ssh() {
   fi
 }
 
-# herdr: tint each pane's background by the repo it sits in, so splits
-# visually group by project (panes honor OSC 11 per pane, like ssh above).
-# Hue comes from a hash of the git root; $HOME and non-repo dirs outside
-# ghq stay at the theme default. Re-emitted every precmd (cheap: forks only
-# when the directory changes) so the tint survives ssh()'s OSC 111 reset.
-if [[ -n $(printenv HERDR_ENV) ]] ; then
-  _herdr_dir_tint() {
-      if [[ $PWD != $_herdr_tint_pwd ]] ; then
-          _herdr_tint_pwd=$PWD
-          local root=$(git rev-parse --show-toplevel 2>/dev/null)
-          if [[ -z $root || $root == $HOME ]] ; then
-              _herdr_tint_color=""
-          else
-              # kanagawa dragon bg (#181616) nudged toward different hues
-              local palette=('#241818' '#18211a' '#171a24' '#1e1824' '#212016' '#16201f' '#231c16' '#221629')
-              _herdr_tint_color=${palette[$(( $(cksum <<< "$root" | cut -d' ' -f1) % ${#palette[@]} + 1 ))]}
-          fi
-      fi
-      if [[ -n $_herdr_tint_color ]] ; then
-          printf '\e]11;%s\a' "$_herdr_tint_color"
+# herdr: show the repo on each pane border so splits in one window are
+# tellable apart (no per-pane border color API; the label is the border's
+# one customizable element). Manual pane names suppress herdr's auto agent
+# labels (claude etc.), so when an agent command launches, preexec bakes it
+# into the label ("repo · claude") and precmd drops it again on exit.
+# Renames go over the socket only when the label actually changes.
+if [[ -n $(printenv HERDR_ENV) && -n $HERDR_PANE_ID ]] ; then
+  _herdr_pane_label() {
+      [[ $1 == $_herdr_label_current ]] && return
+      _herdr_label_current=$1
+      if [[ -n $1 ]] ; then
+          herdr pane rename "$HERDR_PANE_ID" "$1" >/dev/null 2>&1
       else
-          printf '\e]111\a'
+          herdr pane rename "$HERDR_PANE_ID" --clear >/dev/null 2>&1
       fi
   }
+  _herdr_repo_label() {
+      local root=$(git rev-parse --show-toplevel 2>/dev/null)
+      [[ -z $root || $root == $HOME ]] && return
+      print -r -- "${root:t}"
+  }
+  _herdr_label_precmd() {
+      _herdr_pane_label "$(_herdr_repo_label)"
+  }
+  _herdr_label_preexec() {
+      case "$1" in
+          claude*|codex*|copilot*|gemini*)
+              local repo=$(_herdr_repo_label)
+              _herdr_pane_label "${repo:+$repo · }${1%% *}"
+              ;;
+      esac
+  }
   autoload -Uz add-zsh-hook
-  add-zsh-hook precmd _herdr_dir_tint
+  add-zsh-hook precmd _herdr_label_precmd
+  add-zsh-hook preexec _herdr_label_preexec
 fi
 
 # abbreviations
