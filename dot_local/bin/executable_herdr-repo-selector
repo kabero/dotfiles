@@ -2,9 +2,9 @@
 # ghq repo launcher for herdr — counterpart of tmux-session-selector (C-g).
 # Lists ghq repos (+ chezmoi), marks the ones already open as a
 # herdr workspace with a blue dot, and on selection focuses that workspace or
-# creates one at the repo directory. Bound to prefix+g via [[keys.command]] in
-# ~/.config/herdr/config.toml — bare C-g (goto) navigates the EXISTING tree,
-# prefix+g opens something NEW.
+# creates one at the repo directory. Bound to bare C-g via [[keys.command]] in
+# ~/.config/herdr/config.toml (same key as the tmux session selector);
+# herdr's built-in goto lives on prefix+g.
 
 set -u
 ghq_root="$(ghq root)"

@@ -38,13 +38,14 @@ resize_mode = "prefix+shift+r"
 split_horizontal = 'prefix+"'
 split_vertical = "prefix+%"
 
-# tmux: bare C-g opens the session selector; herdr's goto picker is the
-# closest equivalent, bound prefix-free the same way.
-goto = "ctrl+g"
+# herdr's built-in goto picker, at its default spot; bare C-g goes to the
+# fzf+ghq launcher below instead (tmux muscle memory).
+goto = "prefix+g"
 
-# ghq repo launcher (the "open something new" half of tmux's C-g selector;
-# goto above covers the "jump to something open" half).
+# ghq repo launcher on bare C-g, same as the tmux session selector: jump to
+# an open workspace or create one from a ghq repo. Inside tmux, tmux's own
+# C-g binding wins — this applies when herdr runs directly in the terminal.
 [[keys.command]]
-key = "prefix+g"
+key = "ctrl+g"
 type = "pane"
 command = "~/.local/bin/herdr-repo-selector"
