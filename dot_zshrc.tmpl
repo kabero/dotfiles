@@ -310,6 +310,34 @@ function ssh() {
   fi
 }
 
+# herdr: tint each pane's background by the repo it sits in, so splits
+# visually group by project (panes honor OSC 11 per pane, like ssh above).
+# Hue comes from a hash of the git root; $HOME and non-repo dirs outside
+# ghq stay at the theme default. Re-emitted every precmd (cheap: forks only
+# when the directory changes) so the tint survives ssh()'s OSC 111 reset.
+if [[ -n $(printenv HERDR_ENV) ]] ; then
+  _herdr_dir_tint() {
+      if [[ $PWD != $_herdr_tint_pwd ]] ; then
+          _herdr_tint_pwd=$PWD
+          local root=$(git rev-parse --show-toplevel 2>/dev/null)
+          if [[ -z $root || $root == $HOME ]] ; then
+              _herdr_tint_color=""
+          else
+              # kanagawa dragon bg (#181616) nudged toward different hues
+              local palette=('#241818' '#18211a' '#171a24' '#1e1824' '#212016' '#16201f' '#231c16' '#221629')
+              _herdr_tint_color=${palette[$(( $(cksum <<< "$root" | cut -d' ' -f1) % ${#palette[@]} + 1 ))]}
+          fi
+      fi
+      if [[ -n $_herdr_tint_color ]] ; then
+          printf '\e]11;%s\a' "$_herdr_tint_color"
+      else
+          printf '\e]111\a'
+      fi
+  }
+  autoload -Uz add-zsh-hook
+  add-zsh-hook precmd _herdr_dir_tint
+fi
+
 # abbreviations
 abbr -q --session tl=tldr 2>/dev/null
 abbr -q --session grepc="grep --color=always" 2>/dev/null
