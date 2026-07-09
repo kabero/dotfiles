@@ -33,22 +33,15 @@ return {
                 capabilities = require('blink.cmp').get_lsp_capabilities(),
             })
 
-            -- emmylua_ls: index lazy.nvim's plugin dir so require('mason') & co.
-            -- resolve while editing the nvim config (kills unresolved-require
-            -- noise, enables plugin API completion/hover). Must be static client
-            -- settings under the "emmylua" section: emmylua applies settings
-            -- PUSHED via didChangeConfiguration (its own section only) and
-            -- ignores workspace/configuration pull responses, which is why
-            -- lazydev.nvim has no effect with it (verified 2026-07).
-            vim.lsp.config('emmylua_ls', {
-                settings = {
-                    emmylua = {
-                        workspace = {
-                            library = { vim.fn.stdpath('data') .. '/lazy' },
-                        },
-                    },
-                },
-            })
+            -- emmylua_ls is configured via .emmyrc.json at its workspace root
+            -- (<config>/lua): plugin-dir library, vim global, and disables
+            -- for the checks that flag every partial opts table. CAUTION:
+            -- emmylua also reads .luarc.json and it wins the merge — a
+            -- leftover lua_ls-era .luarc.json silently overrode the emmyrc
+            -- disables until it was folded in and deleted (2026-07-09).
+            -- The chezmoi source tree carries the emmyrc twice —
+            -- lua/.emmyrc.json for editing the source itself,
+            -- lua/dot_emmyrc.json for deployment.
 
             require('mason-lspconfig').setup {
                 automatic_enable = true,

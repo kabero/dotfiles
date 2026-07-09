@@ -1,0 +1,9 @@
+{
+    "workspace": {
+        "library": ["~/.local/share/nvim/lazy"]
+    },
+    "diagnostics": {
+        "globals": ["vim"],
+        "disable": ["missing-fields", "param-type-mismatch", "unused-function"]
+    }
+}
