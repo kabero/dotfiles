@@ -1,5 +1,7 @@
 #!/bin/bash
-# Open the file path under a mouse click in nvim, inside a tmux popup.
+# Open the file path under a mouse click in nvim, inside a tmux popup —
+# or, when no tmux server is attached (herdr has taken over), in a
+# temporary herdr split pane instead.
 # Bound to Option+click (M-MouseDown1Pane) in dot_tmux.conf.
 #
 # We get the whole clicked line + column (#{mouse_line} / #{mouse_x}) instead
@@ -13,11 +15,30 @@
 # TMUX_OPENFILE_PRINT=1 prints the resolved target instead of opening (tests).
 export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 
+# herdr helpers: the focused pane is workspace(focused) → active_tab → pane(focused).
+herdr_focused_pane() {
+  local tab; tab=$(herdr workspace list 2>/dev/null \
+    | jq -r '.result.workspaces[] | select(.focused) | .active_tab_id') || return 1
+  [ -n "$tab" ] || return 1
+  herdr pane list --workspace "${tab%%:*}" 2>/dev/null \
+    | jq -re --arg tab "$tab" \
+        '[.result.panes[] | select(.tab_id == $tab and .focused)][0].pane_id'
+}
+
+notify() {
+  tmux display-message "$1" 2>/dev/null && return
+  herdr notification show "$1" >/dev/null 2>&1
+}
+
 if [ "$1" = "--token" ]; then
   # Called from WezTerm's open-uri hook with the hyperlink text directly; the
-  # cwd comes from the attached client's active pane.
+  # cwd comes from the attached client's (or focused herdr pane's) active pane.
   token="$2"
   cwd=$(tmux display-message -p '#{pane_current_path}' 2>/dev/null)
+  if [ -z "$cwd" ]; then
+    pane=$(herdr_focused_pane) && cwd=$(herdr pane get "$pane" 2>/dev/null \
+      | jq -r '.result.pane.foreground_cwd // .result.pane.cwd // empty')
+  fi
   cwd="${cwd:-$HOME}"
 else
   line="$1"; col="${2:-0}"; cwd="${3:-$HOME}"
@@ -63,7 +84,7 @@ if [ ! -e "$file" ]; then
 fi
 
 if [ ! -e "$file" ]; then
-  tmux display-message "no file: $token"
+  notify "no file: $token"
   exit 0
 fi
 
@@ -129,4 +150,29 @@ case "${file##*.}" in
     ;;
 esac
 
-tmux display-popup -d "$cwd" -xC -yC -w92% -h88% -E "nvim ${lineno:++$lineno} '$file'"
+if tmux list-clients 2>/dev/null | grep -q .; then
+  # tmux is attached: centered popup, closes with nvim. Route through
+  # run-shell so display-popup resolves a current client even when this
+  # script was spawned from outside tmux (WezTerm's open-uri hook).
+  if [ -n "$TMUX" ]; then
+    tmux display-popup -d "$cwd" -xC -yC -w92% -h88% -E "nvim ${lineno:++$lineno} '$file'"
+  else
+    tmux run-shell -b "tmux display-popup -d '$cwd' -xC -yC -w92% -h88% -E \"nvim ${lineno:++$lineno} '$file'\""
+  fi
+elif pane=$(herdr_focused_pane); then
+  # herdr has no popup primitive, so fake one: split the focused pane, zoom
+  # the new pane to fill the tab, and exec nvim there — quitting nvim closes
+  # the pane, which drops the zoom and restores the previous layout/focus.
+  new=$(herdr pane split "$pane" --direction right --ratio 0.5 --cwd "$cwd" --focus 2>/dev/null \
+    | jq -r '.result.pane.pane_id // empty')
+  if [ -n "$new" ]; then
+    herdr pane zoom "$new" --on >/dev/null 2>&1
+    herdr pane run "$new" "exec nvim ${lineno:++$lineno} '$file'"
+  else
+    notify "tmux-open-file: herdr split failed"
+  fi
+else
+  # last resort: no multiplexer at all — plain editor via a new WezTerm window.
+  command -v wezterm >/dev/null 2>&1 \
+    && wezterm cli spawn --new-window --cwd "$cwd" -- nvim ${lineno:++$lineno} "$file" >/dev/null 2>&1
+fi
