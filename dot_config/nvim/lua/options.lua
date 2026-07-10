@@ -55,7 +55,7 @@ vim.opt.shiftwidth = 4
 vim.opt.smartindent = true
 vim.opt.tabstop = 4
 
--- Diff (<leader>al diffthis, <leader>gv Diffview, :diffthis):
+-- Diff (<leader>al diffthis, <leader>gg Diffview, :diffthis):
 --   context:99999  never fold the unchanged lines; keep everything expanded.
 --   linematch:60   pair up changed lines better so DiffText lands on the
 --                  actually-changed run, not the whole line — the precise

@@ -46,7 +46,7 @@ local keys = {
     { "<leader>gl", function() Snacks.picker.git_log_line() end, desc = "Git Log Line" },
     { "<leader>fl", function() Snacks.picker.grep_word() end, desc = "Visual selection or word", mode = { "n", "x" } },
     { "<leader>fn", function() Snacks.picker.explorer() end, desc = "File Browser" },
-    { "<leader>gg", function() Snacks.picker.git_grep() end, desc = "Git Grep" },
+    { "<leader>gv", function() Snacks.picker.git_grep() end, desc = "Git Grep" },
     { "<leader>fi", function() Snacks.picker.lsp_incoming_calls() end, desc = "Calls Incoming" },
     { "<leader>fo", function() Snacks.picker.lsp_outgoing_calls() end, desc = "Calls Outgoing" },
     {

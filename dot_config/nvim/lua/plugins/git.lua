@@ -38,7 +38,7 @@ return {
         },
         keys = {
             {
-                "<leader>gv",
+                "<leader>gg",
                 function()
                     -- Toggle: review uncommitted working-tree changes.
                     if require("diffview.lib").get_current_view() then
