@@ -170,9 +170,9 @@ end, {
 })
 vim.keymap.set('n', '<leader>q', '<cmd>Run<CR>', { desc = 'Run file' })
 
--- :X — editable per-project command palette in a left split. One shell
--- command per line; <CR> runs the line asynchronously in a terminal split
--- at the bottom. The list is a real file kept under
+-- :X — editable per-project command palette in a centered popup. One
+-- shell command per line; <CR> runs the line asynchronously in a terminal
+-- split at the bottom. The list is a real file kept under
 -- stdpath('data')/x-commands/ (keyed by git root, or cwd when outside a
 -- repo), so it persists per project without touching git.
 local function x_file()
@@ -230,10 +230,19 @@ end
 -- if needed) without stealing focus.
 local function x_show(term)
     if not (x_out_win and vim.api.nvim_win_is_valid(x_out_win)) then
-        local cur = vim.api.nvim_get_current_win()
-        vim.cmd('botright 12split')
-        x_out_win = vim.api.nvim_get_current_win()
-        vim.api.nvim_set_current_win(cur)
+        -- create the split from a normal window: splitting is not
+        -- possible while the floating palette is the current window
+        local base
+        for _, w in ipairs(vim.api.nvim_list_wins()) do
+            if vim.api.nvim_win_get_config(w).relative == '' then
+                base = w
+                break
+            end
+        end
+        vim.api.nvim_win_call(base, function()
+            vim.cmd('botright 12split')
+            x_out_win = vim.api.nvim_get_current_win()
+        end)
     end
     vim.api.nvim_win_set_buf(x_out_win, term)
     vim.api.nvim_win_call(x_out_win, function()
@@ -317,10 +326,22 @@ vim.api.nvim_create_user_command('X', function()
             vim.api.nvim_win_close(win, true)
             return
         end
+    else
+        buf = vim.fn.bufadd(file)
+        vim.fn.bufload(buf)
     end
-    vim.cmd('topleft vsplit ' .. vim.fn.fnameescape(file))
-    vim.api.nvim_win_set_width(0, 40)
-    vim.wo.winfixwidth = true
+    local width = math.floor(vim.o.columns * 0.7)
+    local height = math.floor(vim.o.lines * 0.7)
+    vim.api.nvim_open_win(buf, true, {
+        relative = 'editor',
+        width = width,
+        height = height,
+        col = math.floor((vim.o.columns - width) / 2),
+        row = math.floor((vim.o.lines - height) / 2),
+        border = 'rounded',
+        title = ' X ',
+        title_pos = 'center',
+    })
     vim.bo.filetype = 'sh' -- the file has no extension; highlight as shell
     vim.keymap.set('n', '<CR>', function()
         if vim.bo.modified then
@@ -376,7 +397,8 @@ vim.api.nvim_create_user_command('X', function()
             end
         end
     end, { buffer = true, desc = 'Kill the running command on this line' })
-end, { desc = 'Toggle per-project shell-command palette in a left split' })
+end, { desc = 'Toggle per-project shell-command palette popup' })
+vim.keymap.set('n', '<leader>x', '<cmd>X<CR>', { desc = 'Command palette' })
 
 -- Color settings should be at the bottom.
 require "colors"
