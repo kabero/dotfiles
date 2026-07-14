@@ -52,16 +52,30 @@ local function setup_highlights()
 
         -- Native diff mode (used by <leader>al gitsigns.diffthis, :diffthis,
         -- Diffview). Mimic the `delta` pager palette kabe likes: green = added,
-        -- red = removed, with the changed WORD emphasised in brighter green --
-        -- all while keeping the original syntax fg intact (bg-only). Native diff
-        -- can't colour the two windows differently, so a modified line shows the
-        -- same green band on both sides (DiffChange = calm green, DiffText = the
-        -- bright word emphasis). add/del/chg/txt strengths are the knobs to nudge.
-        vim.api.nvim_set_hl(0, 'DiffAdd',    { bg = blend(0x76946a, normal_bg, 0.42) }) -- green        (added line)
-        vim.api.nvim_set_hl(0, 'DiffDelete', { bg = blend(0xc34043, normal_bg, 0.42), -- red          (removed/filler)
-            fg = blend(0xc34043, normal_bg, 0.65) })                                    -- tint the ---- filler glyphs
-        vim.api.nvim_set_hl(0, 'DiffChange', { bg = blend(0x76946a, normal_bg, 0.24) }) -- pale green   (changed line)
-        vim.api.nvim_set_hl(0, 'DiffText',   { bg = blend(0x98bb6c, normal_bg, 0.55),  -- bright green (the exact change)
+        -- red = removed, with the changed WORD emphasised — all while keeping
+        -- the original syntax fg intact (bg-only, treesitter fg wins anyway).
+        -- Legibility rule: bands stay DARK and carry the signal via SATURATION
+        -- (delta's own trick, e.g. #004000). Kanagawa's sage/autumn hues are too
+        -- desaturated for this — blending them bright just washed out the light
+        -- syntax fg — so the diff bands get pure-ish hues of their own. The
+        -- blend strengths (line / calm / word) are the knobs to nudge.
+        local diff_green, diff_red = 0x2ea043, 0xdc2626
+        vim.api.nvim_set_hl(0, 'DiffAdd',    { bg = blend(diff_green, normal_bg, 0.32) }) -- added line
+        vim.api.nvim_set_hl(0, 'DiffDelete', { bg = blend(diff_red, normal_bg, 0.30),    -- removed/filler
+            fg = blend(diff_red, normal_bg, 0.65) })                                      -- tint the ---- filler glyphs
+        vim.api.nvim_set_hl(0, 'DiffChange', { bg = blend(diff_green, normal_bg, 0.15) }) -- changed line (calm)
+        vim.api.nvim_set_hl(0, 'DiffText',   { bg = blend(diff_green, normal_bg, 0.55),  -- the exact change
+            bold = true })
+
+        -- Diffview (<leader>gg/gV/gh) can tell the OLD (left) window apart from
+        -- the new one — something native diff can't — so give the deletion side
+        -- its own delta-style red family (bg-only: syntax fg stays readable;
+        -- Diffview's stock DiffviewDiffAddAsDelete copies DiffDelete's red FG
+        -- and turns deleted lines into red-on-red mush). Wired up per-window in
+        -- plugins/git.lua via the diff_buf_win_enter hook.
+        vim.api.nvim_set_hl(0, 'DiffviewOldDelete', { bg = blend(diff_red, normal_bg, 0.30) }) -- removed line
+        vim.api.nvim_set_hl(0, 'DiffviewOldChange', { bg = blend(diff_red, normal_bg, 0.15) }) -- changed line (old side)
+        vim.api.nvim_set_hl(0, 'DiffviewOldText',   { bg = blend(diff_red, normal_bg, 0.55),  -- the exact change
             bold = true })
     end
 end

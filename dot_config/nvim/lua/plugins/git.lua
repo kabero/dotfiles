@@ -69,6 +69,23 @@ return {
         },
         opts = {
             enhanced_diff_hl = true,
+            hooks = {
+                -- Delta-style side-aware colours: repaint the OLD (left) window
+                -- in the red family — removed lines, changed-line band, and the
+                -- changed word all read as "this is going away" instead of the
+                -- shared green Diff* groups. Groups defined in colors.lua.
+                -- Only 2-pane layouts; the 3-way merge tool keeps its defaults.
+                diff_buf_win_enter = function(_, winid, ctx)
+                    if ctx.symbol == "a" and ctx.layout_name:match("^diff2") then
+                        vim.wo[winid].winhl = table.concat({
+                            "DiffAdd:DiffviewOldDelete",
+                            "DiffChange:DiffviewOldChange",
+                            "DiffText:DiffviewOldText",
+                            "DiffDelete:DiffviewDiffDeleteDim",
+                        }, ",")
+                    end
+                end,
+            },
             view = {
                 -- 3-way layout makes merge-conflict review legible.
                 merge_tool = { layout = "diff3_mixed" },
