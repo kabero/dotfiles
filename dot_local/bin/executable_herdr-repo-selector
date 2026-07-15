@@ -5,6 +5,9 @@
 # creates one at the repo directory. Bound to bare C-g via [[keys.command]] in
 # ~/.config/herdr/config.toml (same key as the tmux session selector);
 # herdr's built-in goto lives on prefix+g.
+# Typing <user>/<name> that doesn't exist yet offers a "[new project]" entry:
+# enter runs `ghq create` (mkdir + git init under github.com/) and opens a
+# workspace there; adding a remote origin is left to the user.
 
 set -u
 ghq_root="$(ghq root)"
@@ -35,7 +38,9 @@ ws_tsv=$(herdr workspace list 2>/dev/null \
 # The canonical repo path rides along as a hidden TSV field (fzf shows field 1
 # only). Workspace labels come in via the environment to sidestep awk's
 # empty-first-file NR==FNR pitfall.
-selected=$(WS_LABELS="$(printf '%s\n' "$ws_tsv" | cut -f1)" awk -F/ '
+list_file=$(mktemp)
+trap 'rm -f "$list_file"' EXIT
+WS_LABELS="$(printf '%s\n' "$ws_tsv" | cut -f1)" awk -F/ '
   BEGIN {
     n = split(ENVIRON["WS_LABELS"], l, "\n")
     for (i = 1; i <= n; i++) if (l[i] != "") open[l[i]] = 1
@@ -52,14 +57,28 @@ selected=$(WS_LABELS="$(printf '%s\n' "$ws_tsv" | cut -f1)" awk -F/ '
       closed[++c] = sprintf("   \033[38;5;250m%s\033[0m\t%s", repo, repo)
   }
   END { for (i = 1; i <= c; i++) print closed[i] }
-' <<< "$repo_list" | \
-  fzf --ansi --height 100% --layout reverse \
+' <<< "$repo_list" > "$list_file"
+
+# On every keystroke, re-emit the list and — when the query looks like
+# <user>/<name> and no such repo exists under github.com/ yet — append a
+# "[new project]" entry (hidden field NEW:<user>/<name>). Selecting it
+# creates the repo via `ghq create` below. {q} is shell-quoted by fzf.
+export _HRS_LIST="$list_file" _HRS_ROOT="$ghq_root"
+reload='q={q}; cat "$_HRS_LIST"; if printf %s "$q" | grep -Eq "^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$" && [ ! -e "$_HRS_ROOT/github.com/$q" ]; then printf "\033[38;5;114m+\033[0m  \033[38;5;114m[new project] %s\033[0m\tNEW:%s\n" "$q" "$q"; fi'
+
+selected=$(fzf --ansi --height 100% --layout reverse \
       --border rounded --border-label " repo (herdr) " \
       --color "fg:-1,bg:-1,fg+:255,bg+:236,hl:75,hl+:75,pointer:75,marker:75,border:238,label:75,prompt:75,info:243,header:243,gutter:-1,spinner:75" \
       --pointer "▌" --prompt "> " \
-      --delimiter='\t' --with-nth=1 --highlight-line) || exit 0
+      --bind "change:reload:$reload" \
+      --delimiter='\t' --with-nth=1 --highlight-line < "$list_file") || exit 0
 
 repo="${selected##*$'\t'}"
+if [[ "$repo" == NEW:* ]]; then
+  new="${repo#NEW:}"
+  ghq create "$new" >/dev/null || exit 1   # fails if it already exists
+  repo="github.com/$new"
+fi
 label=$(label_of "$repo")
 if [ "$repo" = chezmoi ]; then
   dir="$HOME/.local/share/chezmoi"
