@@ -247,6 +247,20 @@ man() {
     command man "$@"
 }
 
+# List available Claude Code skills (project + user) with their descriptions.
+skills() {
+    emulate -L zsh
+    setopt null_glob
+    local s scope name desc col
+    for s in .claude/skills/*/SKILL.md ~/.claude/skills/*/SKILL.md; do
+        if [[ $s == $HOME/* ]]; then scope=user; col=cyan; else scope=project; col=99; fi
+        name=${${s:h}:t}
+        desc=$(sed -n 's/^description:[[:space:]]*//p' "$s" | head -1)
+        (( ${#desc} > 80 )) && desc="${desc[1,79]}…"
+        print -P "%F{$col}${(r:7:)scope}%f  %F{yellow}%B${(r:16:)name}%b%f  %F{244}${desc}%f"
+    done
+}
+
 
 ## git status
 git-path() {
@@ -369,6 +383,7 @@ abbr -q --session dbash="docker build -t tmp . && docker run -it --rm --entrypoi
 abbr -q --session c=claude 2>/dev/null
 abbr -q --session ccc="claude --dangerously-skip-permissions" 2>/dev/null
 abbr -q --session d="docker compose exec" 2>/dev/null
+abbr -q --session sk=skills 2>/dev/null
 abbr -q --session ide="tmux split-window -h \; resize-pane -t 0 -x 20% \; resize-pane -t 1 -x 80%" 2>/dev/null
 
 
