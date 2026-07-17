@@ -280,15 +280,21 @@ git-path() {
 }
 
 g() {
-    echo "root : $(git-path)"
+    print -P "%F{99}%Broot%b%f  : $(git-path)"
 
     if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-        echo "This is not a git repository."
         return 1
     fi
 
-    echo "name : $(git config user.name)"
-    echo "email: $(git config user.email)"
+    print -P "%F{green}%Bname%b%f  : $(git config user.name)"
+    print -P "%F{cyan}%Bemail%b%f : $(git config user.email)"
+}
+
+# Status overview: git identity (g) + available skills (skills).
+s() {
+    g
+    print
+    skills
 }
 
 # ssh
