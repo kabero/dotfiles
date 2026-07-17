@@ -261,6 +261,13 @@ skills() {
     done
 }
 
+# Open diffview.nvim; args pass straight to :DiffviewOpen (git revision syntax).
+#   vd                    working-tree changes
+#   vd master..develop    branch/commit range
+#   vd master...develop   merge-base (PR-style) diff
+#   vd HEAD~2 HEAD~1      two commits
+vd() { nvim -c "DiffviewOpen ${*}" }
+
 
 ## git status
 git-path() {
