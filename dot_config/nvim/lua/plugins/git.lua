@@ -67,7 +67,16 @@ return {
             { "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: current file history" },
             { "<leader>gH", "<cmd>DiffviewFileHistory<cr>",   desc = "Diffview: repo history" },
         },
-        opts = {
+        opts = function()
+            local actions = require("diffview.actions")
+            -- Scroll the diff windows (not the list panel) while the cursor
+            -- stays in the file/history panel. scroll_view targets the tallest
+            -- diff window: +1 = one line down (<c-e>), -1 = one line up (<c-y>).
+            local scroll_panel = {
+                { "n", "<c-e>", actions.scroll_view(1),  { desc = "Scroll diff down (stay in panel)" } },
+                { "n", "<c-y>", actions.scroll_view(-1), { desc = "Scroll diff up (stay in panel)" } },
+            }
+            return {
             enhanced_diff_hl = true,
             hooks = {
                 -- Delta-style side-aware colours: repaint the OLD (left) window
@@ -95,12 +104,15 @@ return {
                 -- windows themselves are left alone so `q` keeps recording macros.
                 file_panel = {
                     { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
+                    unpack(scroll_panel),
                 },
                 file_history_panel = {
                     { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
+                    unpack(scroll_panel),
                 },
             },
-        },
+            }
+        end,
     },
 
     {
