@@ -71,10 +71,13 @@ return {
             local actions = require("diffview.actions")
             -- Scroll the diff windows (not the list panel) while the cursor
             -- stays in the file/history panel. scroll_view targets the tallest
-            -- diff window: +1 = one line down (<c-e>), -1 = one line up (<c-y>).
+            -- diff window: an integer is a line count, a fraction is a share of
+            -- the window height. +down / -up, matching <c-e>/<c-y>/<c-d>/<c-u>.
             local scroll_panel = {
-                { "n", "<c-e>", actions.scroll_view(1),  { desc = "Scroll diff down (stay in panel)" } },
-                { "n", "<c-y>", actions.scroll_view(-1), { desc = "Scroll diff up (stay in panel)" } },
+                { "n", "<c-e>", actions.scroll_view(1),    { desc = "Scroll diff down 1 line (stay in panel)" } },
+                { "n", "<c-y>", actions.scroll_view(-1),   { desc = "Scroll diff up 1 line (stay in panel)" } },
+                { "n", "<c-d>", actions.scroll_view(0.5),  { desc = "Scroll diff down half page (stay in panel)" } },
+                { "n", "<c-u>", actions.scroll_view(-0.5), { desc = "Scroll diff up half page (stay in panel)" } },
             }
             return {
             enhanced_diff_hl = true,
