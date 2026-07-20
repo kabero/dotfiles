@@ -129,10 +129,10 @@ lua/
 |---|---|
 | `<leader>gs` | git status ピッカー |
 | `<leader>gl` | git log（行単位） |
-| `<leader>gg` | git grep |
+| `<leader>gv` | git grep |
 | `<leader>gd` | master/main 比較 diff（フラットなファイル一覧） |
 | `<leader>gc` | 現在ファイルの git log（fugitive） |
-| **`<leader>gv`** | **diffview: 作業ツリー diff をトグル** |
+| **`<leader>d`** | **diffview: 作業ツリー diff をトグル** |
 | **`<leader>gV`** | **diffview: ブランチ vs master（merge-base = PR レビュー）** |
 | **`<leader>gh`** | **diffview: 現在ファイルの履歴** |
 | **`<leader>gH`** | **diffview: リポジトリ履歴** |
