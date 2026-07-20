@@ -108,9 +108,21 @@ return {
                 { "n", "]c", diff_hunk_jump("]c"), { desc = "Next hunk in diff (stay in panel)" } },
                 { "n", "[c", diff_hunk_jump("[c"), { desc = "Prev hunk in diff (stay in panel)" } },
             }
+            -- <cr>/o/l used to just open the diff (focus stayed in the panel).
+            -- Now that j/k preview as you move, repurpose them to step INTO the
+            -- diff — focus_entry opens and focuses the main (local/right) window.
+            -- Folders still fold/unfold, same as the default select_entry.
+            local enter_diff = {
+                { "n", "<cr>", actions.focus_entry, { desc = "Open diff + focus the right window" } },
+                { "n", "o",    actions.focus_entry, { desc = "Open diff + focus the right window" } },
+                { "n", "l",    actions.focus_entry, { desc = "Open diff + focus the right window" } },
+            }
             -- One combined list: unpack() only expands fully as the LAST element
             -- of a table constructor, so merge here and unpack once per panel.
-            local panel_maps = vim.list_extend(vim.list_extend(vim.list_extend({}, scroll_panel), live_nav), hunk_nav)
+            local panel_maps = {}
+            for _, list in ipairs({ scroll_panel, live_nav, hunk_nav, enter_diff }) do
+                vim.list_extend(panel_maps, list)
+            end
             return {
             enhanced_diff_hl = true,
             hooks = {
