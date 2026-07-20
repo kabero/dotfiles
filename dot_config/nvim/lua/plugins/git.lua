@@ -87,9 +87,30 @@ return {
                 { "n", "j", actions.select_next_entry, { desc = "Next file + preview its diff" } },
                 { "n", "k", actions.select_prev_entry, { desc = "Prev file + preview its diff" } },
             }
+            -- ]c/[c jump between hunks of the shown diff while the cursor stays
+            -- in the panel. gitsigns' global ]c/[c only fire inside a diff
+            -- window (&diff); the panel buffer isn't one, so run the native diff
+            -- motion in the main (local/right) diff window instead. get_main_win
+            -- returns that window across all diff{1,2,3,4} layouts.
+            local function diff_hunk_jump(motion)
+                return function()
+                    local view = require("diffview.lib").get_current_view()
+                    if not (view and view.cur_layout) then return end
+                    local win = view.cur_layout:get_main_win()
+                    if win and win.id and vim.api.nvim_win_is_valid(win.id) then
+                        vim.api.nvim_win_call(win.id, function()
+                            pcall(vim.cmd, "normal! " .. motion .. "zz")
+                        end)
+                    end
+                end
+            end
+            local hunk_nav = {
+                { "n", "]c", diff_hunk_jump("]c"), { desc = "Next hunk in diff (stay in panel)" } },
+                { "n", "[c", diff_hunk_jump("[c"), { desc = "Prev hunk in diff (stay in panel)" } },
+            }
             -- One combined list: unpack() only expands fully as the LAST element
             -- of a table constructor, so merge here and unpack once per panel.
-            local panel_maps = vim.list_extend(vim.list_extend({}, scroll_panel), live_nav)
+            local panel_maps = vim.list_extend(vim.list_extend(vim.list_extend({}, scroll_panel), live_nav), hunk_nav)
             return {
             enhanced_diff_hl = true,
             hooks = {
