@@ -59,6 +59,13 @@ next_workspace = "prefix+down"
 # thing to "last workspace". Same key as tmux's last-pane.
 last_pane = "prefix+;"
 
+# Cycle focus between detected agent panes (claude etc.) across the whole
+# session — next_agent/previous_agent are unset in herdr by default. u/i sit
+# under the right hand: u = down the list (next), i = up (previous). Tab nav
+# stays on n/p.
+next_agent = "prefix+u"
+previous_agent = "prefix+i"
+
 # ghq repo launcher on bare C-g, same as the tmux session selector: jump to
 # an open workspace or create one from a ghq repo. Inside tmux, tmux's own
 # C-g binding wins — this applies when herdr runs directly in the terminal.
