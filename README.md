@@ -2,7 +2,7 @@
 
 Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/)
 
-**Included tools**: asdf, git, neovim, starship, tmux, wezterm, herdr, vim, zsh, chezmoi, obsidian, fzf
+**Included tools**: asdf, git, neovim, starship, wezterm, herdr, vim, zsh, chezmoi, obsidian, fzf
 
 ## Table of Contents
 
@@ -110,7 +110,6 @@ Custom completions are stored in `$HOME/.zsh/completions/`
 │   ├── starship.toml         # Starship prompt configuration
 │   └── ...
 ├── dot_zshrc.tmpl            # Zsh configuration (main)
-├── dot_tmux.conf             # tmux configuration
 ├── dot_asdfrc                # asdf configuration
 ├── dot_vimrc                 # Vim configuration (lightweight, plugin-free)
 ├── excludes/
@@ -180,10 +179,6 @@ You can configure project-specific LSP settings, formatters, and more using `.nv
 - `Ctrl+R`: command history search
 - `Ctrl+G`: ghq (repository navigation)
 - `Ctrl+T`: file selection in current directory
-
-#### tmux
-
-- `Ctrl-g`: session selector — fzf over ghq repos and running sessions; double-tap jumps to the last session
 
 ## 💡 Customization
 
