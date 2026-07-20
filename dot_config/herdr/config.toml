@@ -14,6 +14,10 @@ prompt_new_tab_name = false
 # counterpart of the tmux window-status Claude glyphs: see what runs where.
 show_agent_labels_on_pane_borders = true
 
+# Agent panel as a flat attention queue instead of grouped per workspace:
+# whatever needs input floats to the top, regardless of which space it lives in.
+agent_panel_sort = "priority"
+
 [ui.toast]
 # Route notifications to macOS itself (terminal-notifier, else osascript)
 # instead of in-UI toasts, so background-agent pings surface even when
