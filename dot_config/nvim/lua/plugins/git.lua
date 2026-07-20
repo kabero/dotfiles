@@ -79,6 +79,17 @@ return {
                 { "n", "<c-d>", actions.scroll_view(0.5),  { desc = "Scroll diff down half page (stay in panel)" } },
                 { "n", "<c-u>", actions.scroll_view(-0.5), { desc = "Scroll diff up half page (stay in panel)" } },
             }
+            -- j/k don't just move the cursor in the list: they open the file
+            -- under it, so the diff updates live as you walk the changed files
+            -- (focus stays in the panel — same as <tab>/<s-tab>). Plain cursor
+            -- moves without loading a diff are still on <down>/<up>.
+            local live_nav = {
+                { "n", "j", actions.select_next_entry, { desc = "Next file + preview its diff" } },
+                { "n", "k", actions.select_prev_entry, { desc = "Prev file + preview its diff" } },
+            }
+            -- One combined list: unpack() only expands fully as the LAST element
+            -- of a table constructor, so merge here and unpack once per panel.
+            local panel_maps = vim.list_extend(vim.list_extend({}, scroll_panel), live_nav)
             return {
             enhanced_diff_hl = true,
             hooks = {
@@ -107,11 +118,11 @@ return {
                 -- windows themselves are left alone so `q` keeps recording macros.
                 file_panel = {
                     { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
-                    unpack(scroll_panel),
+                    unpack(panel_maps),
                 },
                 file_history_panel = {
                     { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
-                    unpack(scroll_panel),
+                    unpack(panel_maps),
                 },
             },
             }
