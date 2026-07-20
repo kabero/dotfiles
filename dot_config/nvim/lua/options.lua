@@ -48,6 +48,10 @@ vim.opt.wrap = true
 vim.opt.cmdheight = 0
 vim.cmd([[set fillchars=eob:\ ]])
 
+-- Command-line: fuzzy-match :command completion (:dvo<Tab> → DiffviewOpen).
+-- append (not set) so the default "pum,tagfile" stays — keeps the popup menu.
+vim.opt.wildoptions:append("fuzzy")
+
 -- Edit
 vim.opt.expandtab = true
 vim.opt.shiftround = true
