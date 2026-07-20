@@ -67,7 +67,7 @@ local function setup_highlights()
         vim.api.nvim_set_hl(0, 'DiffText',   { bg = blend(diff_green, normal_bg, 0.55),  -- the exact change
             bold = true })
 
-        -- Diffview (<leader>d/gV/gh) can tell the OLD (left) window apart from
+        -- Diffview (<leader>d/D/gh) can tell the OLD (left) window apart from
         -- the new one — something native diff can't — so give the deletion side
         -- its own delta-style red family (bg-only: syntax fg stays readable;
         -- Diffview's stock DiffviewDiffAddAsDelete copies DiffDelete's red FG

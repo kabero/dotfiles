@@ -133,7 +133,7 @@ lua/
 | `<leader>gd` | master/main 比較 diff（フラットなファイル一覧） |
 | `<leader>gc` | 現在ファイルの git log（fugitive） |
 | **`<leader>d`** | **diffview: 作業ツリー diff をトグル** |
-| **`<leader>gV`** | **diffview: ブランチ vs master（merge-base = PR レビュー）** |
+| **`<leader>D`** | **diffview: ブランチ vs master（merge-base = PR レビュー）** |
 | **`<leader>gh`** | **diffview: 現在ファイルの履歴** |
 | **`<leader>gH`** | **diffview: リポジトリ履歴** |
 | diffview 内 `q` | リスト/履歴パネルからクローズ（差分窓では `q` はマクロ記録のまま温存） |

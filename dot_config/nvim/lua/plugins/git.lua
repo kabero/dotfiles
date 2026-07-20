@@ -50,7 +50,7 @@ return {
                 desc = "Diffview: working tree (toggle)",
             },
             {
-                "<leader>gV",
+                "<leader>D",
                 function()
                     if require("diffview.lib").get_current_view() then
                         vim.cmd("DiffviewClose")
