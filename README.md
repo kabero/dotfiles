@@ -2,7 +2,7 @@
 
 Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/)
 
-**Included tools**: asdf, git, neovim, starship, wezterm, herdr, vim, zsh, chezmoi, obsidian, fzf
+**Included tools**: asdf, git, neovim, starship, wezterm, herdr, vim, zsh, chezmoi, fzf
 
 ## Table of Contents
 
@@ -82,16 +82,17 @@ asdf install
 ### Zsh Features
 
 - **Shared history**: Command history is shared across all terminal sessions (`share_history`)
-- **PATH management**: Automatically adds `~/scripts/bin` and `~/.local/bin` to PATH
-- **Custom functions**:
-  - `ccommit`: AI-assisted commit message generation
-  - `v()`: Note management with fzf integration
-  - And more productivity-enhancing functions
+- **PATH management**: Prepends `~/scripts/bin`, `~/bin`, and `~/.local/bin` (among others) to PATH
+- **fzf-powered widgets**:
+  - `Ctrl+R` / `Ctrl+T` / `Ctrl+G`: history / file / ghq-repo pickers (see [Key Bindings](#-usage))
+  - `zz`: interactive `cd` via zoxide + fzf
+  - `ghq()` wrapper: invalidates the repo cache on clone/rm so new repos appear immediately
 
 ### Aliases
 
 ```sh
-alias vi='NVIM_APPNAME=nvim-light nvim'
+alias vim="nvim"
+alias view="nvim -R"
 ```
 
 ### Zsh Completions
@@ -112,9 +113,13 @@ Custom completions are stored in `$HOME/.zsh/completions/`
 ├── dot_zshrc.tmpl            # Zsh configuration (main)
 ├── dot_asdfrc                # asdf configuration
 ├── dot_vimrc                 # Vim configuration (lightweight, plugin-free)
-├── excludes/
+├── dot_local/bin/            # Executable scripts (git-wt, herdr-repo-selector, ...)
+├── dot_claude/               # Claude Code config (CLAUDE.md, agents, settings)
+├── excludes/                 # Kept in the repo, NOT applied to $HOME
 │   ├── Brewfile              # Homebrew package list
-│   └── setup.sh              # Additional setup scripts
+│   ├── Dockerfile            # Container build reference
+│   ├── scripts/              # Misc setup/helper scripts
+│   └── vimium_config.txt     # Vimium key configuration
 ├── examples/
 │   ├── .nvim.lua.template    # Project-specific Neovim config template
 │   └── README.md             # Detailed usage guide
