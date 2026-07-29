@@ -115,6 +115,7 @@ Custom completions are stored in `$HOME/.zsh/completions/`
 ├── dot_vimrc                 # Vim configuration (lightweight, plugin-free)
 ├── dot_local/bin/            # Executable scripts (git-wt, herdr-repo-selector, ...)
 ├── dot_claude/               # Claude Code config (CLAUDE.md, agents, settings)
+├── run_onchange_after_10-claude-mcp.sh  # Registers standard MCP servers (playwright)
 ├── excludes/                 # Kept in the repo, NOT applied to $HOME
 │   ├── Brewfile              # Homebrew package list
 │   ├── Dockerfile            # Container build reference
