@@ -49,22 +49,22 @@ split_vertical = "prefix+%"
 # fzf+ghq launcher below instead (tmux muscle memory).
 goto = "prefix+g"
 
-# Cycle workspaces with prefix+arrow (unset in herdr by default), matching
-# the sidebar's vertical workspace list. Note in tmux prefix+up/down means
-# select-pane — here it moves whole workspaces.
-previous_workspace = "prefix+up"
-next_workspace = "prefix+down"
+# Cycle workspaces with prefix+u/i (unset in herdr by default): both sit
+# under the right hand, u = down the sidebar list (next), i = up (previous).
+# Tab nav stays on n/p.
+next_workspace = "prefix+u"
+previous_workspace = "prefix+i"
 
 # Jump back to the last focused pane, across workspaces — herdr's closest
 # thing to "last workspace". Same key as tmux's last-pane.
 last_pane = "prefix+;"
 
 # Cycle focus between detected agent panes (claude etc.) across the whole
-# session — next_agent/previous_agent are unset in herdr by default. u/i sit
-# under the right hand: u = down the list (next), i = up (previous). Tab nav
-# stays on n/p.
-next_agent = "prefix+u"
-previous_agent = "prefix+i"
+# session — next_agent/previous_agent are unset in herdr by default. The
+# arrows match the agent panel's vertical attention queue: down = next,
+# up = previous. Note in tmux prefix+up/down means select-pane.
+next_agent = "prefix+down"
+previous_agent = "prefix+up"
 
 # ghq repo launcher on bare C-g, same as the tmux session selector: jump to
 # an open workspace or create one from a ghq repo. Inside tmux, tmux's own
@@ -75,6 +75,10 @@ type = "pane"
 command = "~/.local/bin/herdr-repo-selector"
 
 [experimental]
+# Pass the kitty graphics protocol through to panes, so image output
+# (wezterm imgcat, nvim image previews, etc.) renders inside herdr.
+kitty_graphics = true
+
 # While prefix mode is active, flip the macOS input source to an ASCII
 # layout and restore it after, so C-q commands register even with the
 # Japanese IME on. macOS-only, best-effort.
