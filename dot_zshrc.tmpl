@@ -427,3 +427,12 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# device-local config
+# ~/.zshrc.d/*.zsh を名前順に読む。chezmoi 管理外なので、このマシン限りの設定や秘密を
+# 置く場所。最後に読むので上の設定を上書きでき、編集すれば次のシェルで即反映（apply 不要）。
+# 命名は 00-99 のプレフィックスで順序を制御（例: 10-work.zsh, 99-local.zsh）。
+for _zshrc_d in ~/.zshrc.d/*.zsh(N-.on); do
+    source "$_zshrc_d"
+done
+unset _zshrc_d

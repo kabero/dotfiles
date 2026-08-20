@@ -111,6 +111,7 @@ Custom completions are stored in `$HOME/.zsh/completions/`
 │   ├── starship.toml         # Starship prompt configuration
 │   └── ...
 ├── dot_zshrc.tmpl            # Zsh configuration (main)
+├── dot_zshrc.d/              # Creates an empty ~/.zshrc.d on every machine (drop-ins live there, unmanaged)
 ├── dot_asdfrc                # asdf configuration
 ├── dot_vimrc                 # Vim configuration (lightweight, plugin-free)
 ├── dot_local/bin/            # Executable scripts (git-wt, herdr-repo-selector, ...)
@@ -203,6 +204,33 @@ nvim dot_zshrc.tmpl
 # After editing, apply changes
 chezmoi apply
 ```
+
+### Device-Specific Configuration
+
+Anything that differs per machine goes outside the managed files:
+
+| Location | Managed by chezmoi | Use for |
+| --- | --- | --- |
+| `~/.zshrc.d/*.zsh` | No | Settings for this machine only, secrets |
+| `~/.zshenv` | No | `PATH`/env vars needed before `~/.zshrc` (e.g. before `compinit`) |
+
+`~/.zshrc` sources `~/.zshrc.d/*.zsh` last, in name order, so drop-ins can override anything above
+them. Prefix files with a number to control the order (`10-work.zsh`, `99-local.zsh`). Editing a
+drop-in takes effect in the next shell — no `chezmoi apply`, nothing to commit.
+
+`chezmoi apply` creates the empty `~/.zshrc.d` for you; only its contents are unmanaged, and apply
+never touches the files you put there.
+
+```sh
+cat >> ~/.zshrc.d/99-local.zsh <<'EOS'
+export PATH="$HOME/work/bin:$PATH"
+alias k=kubectl
+EOS
+exec zsh
+```
+
+Differences that are common to a whole OS or architecture belong in `dot_zshrc.tmpl` instead, as
+template conditionals — see [OS-Specific Configuration](#os-specific-configuration).
 
 ### Template Variables
 
