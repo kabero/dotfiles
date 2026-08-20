@@ -1,0 +1,719 @@
+#!/usr/bin/env python3
+"""git review - hunk 単位に claude がグルーピングした diff を delta で読む。
+
+    git review                  # HEAD と作業ツリーの差分
+    git review --cached         # staged
+    git review HEAD~3
+    git review master...HEAD    # PR 相当
+
+git diff に渡せる引数はそのまま渡せる。結果は差分内容をキーに
+.git/claude-review/ にキャッシュされるので、同じ差分の再表示は即時。
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import itertools
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import threading
+import time
+import unicodedata
+
+# キャッシュのキーに混ぜる。プロンプトや JSON 形状を変えたら上げる。
+PROMPT_VERSION = "1"
+# hunk を持たない変更(binary / mode / rename のみ)に付ける擬似ヘッダ。
+NO_CONTENT = "(内容差分なし)"
+CACHE_DIRNAME = "claude-review"
+CACHE_KEEP = 50
+DEFAULT_MODEL = os.environ.get("GIT_REVIEW_MODEL", "sonnet")
+
+# 1 hunk あたりに claude へ渡す最大行数。payload が大きいときは段階的に下げる。
+HUNK_LINE_CAPS = (400, 150, 60)
+PAYLOAD_LIMIT = 500_000
+
+# 比較元を自分で指定するオプション。これらが無ければ既定で HEAD と比較する。
+SOURCE_FLAGS = {"--cached", "--staged", "--no-index"}
+
+# git diff の出力形式を壊す(= hunk に分解できない)オプション。
+INCOMPATIBLE = {
+    "--stat", "--numstat", "--shortstat", "--dirstat", "--summary",
+    "--compact-summary", "--name-only", "--name-status", "--raw",
+    "--quiet", "-s", "--no-patch",
+}
+
+
+# --------------------------------------------------------------------------- 幅計算
+
+_TOKEN = re.compile(r"[0-9A-Za-z_@#$%^&*()\-+=/\\.,:;'\"`~\[\]{}<>!?|]+|\s+|.", re.S)
+
+
+def char_width(ch: str) -> int:
+    return 2 if unicodedata.east_asian_width(ch) in ("W", "F") else 1
+
+
+def disp_width(text: str) -> int:
+    return sum(char_width(ch) for ch in text)
+
+
+# 行頭に来てほしくない文字(簡易禁則)。ぶら下げて 1〜2 桁はみ出させる。
+NO_LINE_START = "、。，．)）」』】〉》〕｝!?！？：；・…ー"
+
+
+def wrap_display(text: str, width: int) -> list[str]:
+    """全角を2桁として折り返す。日本語は文字単位、英単語は単語単位で切る。"""
+    width = max(20, width)
+    lines: list[str] = []
+    current, current_w = "", 0
+    for token in _TOKEN.findall(text):
+        if token.isspace():
+            if not current:
+                continue
+            token = " "
+        token_w = disp_width(token)
+        if token_w > width:
+            # URL やパスなど、単体で幅を超えるトークン。行からはみ出させず割る。
+            if current:
+                lines.append(current.rstrip())
+                current, current_w = "", 0
+            for piece in _split_wide(token, width):
+                if disp_width(piece) == width:
+                    lines.append(piece)
+                else:
+                    current, current_w = piece, disp_width(piece)
+            continue
+        if current and current_w + token_w > width and token not in NO_LINE_START:
+            lines.append(current.rstrip())
+            current, current_w = "", 0
+            if token == " ":
+                continue
+        current += token
+        current_w += token_w
+    if current.strip():
+        lines.append(current.rstrip())
+    return lines or [""]
+
+
+def _split_wide(token: str, width: int) -> list[str]:
+    pieces, current, current_w = [], "", 0
+    for ch in token:
+        ch_w = char_width(ch)
+        if current_w + ch_w > width:
+            pieces.append(current)
+            current, current_w = "", 0
+        current += ch
+        current_w += ch_w
+    if current:
+        pieces.append(current)
+    return pieces
+
+
+def pad(text: str, width: int) -> str:
+    return text + " " * max(0, width - disp_width(text))
+
+
+# --------------------------------------------------------------------------- 表示
+
+def _color(enabled: bool):
+    def paint(text: str, *codes: str) -> str:
+        if not enabled or not codes:
+            return text
+        return "\033[" + ";".join(codes) + "m" + text + "\033[0m"
+    return paint
+
+
+BOLD, DIM, RED, YELLOW, CYAN = "1", "2", "31", "33", "36"
+
+ATTENTION = {
+    "high": ("要注意", RED),
+    "normal": ("", ""),
+    "low": ("定型", DIM),
+}
+
+
+def die(msg: str, code: int = 1) -> "None":
+    print(f"git review: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+class Spinner:
+    """claude の応答待ちを stderr に出す。tty でなければ何もしない。"""
+
+    FRAMES = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+
+    def __init__(self, label: str):
+        self.label = label
+        self.enabled = sys.stderr.isatty()
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    def __enter__(self):
+        if self.enabled:
+            self._thread = threading.Thread(target=self._spin, daemon=True)
+            self._thread.start()
+        return self
+
+    def _spin(self):
+        started = time.time()
+        for frame in itertools.cycle(self.FRAMES):
+            if self._stop.wait(0.1):
+                return
+            elapsed = time.time() - started
+            sys.stderr.write(f"\r\033[2K{frame} {self.label} {elapsed:.0f}s")
+            sys.stderr.flush()
+
+    def __exit__(self, *exc):
+        self._stop.set()
+        if self._thread:
+            self._thread.join(timeout=0.5)
+            sys.stderr.write("\r\033[2K")
+            sys.stderr.flush()
+        return False
+
+
+# --------------------------------------------------------------------------- git
+
+def git(*args: str) -> str:
+    # errors="replace": Shift_JIS などの差分が混ざっても落とさない(表示は化けるが読める)。
+    proc = subprocess.run(["git", *args], capture_output=True, text=True, errors="replace")
+    if proc.returncode != 0:
+        die(proc.stderr.strip() or f"git {' '.join(args)} が失敗した")
+    return proc.stdout
+
+
+def cache_dir() -> str:
+    common = git("rev-parse", "--git-common-dir").strip()
+    if not os.path.isabs(common):
+        common = os.path.join(os.getcwd(), common)
+    return os.path.join(os.path.realpath(common), CACHE_DIRNAME)
+
+
+def has_head() -> bool:
+    return subprocess.run(
+        ["git", "rev-parse", "--verify", "-q", "HEAD"], capture_output=True
+    ).returncode == 0
+
+
+def collect_diff(diff_args: list[str]) -> str:
+    return git("diff", "--no-color", "--no-ext-diff", "--find-renames", "-U3", *diff_args)
+
+
+# --------------------------------------------------------------------------- hunk 分解
+
+class Hunk:
+    __slots__ = ("id", "path", "header", "body", "file_headers", "added", "removed")
+
+    def __init__(self, hid: str, path: str, header: str, body: list[str], file_headers: list[str]):
+        self.id = hid
+        self.path = path
+        self.header = header
+        self.body = body
+        self.file_headers = file_headers
+        self.added = sum(1 for line in body if line.startswith("+"))
+        self.removed = sum(1 for line in body if line.startswith("-"))
+
+
+def _path_of(file_headers: list[str]) -> str:
+    plus = minus = None
+    for line in file_headers:
+        if line.startswith("+++ ") and not line.startswith("+++ /dev/null"):
+            plus = line[4:]
+        elif line.startswith("--- ") and not line.startswith("--- /dev/null"):
+            minus = line[4:]
+    for candidate in (plus, minus):
+        if candidate:
+            return re.sub(r'^"?[ab]/', "", candidate).rstrip('"')
+    m = re.match(r'^diff --git "?a/(.+?)"? "?b/', file_headers[0]) if file_headers else None
+    return m.group(1) if m else "(unknown)"
+
+
+def split_hunks(diff: str) -> list[Hunk]:
+    """unified diff を hunk 単位に割る。hunk を持たない変更(binary/mode)も 1 件として扱う。"""
+    hunks: list[Hunk] = []
+    counter = itertools.count(1)
+    lines = diff.split("\n")
+    i, total = 0, len(lines)
+
+    while i < total:
+        if not lines[i].startswith("diff --git "):
+            i += 1
+            continue
+
+        file_headers = [lines[i]]
+        i += 1
+        while i < total and not lines[i].startswith(("@@", "diff --git ")):
+            file_headers.append(lines[i])
+            i += 1
+        path = _path_of(file_headers)
+
+        had_hunk = False
+        while i < total and lines[i].startswith("@@"):
+            had_hunk = True
+            header = lines[i]
+            i += 1
+            body: list[str] = []
+            while i < total and not lines[i].startswith(("@@", "diff --git ")):
+                body.append(lines[i])
+                i += 1
+            hunks.append(Hunk(f"h{next(counter)}", path, header, body, file_headers))
+
+        if not had_hunk:
+            # binary / mode 変更 / rename のみ。中身はないがグルーピング対象には入れる。
+            note = [ln for ln in file_headers[1:] if ln and not ln.startswith("index ")]
+            hunks.append(Hunk(f"h{next(counter)}", path, NO_CONTENT, note, file_headers))
+
+    return hunks
+
+
+def rebuild_diff(hunks: list[Hunk]) -> str:
+    """選ばれた hunk だけからなる unified diff を組み立て直す(delta に食わせる用)。"""
+    out: list[str] = []
+    current: list[str] | None = None
+    for hunk in hunks:
+        if hunk.file_headers is not current:
+            out.extend(hunk.file_headers)
+            current = hunk.file_headers
+        if hunk.header != NO_CONTENT:
+            # 擬似 hunk の body は file_headers と同じ行なので、二重に出さない。
+            out.append(hunk.header)
+            out.extend(hunk.body)
+    return "\n".join(out) + "\n"
+
+
+# --------------------------------------------------------------------------- claude
+
+INSTRUCTIONS = """\
+あなたはコードレビューの下準備をする。入力は git diff を hunk 単位に分解したものです。
+これをレビューしやすい単位にグルーピングし、次の JSON **だけ** を出力してください。
+前後の説明文、コードフェンス、コメントは一切書かないこと。
+
+{
+  "summary": "この差分全体で何が起きたのかを2〜3文",
+  "groups": [
+    {
+      "title": "短いラベル(20文字程度)",
+      "description": "このグループが何をしているか、なぜまとめたか(1〜3文)",
+      "review_points": ["レビュー時に確認すべき具体的な観点", "..."],
+      "attention": "high" | "normal" | "low",
+      "hunks": ["h1", "h4"]
+    }
+  ]
+}
+
+ルール:
+- 「変更の意図」でまとめる。ディレクトリ名やファイル種別で機械的に切らない。
+- すべての hunk がどこかのグループに最低1回は現れること。
+- 1つの hunk を複数のグループに入れてよい。別の観点で二度見る価値があるときだけそうすること。
+- グループの並びは「本質的な変更 → その追従 → 定型作業(テスト/生成物/整形)」。
+- attention は、バグ混入・後方互換の破壊・セキュリティ・データ移行が絡むなら "high"、
+  機械的な追従や整形なら "low"、それ以外は "normal"。
+- review_points は「テストを書く」のような一般論ではなく、この差分を読んで初めて言える
+  具体的な確認事項にすること。差分を見ながら確認できる粒度で、1グループ1〜4個。
+- 出力の日本語は簡潔に。冗長な前置きを書かない。
+"""
+
+
+def build_payload(hunks: list[Hunk], cap: int) -> tuple[str, int]:
+    """claude に渡す hunk 一覧を作る。返り値は (本文, 切り詰めた hunk 数)。"""
+    chunks, truncated = ["## hunks", ""], 0
+    for hunk in hunks:
+        chunks.append(f"[{hunk.id}] {hunk.path}")
+        chunks.append(hunk.header)
+        body = hunk.body
+        if len(body) > cap:
+            truncated += 1
+            body = body[:cap] + [f"... ({len(body) - cap} 行省略)"]
+        chunks.extend(body)
+        chunks.append("")
+    return "\n".join(chunks), truncated
+
+
+def ask_claude(hunks: list[Hunk], model: str) -> tuple[dict, list[str]]:
+    notes: list[str] = []
+    for cap in HUNK_LINE_CAPS:
+        payload, truncated = build_payload(hunks, cap)
+        if len(payload) <= PAYLOAD_LIMIT:
+            break
+    else:
+        payload = payload[:PAYLOAD_LIMIT] + "\n... (以降省略)\n"
+        notes.append("差分が大きすぎるため、末尾を切り詰めて解析した (グルーピングは不完全)")
+    if truncated:
+        # 表示は常に全行。claude が読んだ範囲だけが狭いので、それを明示する。
+        notes.append(f"長い hunk {truncated} 件は先頭 {cap} 行だけを claude に渡した")
+
+    cmd = [
+        "claude", "-p", INSTRUCTIONS,
+        "--output-format", "json",
+        "--model", model,
+        "--allowed-tools", "",
+        "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}',
+    ]
+    label = f"claude ({model}) が {len(hunks)} hunks をグルーピング中"
+    with Spinner(label):
+        proc = subprocess.run(cmd, input=payload, capture_output=True, text=True,
+                              errors="replace")
+    if proc.returncode != 0:
+        die("claude の呼び出しに失敗した:\n" + (proc.stderr.strip() or proc.stdout.strip()))
+
+    try:
+        envelope = json.loads(proc.stdout)
+        text = envelope["result"] if isinstance(envelope, dict) else proc.stdout
+    except (json.JSONDecodeError, KeyError):
+        text = proc.stdout
+
+    analysis = extract_json(text)
+    if analysis is None:
+        die("claude の応答から JSON を取り出せなかった:\n" + text[:2000])
+    return analysis, notes
+
+
+def extract_json(text: str) -> dict | None:
+    """応答テキストから最初に現れる JSON オブジェクトを取り出す。
+
+    コードフェンスや前置きが付いていても、文字列リテラルを意識して括弧を数えるので
+    そのまま拾える。本文に ``` や { が混ざっていても壊れない。
+    """
+    text = text.strip()
+    start = text.find("{")
+    while start >= 0:
+        end = _matching_brace(text, start)
+        if end > 0:
+            try:
+                parsed = json.loads(text[start:end + 1])
+            except json.JSONDecodeError:
+                parsed = None
+            if isinstance(parsed, dict):
+                return parsed
+        start = text.find("{", start + 1)
+    return None
+
+
+def _matching_brace(text: str, start: int) -> int:
+    """text[start] の { に対応する } の位置。閉じきらなければ -1。"""
+    depth, in_str, escaped = 0, False, False
+    for idx in range(start, len(text)):
+        ch = text[idx]
+        if in_str:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == '"':
+                in_str = False
+            continue
+        if ch == '"':
+            in_str = True
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return idx
+    return -1
+
+
+def normalize(analysis: dict, hunks: list[Hunk], notes: list[str]) -> dict:
+    """claude の出力を検証する。存在しない id は捨て、どこにも入らなかった hunk は拾う。"""
+    by_id = {hunk.id: hunk for hunk in hunks}
+    groups, seen = [], set()
+
+    raw_groups = analysis.get("groups")
+    for raw in raw_groups if isinstance(raw_groups, list) else []:
+        if not isinstance(raw, dict):
+            continue
+        raw_ids = raw.get("hunks")
+        ids = [hid for hid in raw_ids if hid in by_id] if isinstance(raw_ids, list) else []
+        if not ids:
+            continue
+        seen.update(ids)
+        points = raw.get("review_points")
+        points = points if isinstance(points, list) else []
+        groups.append({
+            "title": str(raw.get("title") or "(無題)").strip(),
+            "description": str(raw.get("description") or "").strip(),
+            "review_points": [str(p).strip() for p in points if str(p).strip()],
+            "attention": raw.get("attention") if raw.get("attention") in ATTENTION else "normal",
+            "hunks": ids,
+        })
+
+    leftover = [hunk.id for hunk in hunks if hunk.id not in seen]
+    if leftover:
+        groups.append({
+            "title": "未分類",
+            "description": "claude がどのグループにも入れなかった hunk。",
+            "review_points": [],
+            "attention": "normal",
+            "hunks": leftover,
+        })
+
+    return {
+        "summary": str(analysis.get("summary") or "").strip(),
+        "groups": groups,
+        "notes": notes,
+    }
+
+
+# --------------------------------------------------------------------------- キャッシュ
+
+def cache_load(path: str) -> dict | None:
+    try:
+        with open(path) as fh:
+            return json.load(fh)["analysis"]
+    except (OSError, ValueError, KeyError):
+        return None
+
+
+def cache_store(path: str, analysis: dict, meta: dict) -> None:
+    directory = os.path.dirname(path)
+    os.makedirs(directory, exist_ok=True)
+    tmp = f"{path}.{os.getpid()}.tmp"
+    with open(tmp, "w") as fh:
+        json.dump({"analysis": analysis, **meta}, fh, ensure_ascii=False, indent=1)
+    os.replace(tmp, path)
+
+    entries = sorted(
+        (os.path.join(directory, name) for name in os.listdir(directory) if name.endswith(".json")),
+        key=os.path.getmtime,
+        reverse=True,
+    )
+    for stale in entries[CACHE_KEEP:]:
+        try:
+            os.remove(stale)
+        except OSError:
+            pass
+
+
+# --------------------------------------------------------------------------- レンダリング
+
+def delta_render(diff_text: str, width: int) -> str:
+    proc = subprocess.run(
+        ["delta", "--paging=never", f"--width={width}"],
+        input=diff_text, capture_output=True, text=True, errors="replace",
+    )
+    if proc.returncode != 0:
+        return diff_text
+    return proc.stdout
+
+
+def plural(count: int, word: str) -> str:
+    return f"{count} {word}" + ("s" if count != 1 else "")
+
+
+def untracked_count() -> int:
+    proc = subprocess.run(["git", "ls-files", "--others", "--exclude-standard"],
+                          capture_output=True, text=True, errors="replace")
+    return len([ln for ln in proc.stdout.splitlines() if ln.strip()])
+
+
+def group_stats(hunks: list[Hunk]) -> tuple[int, int, int]:
+    files = {hunk.path for hunk in hunks}
+    return len(files), sum(h.added for h in hunks), sum(h.removed for h in hunks)
+
+
+def render(analysis: dict, hunks: list[Hunk], label: str, cached: bool,
+           model: str, notes: list[str], width: int, paint) -> str:
+    by_id = {hunk.id: hunk for hunk in hunks}
+    order = {hunk.id: pos for pos, hunk in enumerate(hunks)}
+    groups = analysis["groups"]
+    total_files, total_add, total_del = group_stats(hunks)
+    out: list[str] = []
+
+    def members_of(group: dict) -> list[Hunk]:
+        return sorted((by_id[hid] for hid in group["hunks"]), key=lambda h: order[h.id])
+
+    # ---- サマリ。先頭行も ▌ で始めるので less の初期ジャンプはここに留まる。
+    out.append(paint(f"▌ git review  {label}", BOLD, CYAN))
+    out.append(paint(
+        f"│ {plural(len(groups), 'group')} · {plural(total_files, 'file')} · "
+        f"{plural(len(hunks), 'hunk')} · +{total_add} -{total_del} · "
+        + ("cached" if cached else f"claude:{model}"), DIM))
+    for note in list(analysis.get("notes") or []) + notes:
+        out.append(paint(f"│ {note}", DIM))
+    out.append(paint("│", DIM))
+
+    title_w = min(46, max((disp_width(g["title"]) for g in groups), default=0))
+    for num, group in enumerate(groups, 1):
+        files, added, removed = group_stats(members_of(group))
+        mark, mark_color = ATTENTION.get(group.get("attention"), ATTENTION["normal"])
+        stat = f"{plural(files, 'file')} · +{added} -{removed}"
+        row = (paint("│ ", DIM) + paint(f"{num}.", BOLD) + " " + pad(group["title"], title_w)
+               + "  " + paint(pad(stat, 20) if mark else stat, DIM))
+        out.append(row + (paint(mark, BOLD, mark_color) if mark else ""))
+
+    if analysis["summary"]:
+        out.append(paint("│", DIM))
+        for line in wrap_display(analysis["summary"], width - 4):
+            out.append(paint(f"│ {line}", DIM))
+
+    out.append("")
+    out.append(paint("  less: n / N でグループ間を移動 · / で検索 · q で終了", DIM))
+    out.append("")
+
+    # ---- グループごとの見出し + 該当 hunk だけを組み直した diff
+    for num, group in enumerate(groups, 1):
+        members = members_of(group)
+        files, added, removed = group_stats(members)
+        mark, mark_color = ATTENTION.get(group.get("attention"), ATTENTION["normal"])
+
+        heading = f"▌ {num}/{len(groups)}  {group['title']}"
+        if mark:
+            heading += "  " + paint(f"[{mark}]", BOLD, mark_color)
+        out.append(paint(heading, BOLD, CYAN))
+        out.append(paint(
+            f"  {plural(files, 'file')} · {plural(len(members), 'hunk')} · +{added} -{removed}",
+            DIM))
+
+        if group["description"]:
+            out.append("")
+            out.extend(f"  {line}" for line in wrap_display(group["description"], width - 4))
+
+        if group["review_points"]:
+            out.append("")
+            out.append(paint("  観点:", BOLD, YELLOW))
+            for point in group["review_points"]:
+                wrapped = wrap_display(point, width - 8)
+                out.append(f"    {paint('-', YELLOW)} {wrapped[0]}")
+                out.extend(f"      {line}" for line in wrapped[1:])
+
+        out.append("")
+        out.append(delta_render(rebuild_diff(members), width).rstrip("\n"))
+        out.append("")
+
+    return "\n".join(out) + "\n"
+
+
+def page(text: str) -> None:
+    if not sys.stdout.isatty():
+        sys.stdout.write(text)
+        return
+
+    pager = os.environ.get("GIT_REVIEW_PAGER")
+    if pager:
+        cmd = ["sh", "-c", pager]
+    elif shutil.which("less"):
+        # --pattern はグループ見出し(▌)を less の検索語にする。n/N でグループ間を飛べる。
+        cmd = ["less", "-R", "--quit-if-one-screen", "--no-init", "--pattern=^▌"]
+    else:
+        sys.stdout.write(text)
+        return
+
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, text=True)
+    try:
+        proc.communicate(text)
+    except (BrokenPipeError, KeyboardInterrupt):
+        # less を q で閉じた / Ctrl-C。書き込み先が消えただけなので握って終わる。
+        pass
+    finally:
+        try:
+            proc.wait()
+        except KeyboardInterrupt:
+            pass
+
+
+# --------------------------------------------------------------------------- main
+
+def parse_args(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
+    pathspec: list[str] = []
+    if "--" in argv:
+        idx = argv.index("--")
+        argv, pathspec = argv[:idx], argv[idx:]
+
+    parser = argparse.ArgumentParser(
+        prog="git review",
+        description="claude が hunk 単位でグルーピングした diff を delta で読む。",
+        epilog="残りの引数は git diff にそのまま渡る (例: git review master...HEAD -- src/)",
+    )
+    parser.add_argument("--refresh", action="store_true", help="キャッシュを無視して claude に再依頼する")
+    parser.add_argument("--no-cache", action="store_true", help="キャッシュを読みも書きもしない")
+    parser.add_argument("--json", action="store_true", help="グルーピング結果の JSON だけ出力する")
+    parser.add_argument("--no-pager", action="store_true", help="pager を使わず標準出力に流す")
+    parser.add_argument("--model", default=DEFAULT_MODEL, help=f"claude のモデル (既定: {DEFAULT_MODEL})")
+    known, extra = parser.parse_known_args(argv)
+    return known, extra + pathspec
+
+
+def main() -> int:
+    for tool in ("git", "delta", "claude"):
+        if not shutil.which(tool):
+            die(f"{tool} が見つからない。git review には git / delta / claude が必要。")
+
+    if subprocess.run(["git", "rev-parse", "--is-inside-work-tree"],
+                      capture_output=True).returncode != 0:
+        die("git リポジトリの中で実行すること")
+
+    opts, diff_args = parse_args(sys.argv[1:])
+
+    bad = sorted(set(diff_args) & INCOMPATIBLE)
+    if bad:
+        die(f"{', '.join(bad)} は patch 形式を壊すので使えない (hunk に分解できない)")
+
+    revs = [arg for arg in diff_args if arg != "--" and not arg.startswith("-")]
+    if not revs and not (set(diff_args) & SOURCE_FLAGS) and has_head():
+        # 既定は HEAD 比較。staged + unstaged がまとめて見える。
+        diff_args = ["HEAD", *diff_args]
+
+    diff = collect_diff(diff_args)
+    if not diff.strip():
+        print("git review: 差分なし", file=sys.stderr)
+        return 0
+
+    hunks = split_hunks(diff)
+    if not hunks:
+        print("git review: hunk を取り出せなかった", file=sys.stderr)
+        return 0
+
+    key = hashlib.sha256(
+        "\0".join([PROMPT_VERSION, opts.model, diff]).encode()
+    ).hexdigest()[:32]
+    path = os.path.join(cache_dir(), key + ".json")
+
+    analysis, cached = None, False
+    if not opts.refresh and not opts.no_cache:
+        analysis = cache_load(path)
+        cached = analysis is not None
+
+    if analysis is None:
+        raw, claude_notes = ask_claude(hunks, opts.model)
+        analysis = normalize(raw, hunks, claude_notes)
+        if not opts.no_cache:
+            cache_store(path, analysis, {
+                "version": PROMPT_VERSION,
+                "model": opts.model,
+                "args": diff_args,
+                "created": int(time.time()),
+            })
+
+    if opts.json:
+        json.dump(analysis, sys.stdout, ensure_ascii=False, indent=2)
+        sys.stdout.write("\n")
+        return 0
+
+    label = " ".join(diff_args) if diff_args else "working tree"
+    width = shutil.get_terminal_size(fallback=(120, 40)).columns
+    paint = _color(os.environ.get("NO_COLOR") is None)
+
+    notes = []
+    if not set(diff_args) & SOURCE_FLAGS:
+        stray = untracked_count()
+        if stray:
+            notes.append(f"未追跡ファイル {stray} 件は差分に含まれない (git add すると対象になる)")
+
+    text = render(analysis, hunks, label, cached, opts.model, notes, width, paint)
+
+    if opts.no_pager:
+        sys.stdout.write(text)
+    else:
+        page(text)
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(130)

@@ -2,7 +2,7 @@
 
 Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/)
 
-**Included tools**: asdf, git, neovim, starship, wezterm, herdr, vim, zsh, chezmoi, fzf
+**Included tools**: asdf, git, neovim, starship, wezterm, herdr, vim, zsh, chezmoi, fzf, delta
 
 ## Table of Contents
 
@@ -151,6 +151,43 @@ chezmoi status
 # Navigate to chezmoi source directory
 chezmoi cd
 ```
+
+### Reviewing a diff (`git review`)
+
+`git review` groups a diff into review-sized chunks with Claude and pages the result through delta.
+It takes the same arguments as `git diff`:
+
+```sh
+git review                  # HEAD vs working tree (staged + unstaged)
+git review --cached         # staged only
+git review HEAD~3
+git review master...HEAD    # PR-style diff
+git review HEAD~3 -- src/   # limited to a pathspec
+git rv HEAD~3               # alias
+```
+
+The diff is split into hunks, Claude assigns each hunk to one or more groups and writes a title,
+an explanation, and concrete review points per group, and each group is re-assembled into its own
+diff for delta. A file can appear in several groups, and so can a single hunk — one change often
+deserves a second look from another angle.
+
+Inside the pager, `n` / `N` jump between groups (`less` is started with the group heading as its
+search pattern), `/` searches, `q` quits.
+
+| Flag | Effect |
+| --- | --- |
+| `--refresh` | Ignore the cache and ask Claude again |
+| `--no-cache` | Neither read nor write the cache |
+| `--json` | Print the grouping as JSON instead of paging it |
+| `--no-pager` | Write to stdout instead of a pager |
+| `--model` | Model to use (default `sonnet`, or `$GIT_REVIEW_MODEL`) |
+
+Results are cached in `.git/claude-review/`, keyed by the diff itself, so re-opening the same diff
+is instant and any change to the diff re-runs the analysis. The 50 newest entries are kept. The
+cache lives inside `.git`, so it is never committed and disappears with the clone.
+
+Requires `delta` and the `claude` CLI on `PATH`. Untracked files are not part of a diff — `git add`
+them first if they should be reviewed.
 
 ### Neovim
 

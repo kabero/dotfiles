@@ -38,6 +38,7 @@ root = {{ env "GHQ_ROOT" | default "~/ghq" }}
     ss = status
     br = !git branch --sort=-committerdate | head -n 5
     wt = !git-wt
+    rv = !git-review
 
 [filter "lfs"]
     clean = git-lfs clean -- %f
