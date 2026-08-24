@@ -100,3 +100,28 @@ vim.api.nvim_create_autocmd("LspAttach", {
 -- vim.api.nvim_create_user_command('Test', function()
 --     vim.cmd('!make test')
 -- end, {})
+
+-- ============================================================================
+-- sensei.nvim
+-- ============================================================================
+-- グローバル側(plugins/tools.lua)は language=Japanese と build 無効だけを既定に
+-- している。subject と toolchain はプロジェクト固有なのでここで指定する。
+-- この require が lazy のロード契機も兼ねる（サイドカーは未ロードの nvim には
+-- 繋がらない）ので、sensei を使うプロジェクトでは必ず書くこと。
+--
+-- require("sensei").setup({
+--     prompt = {
+--         subject = "writing a TCP/IP stack from scratch in Rust",
+--         -- extra = "呼び出し規約に照らして全 opcode を正当化させて",
+--     },
+--     tools = {
+--         build = {
+--             enabled = true,
+--             cmd = "cargo",   -- "go" / "make" / "npm" / "zig" ...
+--             allowed_subcommands = { "check", "test", "build", "clippy" },
+--         },
+--     },
+-- })
+--
+-- 初回だけ :SenseiInstall（.mcp.json / CLAUDE.md / .claude/ を書く）、あとは
+-- :terminal claude をフラグ無しで起動すれば $NVIM 経由で繋がる。

@@ -107,4 +107,31 @@ return {
             },
         },
     },
+
+    {
+        "kabero/sensei.nvim",
+        cmd = { "Sensei", "SenseiInstall", "SenseiPrompt", "SenseiStatus", "SenseiClearHints" },
+        config = function()
+            -- Patch the plugin's own defaults rather than passing opts here.
+            -- A project's exrc calls require("sensei").setup{...} with only its
+            -- own keys, and setup() rebuilds the config from these defaults
+            -- every time — so whatever is set here survives that second call.
+            local defaults = require("sensei.config").defaults
+            defaults.prompt.language = "Japanese"
+            -- The build driver is per-project (cargo / go / make / npm ...).
+            -- Left on, run_build would offer `cargo` inside a Go repo, so the
+            -- project opts in from .nvim.lua instead.
+            defaults.tools.build.enabled = false
+            require("sensei").setup({})
+        end,
+        -- Loading: the sidecar (`claude` in a :terminal) talks to *this* Neovim
+        -- and fails with "sensei.nvim is not loaded" unless the plugin is
+        -- already in. The require() in a project's .nvim.lua is what pulls it
+        -- in at startup — same pattern as conform's per-project formatters:
+        --     require("sensei").setup({
+        --         prompt = { subject = "writing a TCP/IP stack in Rust" },
+        --         tools = { build = { enabled = true, cmd = "cargo" } },
+        --     })
+        -- Then :SenseiInstall once per project, and `:terminal claude`.
+    },
 }

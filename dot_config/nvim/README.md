@@ -24,7 +24,10 @@ lua/
     treesitter.lua        -- treesitter + textobjects
     git.lua               -- gitsigns / fugitive / diffview / git-conflict / committia
     editor.lua            -- autopairs / surround / commentary / hop 等
-    tools.lua             -- oil / copilot / sidekick / jaq / rustowl 等
+    tools.lua             -- oil / copilot / rustowl / sensei 等
+    -- sensei.nvim はグローバルでは language=Japanese だけを既定にし、subject と
+    -- build driver は各プロジェクトの exrc(.nvim.lua)で require("sensei").setup{...}。
+    -- この require がプラグインのロード契機も兼ねる（サイドカーは未ロードだと繋がらない）。
     ui.lua                -- lualine / incline / which-key / colorizer 等
     colorscheme.lua       -- kanagawa
 ```
@@ -47,6 +50,7 @@ lua/
 | ファイラ | **oil.nvim** | netrw は無効化、`-` で親ディレクトリ |
 | 移動 | **hop.nvim** | `<leader>s` で単語ホップ |
 | Markdown | **render-markdown.nvim** | バッファ内インラインレンダリング、`<leader>q` でトグル |
+| 学習支援 | **sensei.nvim** | Claude Code をサイドカーにした MCP サーバ。答えは書かず、buffer/診断/ビルド結果を見てヒントだけ出す。プロジェクトごとに `:SenseiInstall` |
 
 ### 起動高速化・セキュリティ
 - 未使用の**リモートホストプロバイダ**（python/ruby/perl/node）と**組込みプラグイン**（netrw, gzip, tar, zip, tutor, 2html …）を無効化。
@@ -164,6 +168,9 @@ lua/
 | `:Note new` | 次番号のノートを作成 |
 | `:Note <name>` | `kabe/notes/<name>.md` を開く |
 | `:HighlightInfo` | カーソル下のハイライトグループを表示 |
+| `:SenseiInstall` | そのプロジェクトを sensei 用にセットアップ（`.mcp.json` / `CLAUDE.md` / `.claude/`） |
+| `:Sensei` / `:SenseiStatus` | セットアップ状況・socket・登録ツールの確認 |
+| `:SenseiClearHints` | 画面上のヒント(virtual text)を消す |
 
 ---
 
