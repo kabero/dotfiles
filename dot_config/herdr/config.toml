@@ -18,6 +18,20 @@ show_agent_labels_on_pane_borders = true
 # whatever needs input floats to the top, regardless of which space it lives in.
 agent_panel_sort = "priority"
 
+# タブバーは下。tmux の status-bar が下にあったのと同じ位置で、視線が
+# シェルのプロンプト付近から動かずに済む。
+tab_bar_position = "bottom"
+
+# タブバー右端に、全ワークスペースのエージェント状態の集計を出す（tmux の
+# ステータスバーに出していた Claude カウンタの置き換え）。herdr にはタブごとに
+# 状態を出す設定が無いので、まず「どこかに入力待ちが居るか」を一目で分かる
+# ようにする。command は herdr サーバー側で解決・実行される。
+tab_bar_right = [
+  { type = "command", command = "~/.local/bin/herdr-agent-status", interval_seconds = 5, timeout_seconds = 2 },
+  { type = "datetime", format = "%H:%M" },
+]
+tab_bar_right_separator = "  ·  "
+
 [ui.toast]
 # Route notifications to macOS itself (terminal-notifier, else osascript)
 # instead of in-UI toasts, so background-agent pings surface even when

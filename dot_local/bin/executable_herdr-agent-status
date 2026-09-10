@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""全ワークスペースのエージェント状態を1行に集計する。
+
+herdr の tab_bar_right（0.8.2 以降）の type = "command" から定期的に呼ばれ、
+タブバー右端に出る。tmux 時代のステータスバーの Claude カウンタの置き換え。
+
+出したいのは「手が空くのを待っている自分」への情報なので、注意が要る順に
+並べ、0 件のものは省く。idle は数が多く情報量が薄いので既定では出さない
+（--all で出る）。
+
+herdr 0.7.4 でも動く（pane.list しか使っていない）。
+"""
+
+import json
+import os
+import socket
+import sys
+
+SOCK = os.environ.get("HERDR_SOCK", os.path.expanduser("~/.config/herdr/herdr.sock"))
+
+# 注意が要る順。blocked（入力待ち）が最優先、次に done（未確認の完了）。
+ORDER = [
+    ("blocked", "●"),   # 入力待ち
+    ("done", "✓"),      # 完了、未確認
+    ("working", "◑"),   # 実行中
+    ("idle", "·"),      # 待機
+]
+
+
+def main():
+    show_idle = "--all" in sys.argv
+    try:
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        s.connect(SOCK)
+        try:
+            s.sendall((json.dumps({"id": "status", "method": "pane.list",
+                                   "params": {}}) + "\n").encode())
+            r = json.loads(s.makefile("r").readline())
+        finally:
+            s.close()
+    except Exception:
+        return 0        # サーバーが居ない/落ちている間は黙る（空文字を出す）
+
+    panes = r.get("result", {}).get("panes", [])
+    counts = {}
+    for p in panes:
+        if p.get("agent"):
+            counts[p.get("agent_status")] = counts.get(p.get("agent_status"), 0) + 1
+
+    parts = []
+    for state, glyph in ORDER:
+        if state == "idle" and not show_idle:
+            continue
+        n = counts.get(state, 0)
+        if n:
+            parts.append("%s%d" % (glyph, n))
+    print(" ".join(parts))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
