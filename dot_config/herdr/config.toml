@@ -69,10 +69,15 @@ previous_agent = "prefix+up"
 # ghq repo launcher on bare C-g, same as the tmux session selector: jump to
 # an open workspace or create one from a ghq repo. Inside tmux, tmux's own
 # C-g binding wins — this applies when herdr runs directly in the terminal.
+# popup, not pane: a temporary pane is spliced into the tile area, so every
+# invocation shrinks the existing panes and reflows the tab. A popup is modal,
+# leaves the layout alone, and takes all key input until the command exits.
 [[keys.command]]
 key = "ctrl+g"
-type = "pane"
+type = "popup"
 command = "~/.local/bin/herdr-repo-selector"
+width = "80%"
+height = "70%"
 
 [experimental]
 # Pass the kitty graphics protocol through to panes, so image output
