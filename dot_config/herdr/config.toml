@@ -41,6 +41,12 @@ detach = "prefix+d"
 reload_config = "prefix+r"
 resize_mode = "prefix+shift+r"
 
+# 新規タブは現在のタブの右隣に作る（tmux の後ろに足す挙動より、作った直後に
+# prefix+p で元へ戻れる方が使いやすい）。herdr に挿入位置の設定は無いので、
+# prefix+c は herdr-new-tab（作ってから tab.move で隣へ寄せる）に差し替え、
+# 組み込みの new_tab は末尾に足したいとき用に shift+c へ退避する。
+new_tab = "prefix+shift+c"
+
 # tmux: C-q " splits below, C-q % splits right.
 split_horizontal = 'prefix+"'
 split_vertical = "prefix+%"
@@ -96,6 +102,13 @@ type = "popup"
 command = "~/.local/bin/herdr-pane-history"
 width = "80%"
 height = "70%"
+
+# prefix+c を組み込みの new_tab から差し替える。type = "shell" はデタッチ実行で
+# TTY を持たない（このスクリプトは API を叩くだけで UI を出さない）。
+[[keys.command]]
+key = "prefix+c"
+type = "shell"
+command = "~/.local/bin/herdr-new-tab"
 
 [experimental]
 # Pass the kitty graphics protocol through to panes, so image output
