@@ -1,0 +1,106 @@
+#!/bin/bash
+# 「入力したペイン」だけを並べた MRU ピッカー — herdr-repo-selector のペイン版。
+# フォーカスしただけ、ログを眺めただけのペインは載らない。載るのは
+#   シェル      : コマンドを実行した (zsh preexec、dot_zshrc の HERDR ブロック)
+#   エージェント: プロンプトを投げた (herdr-pane-historyd が working 遷移を検知)
+# の2つだけ。prefix+m に [[keys.command]] で割り当ててある。
+#
+# 履歴は追記のみの ~/.local/state/herdr/pane-history.tsv:
+#   <epoch>\t<pane_id>\t<shell|agent>\t<detail>
+# ラベルやエージェント状態は保存せず、表示のたびに API から引き直す
+# （閉じたペインが消え、リネームや状態変化が常に最新になる）。
+# 依存: fzf, jq, python3（フォーカスだけ socket API を直接叩くため）。
+
+set -u
+hist="$HOME/.local/state/herdr/pane-history.tsv"
+[ -s "$hist" ] || { echo "履歴がまだありません" >&2; sleep 1; exit 0; }
+
+# 生きているペイン一覧。label は herdr が出す表示名（"repo · claude" など）。
+panes=$(herdr pane list 2>/dev/null | jq -r '
+  .result.panes[] | [.pane_id, (.label // ""), (.agent // ""), .agent_status,
+                     (if .focused then "1" else "0" end)] | @tsv') || exit 1
+[ -n "$panes" ] || exit 0
+
+# pane 一覧 → 履歴 の順に awk へ流し、ペインごとの最新の1件だけを残す。
+# 閉じたペインと、いま自分がいるペインは落とす。
+# ペイン一覧は環境変数で渡す: awk の -v は改行を含む値を受け取れない（BSD awk は
+# "newline in string" で落ちる）。herdr-repo-selector と同じ回避。
+# いま自分がいるペインも一覧に載せ、印だけ付ける。popup は起動元ペインの文脈を
+# 引き継がない（$HERDR_PANE_ID は空になる）ので、判定は API の focused が主。
+# $HERDR_PANE_ID は popup 以外から直接起動したときのための併用。
+rows=$(HPH_PANES="$panes" HPH_SELF="${HERDR_PANE_ID:-}" awk -F'\t' '
+  BEGIN {
+    self = ENVIRON["HPH_SELF"]
+    n = split(ENVIRON["HPH_PANES"], lines, "\n")
+    for (i = 1; i <= n; i++) {
+      if (lines[i] == "") continue
+      split(lines[i], f, "\t")
+      label[f[1]] = f[2]; agent[f[1]] = f[3]; status[f[1]] = f[4]
+      if (f[5] == "1") current = f[1]
+      alive[f[1]] = 1
+    }
+  }
+  NF >= 3 && ($2 in alive) {
+    ts[$2] = $1; kind[$2] = $3; detail[$2] = $4    # 後勝ち = 最新
+  }
+  END { for (p in ts) printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+          ts[p], p, kind[p], detail[p], label[p], agent[p], status[p],
+          (p == current || p == self) ? 1 : 0 }
+' "$hist" | sort -rn -k1,1)
+
+[ -n "$rows" ] || { echo "飛べるペインがありません" >&2; sleep 1; exit 0; }
+
+# 表示行を組み立てる。エージェント状態を先頭のドットの色で示す
+# （blocked=入力待ち、done=未確認の完了、working=実行中、idle=待機）。
+list=$(awk -F'\t' -v now="$(date +%s)" '
+  function ago(s,   d) {
+    d = now - s
+    if (d < 60)    return int(d) "s"
+    if (d < 3600)  return int(d / 60) "m"
+    if (d < 86400) return int(d / 3600) "h"
+    return int(d / 86400) "d"
+  }
+  {
+    st = $7
+    if (st == "blocked")      dot = "\033[38;5;203m●\033[0m"
+    else if (st == "done")    dot = "\033[38;5;114m●\033[0m"
+    else if (st == "working") dot = "\033[38;5;75m●\033[0m"
+    else if (st == "idle")    dot = "\033[38;5;245m●\033[0m"
+    else                      dot = "\033[38;5;238m·\033[0m"
+    detail = ($3 == "agent") ? "[" $6 "] " st : "$ " $4
+    # いま自分がいるペインは薄く落とすだけにする（repo-selector と同じ流儀で、
+    # 文字を足さずに色で示す）。
+    name = ($8 == 1) ? "\033[38;5;245m" : "\033[1;38;5;255m"
+    # awk の length()/%-24s はバイト単位。ラベルの "repo · agent" の中黒は
+    # 2バイト1桁なので、継続バイト数を引いて表示幅で詰める。
+    tmp = $5
+    pad = 24 - (length($5) - gsub(/[\200-\277]/, "", tmp))
+    printf "%s  %s%s%*s\033[0m \033[38;5;243m%-5s\033[0m \033[38;5;250m%.60s\033[0m\t%s\n",
+           dot, name, $5, (pad > 0 ? pad : 0), "", ago($1), detail, $2
+  }
+' <<< "$rows")
+
+selected=$(fzf --ansi --height 100% --layout reverse \
+      --border rounded --border-label " 入力したペイン (herdr) " \
+      --color "fg:-1,bg:-1,fg+:255,bg+:236,hl:75,hl+:75,pointer:75,marker:75,border:238,label:75,prompt:75,info:243,header:243,gutter:-1,spinner:75" \
+      --pointer "▌" --prompt "> " \
+      --delimiter='\t' --with-nth=1 --highlight-line <<< "$list") || exit 0
+
+pane_id="${selected##*$'\t'}"
+[ -n "$pane_id" ] || exit 0
+
+# フォーカスは CLI ではなく socket API を直接叩く。`herdr pane focus` は
+# --direction 専用で、ペイン ID を渡す形が CLI に存在せず、渡すと usage を
+# 出して exit 2 で黙って失敗する。API の pane.focus は pane_id を受け取る。
+python3 - "$pane_id" <<'JUMP'
+import json, os, socket, sys
+
+s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+s.connect(os.path.expanduser("~/.config/herdr/herdr.sock"))
+try:
+    s.sendall((json.dumps({"id": "jump", "method": "pane.focus",
+                           "params": {"pane_id": sys.argv[1]}}) + "\n").encode())
+    s.makefile("r").readline()
+finally:
+    s.close()
+JUMP

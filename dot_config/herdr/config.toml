@@ -79,6 +79,24 @@ command = "~/.local/bin/herdr-repo-selector"
 width = "80%"
 height = "70%"
 
+# 「入力したペイン」だけの MRU ピッカー。herdr の last_pane (prefix+;) が
+# 1つ前に戻るのに対し、こちらは履歴を一覧して任意の1つに飛ぶ。フォーカス
+# しただけのペインは載らず、コマンドを実行した／エージェントにプロンプトを
+# 投げたペインだけが対象（記録は dot_zshrc の preexec と
+# herdr-pane-historyd）。
+# 常用するので右手だけで完結するキーにしてある。h/j/k/l はペイン移動、u/i は
+# ワークスペース、n/p はタブ、; は last_pane で埋まっており、右手側で空いて
+# いるのは m と y だけ。m は人差し指のホームポジション直下で一番近い。
+# type は pane ではなく popup: pane は一時ペインをタイル領域に差し込むので
+# 開くたびに既存ペインが縮んで再レイアウトされる。popup はモーダルで
+# レイアウトに触らず、終了までキー入力を総取りする（ピッカー向き）。
+[[keys.command]]
+key = "prefix+m"
+type = "popup"
+command = "~/.local/bin/herdr-pane-history"
+width = "80%"
+height = "70%"
+
 [experimental]
 # Pass the kitty graphics protocol through to panes, so image output
 # (wezterm imgcat, nvim image previews, etc.) renders inside herdr.

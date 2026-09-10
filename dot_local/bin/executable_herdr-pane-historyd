@@ -1,0 +1,200 @@
+#!/usr/bin/env python3
+"""herdr のエージェントペインへの「入力」を記録する常駐プロセス。
+
+herdr の socket API には入力イベントが存在しない（購読可能な26種のどれも
+入力を表さない。PaneInfo.revision も出力変化に追従しないので代用にならない）。
+そこで入力の検知は2経路に分ける:
+
+  シェルペイン    zsh の preexec フック → 直接 pane-history.tsv に追記（dot_zshrc）
+  エージェントペイン  このデーモン → agent_status が working に落ちた瞬間を拾う
+
+エージェントが working に入るのはプロンプトを投げられた時だけなので、
+「フォーカス中のペインが working へ遷移した」= 人間がそこに入力した、と読める。
+フォーカスで絞るのは、他のエージェントが API 経由で起こした working を
+履歴に混ぜないため。
+
+状態の取得元は pane.updated。pane.agent_status_changed は pane_id 必須で
+全ペインをまとめて購読できず、ペインの増減ごとに張り直しが要る。pane.updated
+は引数なしで全ペイン分が流れ、PaneInfo に agent_status が入っているので、
+こちら側で差分を取る方が接続1本で済む。
+
+herdr-pane-history がこのファイルを読んで MRU ピッカーを出す。
+"""
+
+import errno
+import json
+import os
+import socket
+import sys
+import time
+
+STATE = os.path.expanduser("~/.local/state/herdr")
+HIST = os.path.join(STATE, "pane-history.tsv")
+PIDFILE = os.path.join(STATE, "pane-historyd.pid")
+SOCK = os.environ.get("HERDR_SOCK", os.path.expanduser("~/.config/herdr/herdr.sock"))
+
+# 追記のみのファイルなので、上限を超えたら新しい方だけ残して書き直す。
+MAX_LINES = 2000
+KEEP_LINES = 1000
+# 同じペインを続けて記録しない間隔。
+DEBOUNCE_SEC = 20.0
+
+
+def claim_pidfile():
+    """多重起動を防ぐ。生きている先客がいれば False。"""
+    os.makedirs(STATE, exist_ok=True)
+    while True:
+        try:
+            fd = os.open(PIDFILE, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+            try:
+                with open(PIDFILE) as f:
+                    old = int(f.read().strip())
+            except (ValueError, OSError):
+                old = None
+            if old is not None:
+                try:
+                    os.kill(old, 0)
+                    return False          # 先客が生きている
+                except OSError:
+                    pass                  # 死んでいる → 奪う
+            try:
+                os.unlink(PIDFILE)
+            except OSError:
+                pass
+            continue
+        with os.fdopen(fd, "w") as f:
+            f.write(str(os.getpid()))
+        return True
+
+
+def prune():
+    try:
+        with open(HIST) as f:
+            lines = f.readlines()
+    except OSError:
+        return
+    if len(lines) <= MAX_LINES:
+        return
+    tmp = HIST + ".tmp"
+    with open(tmp, "w") as f:
+        f.writelines(lines[-KEEP_LINES:])
+    os.replace(tmp, HIST)
+
+
+def append(pane_id, kind, detail):
+    detail = detail.replace("\t", " ").replace("\n", " ")[:120]
+    line = "%d\t%s\t%s\t%s\n" % (int(time.time()), pane_id, kind, detail)
+    # PIPE_BUF 未満の追記は不可分なので、各ペインの zsh フックと競合しない。
+    with open(HIST, "a") as f:
+        f.write(line)
+
+
+def request(method, params=None):
+    """1接続1リクエスト（購読ストリームだけが例外）。"""
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.connect(SOCK)
+    try:
+        s.sendall((json.dumps({"id": "hist", "method": method,
+                               "params": params or {}}) + "\n").encode())
+        return json.loads(s.makefile("r").readline())
+    finally:
+        s.close()
+
+
+def seed_state():
+    """購読開始前のフォーカスと各ペインの状態を埋めておく。
+
+    これがないと、接続直後に届く最初の pane.updated が軒並み「遷移」に
+    見えて、実行中のエージェントが片っ端から履歴に載る。
+    """
+    try:
+        panes = request("pane.list")["result"]["panes"]
+    except Exception:
+        return None, {}
+    focused = None
+    status = {}
+    for p in panes:
+        status[p["pane_id"]] = p.get("agent_status")
+        if p.get("focused"):
+            focused = p["pane_id"]
+    return focused, status
+
+
+def run_once():
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.connect(SOCK)
+    subs = [{"type": "pane.focused"},
+            {"type": "pane.updated"},
+            {"type": "pane.closed"}]
+    s.sendall((json.dumps({"id": "hist", "method": "events.subscribe",
+                           "params": {"subscriptions": subs}}) + "\n").encode())
+
+    focused, status = seed_state()
+    last = {}            # pane_id -> 最後に記録した時刻
+    n = 0
+
+    for raw in s.makefile("r"):
+        try:
+            ev = json.loads(raw)
+        except ValueError:
+            continue
+        kind = ev.get("event")
+        data = ev.get("data") or {}
+
+        if kind == "pane_focused":
+            focused = data.get("pane_id")
+
+        elif kind == "pane_closed":
+            status.pop(data.get("pane_id"), None)
+
+        elif kind == "pane_updated":
+            pane = data.get("pane") or {}
+            pid = pane.get("pane_id")
+            if not pid:
+                continue
+            new_status = pane.get("agent_status")
+            prev = status.get(pid)
+            status[pid] = new_status
+            # working への「遷移」だけを見る。working のまま流れ続ける更新
+            # （実行中のエージェントは毎秒何本も出す）は入力ではない。
+            if new_status != "working" or prev == "working" or pid != focused:
+                continue
+            # 1ターンの中でも working↔idle は何度か振れるので、ペインごとに
+            # 間引く。欲しいのは MRU の順序であって入力の全件記録ではない。
+            now = time.time()
+            if now - last.get(pid, 0.0) < DEBOUNCE_SEC:
+                continue
+            append(pid, "agent", pane.get("agent") or "agent")
+            last[pid] = now
+            n += 1
+            if n % 50 == 0:
+                prune()
+
+
+def main():
+    if not claim_pidfile():
+        return 0
+    os.makedirs(STATE, exist_ok=True)
+    prune()
+    try:
+        while True:
+            try:
+                run_once()
+            except Exception:
+                pass
+            # herdr サーバー再起動時はソケットが落ちるので、待って張り直す。
+            time.sleep(3)
+    finally:
+        try:
+            with open(PIDFILE) as f:
+                if int(f.read().strip()) == os.getpid():
+                    os.unlink(PIDFILE)
+        except (OSError, ValueError):
+            pass
+
+
+if __name__ == "__main__":
+    sys.exit(main())
