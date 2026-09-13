@@ -2,8 +2,7 @@
 onboarding = false
 
 [theme]
-# Match the rest of the environment: wezterm Kanagawa Dragon, nvim kanagawa.
-name = "kanagawa"
+name = "solarized"
 
 [ui]
 # tmux: prefix+c creates a window immediately; skip herdr's tab-name prompt
@@ -31,6 +30,9 @@ tab_bar_right = [
   { type = "datetime", format = "%H:%M" },
 ]
 tab_bar_right_separator = "  ·  "
+
+[ui.sidebar.agents.rows_by_agent]
+claude = [["state_icon", "workspace", "tab"], ["terminal_title_stripped"]]
 
 [ui.toast]
 # Route notifications to macOS itself (terminal-notifier, else osascript)
@@ -133,3 +135,8 @@ kitty_graphics = true
 # layout and restore it after, so C-q commands register even with the
 # Japanese IME on. macOS-only, best-effort.
 switch_ascii_input_source_in_prefix = true
+
+reveal_hidden_cursor_for_cjk_ime = true
+cjk_ime_agents = ["claude"]
+
+pane_history = true
