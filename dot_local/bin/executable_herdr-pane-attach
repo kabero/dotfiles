@@ -22,6 +22,13 @@ prefix+m で開いた寄り道を prefix+m で閉じるにはこちらで横取�
 control は attach と同じく端末サイズを持つ（attach 先のペインがこちらの
 サイズになり、release で戻る）。
 
+popup の 1 行目は自前のタイトル行（herdr は popup に端末タイトルを描かない）。
+attach 先の画面は 2 行目以降に置く: 端末側の viewport を 1 行減らし、
+スクロール領域を 2..N にして origin mode (DECOM) を有効にすると、ストリーム
+中の絶対カーソル位置（CUP/VPA）がそのまま 1 行ずれる。ストリームが自分で
+DECSTBM を出す時だけ書き換えて 1 行ずらし、全画面フレームや ESC[2J の後は
+タイトル行を描き直す。
+
 使い方: herdr-pane-attach <pane_id|terminal_id|agent>
 """
 
@@ -29,6 +36,7 @@ import base64
 import fcntl
 import json
 import os
+import re
 import select
 import signal
 import struct
@@ -37,6 +45,7 @@ import sys
 import termios
 import time
 import tty
+import unicodedata
 
 PREFIX = 0x11          # C-q（herdr の prefix と同じ）
 DETACH = ord("m")
@@ -49,6 +58,58 @@ def log(msg):
             f.write("%s %s\n" % (time.strftime("%H:%M:%S"), msg))
     except OSError:
         pass
+
+
+def pane_title(target):
+    """popup の端末タイトル用に、接続先の "repo · agent" と作業タイトルを引く。
+    herdr が popup の枠に端末タイトルを描くなら、そこに出る。"""
+    try:
+        out = subprocess.run(["herdr", "pane", "list"], capture_output=True, text=True, timeout=2).stdout
+        for p in json.loads(out)["result"]["panes"]:
+            if target in (p.get("pane_id"), p.get("terminal_id")):
+                label = p.get("label") or target
+                t = p.get("terminal_title_stripped") or ""
+                return "%s — %s" % (label, t) if t else label
+    except Exception:
+        pass
+    return target
+
+
+TITLE_ROWS = 1
+DECSTBM = re.compile(rb"\x1b\[(\d*)(?:;(\d*))?r")
+
+
+def shift_margins(frame, rows):
+    """ストリーム中の DECSTBM をタイトル行ぶん下へずらす。"""
+    def fix(m):
+        top = int(m.group(1) or 1) + TITLE_ROWS
+        bottom = int(m.group(2) or rows) + TITLE_ROWS
+        return b"\x1b[%d;%dr" % (top, bottom)
+    return DECSTBM.sub(fix, frame)
+
+
+def clip(text, width):
+    """表示幅で切る（CJK は 2 桁）。はみ出すと 2 行目に折り返して画面を壊す。"""
+    out, w = "", 0
+    for ch in text:
+        cw = 2 if unicodedata.east_asian_width(ch) in ("W", "F") else 1
+        if w + cw > width:
+            break
+        out += ch
+        w += cw
+    return out
+
+
+def draw_title(title, cols, rows):
+    """1 行目にタイトル。カーソルと origin mode は DECSC/DECRC で元に戻る。"""
+    text = clip(title, max(cols - 3, 0))
+    return (b"\x1b7\x1b[?6l\x1b[1;1H\x1b[0m\x1b[38;5;75m\xe2\x96\x8e " + text.encode()
+            + b"\x1b[K\x1b[0m\x1b8")
+
+
+def layout(cols, rows):
+    """タイトル行を除いた領域をスクロール領域にして origin mode を有効化。"""
+    return b"\x1b[%d;%dr\x1b[?6h" % (TITLE_ROWS + 1, rows)
 
 
 def term_size(fd=0):
@@ -68,11 +129,13 @@ def main():
         pass
     rows, cols = term_size()
     log("start target=%s size=%dx%d pid=%d" % (target, cols, rows, os.getpid()))
+    title = pane_title(target)
+    inner = max(rows - TITLE_ROWS, 1)          # attach 先に見せる行数
     for sig in (signal.SIGHUP, signal.SIGTERM, signal.SIGINT, signal.SIGPIPE):
         signal.signal(sig, lambda n, *_: (log("signal %d" % n), sys.exit(128 + n)))
     proc = subprocess.Popen(
         ["herdr", "terminal", "session", "control", target, "--takeover",
-         "--cols", str(cols), "--rows", str(rows)],
+         "--cols", str(cols), "--rows", str(inner)],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     out_fd = proc.stdout.fileno()
 
@@ -88,6 +151,7 @@ def main():
 
     saved = termios.tcgetattr(0)
     tty.setraw(0)
+    os.write(1, b"\x1b[2J" + draw_title(title, cols, rows) + layout(cols, rows))
     pending = False        # 直前が C-q だったか
     buf = b""
     rc = 0
@@ -96,7 +160,9 @@ def main():
             if resized[0]:
                 resized[0] = False
                 rows, cols = term_size()
-                send({"type": "terminal.resize", "cols": cols, "rows": rows})
+                inner = max(rows - TITLE_ROWS, 1)
+                os.write(1, b"\x1b[2J" + draw_title(title, cols, rows) + layout(cols, rows))
+                send({"type": "terminal.resize", "cols": cols, "rows": inner})
             try:
                 ready, _, _ = select.select([0, out_fd], [], [], 0.2)
             except InterruptedError:
@@ -115,7 +181,11 @@ def main():
                     except ValueError:
                         continue
                     if rec.get("type") == "terminal.frame":
-                        os.write(1, base64.b64decode(rec.get("bytes") or ""))
+                        frame = shift_margins(base64.b64decode(rec.get("bytes") or ""), inner)
+                        # 全画面フレームや画面消去はタイトル行も消すので描き直す。
+                        if rec.get("full") or b"\x1b[2J" in frame or b"\x1b[3J" in frame:
+                            frame += draw_title(title, cols, rows)
+                        os.write(1, frame)
                     elif rec.get("type") == "terminal.closed":
                         log("exit: terminal.closed %r" % (rec.get("reason"),))
                         closed = True
@@ -164,8 +234,8 @@ def main():
         except subprocess.TimeoutExpired:
             proc.kill()
         termios.tcsetattr(0, termios.TCSADRAIN, saved)
-        # 色・カーソル非表示・同期出力を戻してから popup を閉じる。
-        os.write(1, b"\x1b[0m\x1b[?25h\x1b[?2026l")
+        # スクロール領域・origin mode・色・カーソル・同期出力を戻してから閉じる。
+        os.write(1, b"\x1b[r\x1b[?6l\x1b[0m\x1b[?25h\x1b[?2026l")
     return rc
 
 
