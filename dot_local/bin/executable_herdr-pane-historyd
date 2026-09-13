@@ -13,10 +13,16 @@ herdr の socket API には入力イベントが存在しない（購読可能�
 フォーカスで絞るのは、他のエージェントが API 経由で起こした working を
 履歴に混ぜないため。
 
-状態の取得元は pane.updated。pane.agent_status_changed は pane_id 必須で
-全ペインをまとめて購読できず、ペインの増減ごとに張り直しが要る。pane.updated
-は引数なしで全ペイン分が流れ、PaneInfo に agent_status が入っているので、
-こちら側で差分を取る方が接続1本で済む。
+状態の取得元は pane.agent_status_changed。pane_id 必須で全ペインをまとめて
+購読できないので、起動時の全ペイン分を1接続に束ね、pane.created が来たら
+接続を張り直して新しいペインを含める（閉じたペインの購読は放置でよい）。
+以前は pane.updated（引数なしで全ペイン分が流れ、PaneInfo に agent_status が
+入る）から差分を取っていたが、herdr 0.9.0 で pane.updated は端末タイトル
+（スピナーを除いた部分）が変わった時にしか流れなくなり、遷移を取りこぼす
+ようになった。
+イベントの封筒は2種類あり、ライフサイクル系は "pane_focused" のように
+下線、購読系（agent_status_changed）は "pane.agent_status_changed" のように
+ドット区切りで来る。どちらも event と data を持つ。
 
 herdr-pane-history がこのファイルを読んで MRU ピッカーを出す。
 """
@@ -123,55 +129,84 @@ def seed_state():
     return focused, status
 
 
-def run_once():
-    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    s.connect(SOCK)
-    subs = [{"type": "pane.focused"},
-            {"type": "pane.updated"},
-            {"type": "pane.closed"}]
-    s.sendall((json.dumps({"id": "hist", "method": "events.subscribe",
-                           "params": {"subscriptions": subs}}) + "\n").encode())
+def pane_id_of(data):
+    """イベント data からペイン ID を取る。直下の pane_id か、pane.pane_id。"""
+    pid = data.get("pane_id")
+    if not pid and isinstance(data.get("pane"), dict):
+        pid = data["pane"].get("pane_id")
+    return pid
 
-    focused, status = seed_state()
-    last = {}            # pane_id -> 最後に記録した時刻
-    n = 0
 
-    for raw in s.makefile("r"):
-        try:
-            ev = json.loads(raw)
-        except ValueError:
-            continue
-        kind = ev.get("event")
+class Tracker:
+    """イベントを食べて履歴に追記する。接続をまたいで debounce を持ち越す。"""
+
+    def __init__(self, focused, status, last=None, now=time.time, record=append):
+        self.focused = focused
+        self.status = status
+        self.last = last if last is not None else {}   # pane_id -> 最後に記録した時刻
+        self.now = now
+        self.record = record
+        self.n = 0
+
+    def handle(self, ev):
+        """1イベント処理。新しいペインが増えて張り直しが要るなら True。"""
+        kind = (ev.get("event") or "").replace(".", "_")
         data = ev.get("data") or {}
 
         if kind == "pane_focused":
-            focused = data.get("pane_id")
-
+            self.focused = pane_id_of(data) or self.focused
+        elif kind == "pane_created":
+            pid = pane_id_of(data)
+            if pid:
+                self.status.setdefault(pid, None)
+            return True
         elif kind == "pane_closed":
-            status.pop(data.get("pane_id"), None)
-
-        elif kind == "pane_updated":
-            pane = data.get("pane") or {}
-            pid = pane.get("pane_id")
+            self.status.pop(pane_id_of(data), None)
+        elif kind == "pane_agent_status_changed":
+            pid = pane_id_of(data)
             if not pid:
-                continue
-            new_status = pane.get("agent_status")
-            prev = status.get(pid)
-            status[pid] = new_status
-            # working への「遷移」だけを見る。working のまま流れ続ける更新
-            # （実行中のエージェントは毎秒何本も出す）は入力ではない。
-            if new_status != "working" or prev == "working" or pid != focused:
-                continue
+                return False
+            new_status = data.get("agent_status")
+            prev = self.status.get(pid)
+            self.status[pid] = new_status
+            # working への「遷移」だけを見る。
+            if new_status != "working" or prev == "working" or pid != self.focused:
+                return False
             # 1ターンの中でも working↔idle は何度か振れるので、ペインごとに
             # 間引く。欲しいのは MRU の順序であって入力の全件記録ではない。
-            now = time.time()
-            if now - last.get(pid, 0.0) < DEBOUNCE_SEC:
-                continue
-            append(pid, "agent", pane.get("agent") or "agent")
-            last[pid] = now
-            n += 1
-            if n % 50 == 0:
+            now = self.now()
+            if now - self.last.get(pid, 0.0) < DEBOUNCE_SEC:
+                return False
+            self.record(pid, "agent", data.get("agent") or "agent")
+            self.last[pid] = now
+            self.n += 1
+            if self.n % 50 == 0:
                 prune()
+        return False
+
+
+def run_once(last):
+    focused, status = seed_state()
+    subs = [{"type": "pane.focused"},
+            {"type": "pane.created"},
+            {"type": "pane.closed"}]
+    subs += [{"type": "pane.agent_status_changed", "pane_id": pid} for pid in status]
+
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.connect(SOCK)
+    s.sendall((json.dumps({"id": "hist", "method": "events.subscribe",
+                           "params": {"subscriptions": subs}}) + "\n").encode())
+    tracker = Tracker(focused, status, last)
+    try:
+        for raw in s.makefile("r"):
+            try:
+                ev = json.loads(raw)
+            except ValueError:
+                continue
+            if tracker.handle(ev):
+                return          # ペインが増えた → 張り直し
+    finally:
+        s.close()
 
 
 def main():
@@ -179,10 +214,13 @@ def main():
         return 0
     os.makedirs(STATE, exist_ok=True)
     prune()
+    last = {}
     try:
         while True:
             try:
-                run_once()
+                run_once(last)
+                # 正常に戻った = pane.created で張り直し。すぐ繋ぎ直す。
+                continue
             except Exception:
                 pass
             # herdr サーバー再起動時はソケットが落ちるので、待って張り直す。
