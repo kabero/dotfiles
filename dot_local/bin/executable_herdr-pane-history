@@ -1,5 +1,17 @@
 #!/bin/bash
 # 「入力したペイン」だけを並べた MRU ピッカー — herdr-repo-selector のペイン版。
+#
+# Enter は移動ではなく「寄り道」: 選んだペインの端末をこの popup の中に
+# attach する（herdr-pane-attach = 同じ端末を別の場所に出す、シンボリック
+# リンク的なもの）。popup が開いている = 寄り道中、もう一度 prefix+m
+# （C-q m）で detach すると popup が閉じて元の場所に戻る。周りには元の層が
+# 見えたまま。herdr 純正の `terminal attach` は detach が ctrl+b q 固定なので、
+# terminal session control で自前に組んだクライアントを使う。
+# attach 中は元のペインの端末サイズが popup のサイズになり、detach で戻る
+# （observe と違い、書き込み可能な attach はサイズも持つ）。
+# 本当に移動したい時は ctrl-o（従来のフォーカス移動）。
+# herdr の popup は 1 枚しか出せない（singleton、モーダル中は ui_busy）ので
+# 寄り道は 1 段まで。
 # フォーカスしただけ、ログを眺めただけのペインは載らない。載るのは
 #   シェル      : コマンドを実行した (zsh preexec、dot_zshrc の HERDR ブロック)
 #   エージェント: プロンプトを投げた (herdr-pane-historyd が working 遷移を検知)
@@ -10,25 +22,41 @@
 # ラベルやエージェント状態は保存せず、表示のたびに API から引き直す
 # （閉じたペインが消え、リネームや状態変化が常に最新になる）。
 # 依存: fzf, jq, python3（フォーカスだけ socket API を直接叩くため）。
+#
+# 表示は「何をしているペインか」が分かる形にする:
+#   エージェント: Claude が付ける端末タイトル（terminal_title_stripped、作業の要約）
+#   シェル      : cwd（~ 省略）と最後のコマンド
 
 set -u
 hist="$HOME/.local/state/herdr/pane-history.tsv"
+# これより古い入力は載せない。寄り道のスタックは「作業内容がまだ頭に残って
+# いるペイン」の一覧であって全履歴ではない。一晩空けば空になる程度の長さ。
+# 自分のペイン（起点）は例外で常に載る。
+MAX_AGE=${HPH_MAX_AGE:-$((8 * 3600))}
+# 色。端末は Kanagawa Dragon（背景 #181616）で fzf は端末の背景をそのまま使う
+# ので、同じパレットの暖色系の黒で揃える（無彩色の 23x 系は色味が浮く）。
+SELF_BG="48;2;40;39;39"       # 自分の行の背景 (dragonBlack4 #282727)
+CURSOR_BG="#393836"           # カーソル行 (dragonBlack5)
 [ -s "$hist" ] || { echo "履歴がまだありません" >&2; sleep 1; exit 0; }
 
 # 生きているペイン一覧。label は herdr が出す表示名（"repo · claude" など）。
 panes=$(herdr pane list 2>/dev/null | jq -r '
   .result.panes[] | [.pane_id, (.label // ""), (.agent // ""), .agent_status,
-                     (if .focused then "1" else "0" end)] | @tsv') || exit 1
+                     (if .focused then "1" else "0" end),
+                     (.terminal_title_stripped // ""), (.cwd // ""),
+                     (.agent_session.value // "")] | @tsv') || exit 1
 [ -n "$panes" ] || exit 0
 
 # pane 一覧 → 履歴 の順に awk へ流し、ペインごとの最新の1件だけを残す。
-# 閉じたペインと、いま自分がいるペインは落とす。
+# 閉じたペインは落とす。いま自分がいるペイン（8列目 = 1）は寄り道の起点、
+# つまり一番下の層なので、入力時刻に関わらず先頭に固定する。残りは MRU。
 # ペイン一覧は環境変数で渡す: awk の -v は改行を含む値を受け取れない（BSD awk は
 # "newline in string" で落ちる）。herdr-repo-selector と同じ回避。
 # いま自分がいるペインも一覧に載せ、印だけ付ける。popup は起動元ペインの文脈を
 # 引き継がない（$HERDR_PANE_ID は空になる）ので、判定は API の focused が主。
 # $HERDR_PANE_ID は popup 以外から直接起動したときのための併用。
-rows=$(HPH_PANES="$panes" HPH_SELF="${HERDR_PANE_ID:-}" awk -F'\t' '
+rows=$(HPH_PANES="$panes" HPH_SELF="${HERDR_PANE_ID:-}" \
+  awk -F'\t' -v now="$(date +%s)" -v max_age="$MAX_AGE" '
   BEGIN {
     self = ENVIRON["HPH_SELF"]
     n = split(ENVIRON["HPH_PANES"], lines, "\n")
@@ -36,6 +64,7 @@ rows=$(HPH_PANES="$panes" HPH_SELF="${HERDR_PANE_ID:-}" awk -F'\t' '
       if (lines[i] == "") continue
       split(lines[i], f, "\t")
       label[f[1]] = f[2]; agent[f[1]] = f[3]; status[f[1]] = f[4]
+      title[f[1]] = f[6]; cwd[f[1]] = f[7]; sess[f[1]] = f[8]
       if (f[5] == "1") current = f[1]
       alive[f[1]] = 1
     }
@@ -43,16 +72,52 @@ rows=$(HPH_PANES="$panes" HPH_SELF="${HERDR_PANE_ID:-}" awk -F'\t' '
   NF >= 3 && ($2 in alive) {
     ts[$2] = $1; kind[$2] = $3; detail[$2] = $4    # 後勝ち = 最新
   }
-  END { for (p in ts) printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-          ts[p], p, kind[p], detail[p], label[p], agent[p], status[p],
-          (p == current || p == self) ? 1 : 0 }
-' "$hist" | sort -rn -k1,1)
+  END { for (p in ts) {
+          mine = (p == current || p == self) ? 1 : 0
+          if (!mine && now - ts[p] > max_age) continue
+          printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+            ts[p], p, kind[p], detail[p], label[p], agent[p], status[p],
+            mine, title[p], cwd[p], sess[p] } }
+' "$hist" | sort -t$'\t' -k8,8rn -k1,1rn)
 
 [ -n "$rows" ] || { echo "飛べるペインがありません" >&2; sleep 1; exit 0; }
 
-# 表示行を組み立てる。エージェント状態を先頭のドットの色で示す
+# セッションの長さ（作られてからの時間）。pane_id \t 開始 epoch。
+#   エージェント: agent_session の ID から Claude Code のセッションファイル
+#                 (~/.claude/projects/*/<id>.jsonl) を引き、その作成時刻。
+#                 claude -r で再開しても元の会話の開始時刻になる。
+#   それ以外    : pane process-info のシェル PID の起動時刻（= ペイン作成）。
+# 一覧に載るペインの分だけ引く（process-info は 1 回 7ms 程度）。
+starts=$(while IFS=$'\t' read -r _ pid _ _ _ agent _ _ _ _ sess; do
+  start=""
+  if [ -n "$agent" ] && [ -n "$sess" ]; then
+    for f in "$HOME"/.claude/projects/*/"$sess".jsonl; do
+      [ -e "$f" ] && start=$(stat -f %B "$f" 2>/dev/null) && break
+    done
+  fi
+  if [ -z "$start" ]; then
+    spid=$(herdr pane process-info --pane "$pid" 2>/dev/null | jq -r '.result.process_info.shell_pid // empty')
+    if [ -n "$spid" ]; then
+      # etime は [[dd-]hh:]mm:ss
+      start=$(ps -o etime= -p "$spid" 2>/dev/null | awk -v now="$(date +%s)" '{
+        days = 0; t = $1
+        if (t ~ /-/) { split(t, d, "-"); days = d[1]; t = d[2] }
+        n = split(t, a, ":"); s = 0
+        for (i = 1; i <= n; i++) s = s * 60 + a[i]
+        print now - (days * 86400 + s) }')
+    fi
+  fi
+  printf "%s\t%s\n" "$pid" "$start"
+done <<< "$rows")
+
+# 表示行を組み立てる。エージェント状態は先頭のドットの色で示す
 # （blocked=入力待ち、done=未確認の完了、working=実行中、idle=待機）。
-list=$(awk -F'\t' -v now="$(date +%s)" '
+# 文字で補わず色と明暗で見せる方針: 語やアイコンを足すと読む手間が増える。
+list=$(HPH_STARTS="$starts" awk -F'\t' -v now="$(date +%s)" -v home="$HOME" -v self_bg="$SELF_BG" '
+  BEGIN {
+    n = split(ENVIRON["HPH_STARTS"], lines, "\n")
+    for (i = 1; i <= n; i++) { split(lines[i], f, "\t"); if (f[2] != "") start[f[1]] = f[2] }
+  }
   function ago(s,   d) {
     d = now - s
     if (d < 60)    return int(d) "s"
@@ -67,27 +132,98 @@ list=$(awk -F'\t' -v now="$(date +%s)" '
     else if (st == "working") dot = "\033[38;5;75m●\033[0m"
     else if (st == "idle")    dot = "\033[38;5;245m●\033[0m"
     else                      dot = "\033[38;5;238m·\033[0m"
-    detail = ($3 == "agent") ? "[" $6 "] " st : "$ " $4
+    # ラベル "repo · agent" は repo を明るく、エージェント名を薄く。
+    repo = $5; rest = ""; suffix = " · " $6
+    if ($6 != "" && substr($5, length($5) - length(suffix) + 1) == suffix) {
+      repo = substr($5, 1, length($5) - length(suffix))
+      rest = suffix
+    }
+    # 「いま何をしているペインか」は履歴の種類（shell/agent）ではなく現在の
+    # 状態で決める。履歴の最後が "$ claude" のシェル入力でも、いまエージェントが
+    # 動いていればそちら。エージェントは端末タイトル（Claude の作業要約）、
+    # 無ければ状態表示。シェルは cwd を主にして、最後のコマンドは薄く添える
+    # （"ls" "cd .." が大半で、それ単体では場所が分からない）。
+    if ($6 != "") {
+      detail = ($9 != "") ? $9 : "[" $6 "] " st
+    } else {
+      dir = $10
+      if (dir == home) dir = "~"
+      else if (index(dir, home "/") == 1) dir = "~" substr(dir, length(home) + 1)
+      if (length(dir) > 40) dir = "…" substr(dir, length(dir) - 38)
+      detail = dir "  \033[38;5;243m$ " $4
+    }
+    age = now - $1
+    # 時間的な距離はバーの長さで示す。最近ほど長く、対数的に縮む
+    # （5分以内=5, 30分=4, 2時間=3, 4時間=2, それ以上=1）。ago の数字より
+    # 先に目に入る。
+    if (age < 300)         seg = 5
+    else if (age < 1800)   seg = 4
+    else if (age < 7200)   seg = 3
+    else if (age < 14400)  seg = 2
+    else                   seg = 1
+    bar = ""
+    for (i = 1; i <= 5; i++) bar = bar ((i <= seg) ? "━" : "\033[38;5;236m━\033[0m")
+    # 鮮度は色で示す: 1時間以内は白、それより古いものは段階的に落とす。
     # いま自分がいるペインは薄く落とすだけにする（repo-selector と同じ流儀で、
     # 文字を足さずに色で示す）。
-    name = ($8 == 1) ? "\033[38;5;245m" : "\033[1;38;5;255m"
-    # awk の length()/%-24s はバイト単位。ラベルの "repo · agent" の中黒は
-    # 2バイト1桁なので、継続バイト数を引いて表示幅で詰める。
-    tmp = $5
-    pad = 24 - (length($5) - gsub(/[\200-\277]/, "", tmp))
-    printf "%s  %s%s%*s\033[0m \033[38;5;243m%-5s\033[0m \033[38;5;250m%.60s\033[0m\t%s\n",
-           dot, name, $5, (pad > 0 ? pad : 0), "", ago($1), detail, $2
+    if ($8 == 1)           { name = "\033[38;5;245m";   text = "\033[38;5;245m"; barc = "\033[38;5;245m" }
+    else if (age < 3600)   { name = "\033[1;38;5;255m"; text = "\033[38;5;250m"; barc = "\033[38;5;75m" }
+    else if (age < 4*3600) { name = "\033[38;5;252m";   text = "\033[38;5;246m"; barc = "\033[38;5;67m" }
+    else                   { name = "\033[38;5;246m";   text = "\033[38;5;241m"; barc = "\033[38;5;60m" }
+    bar = barc bar "\033[0m"
+    # awk の length() はバイト単位。中黒は 2バイト1桁なので、継続バイト数を
+    # 引いて表示幅で詰める。
+    tmp = repo rest
+    pad = 26 - (length(tmp) - gsub(/[\200-\277]/, "", tmp))
+    # セッションの長さ。経過時間（最後の入力からの時間）と区別できるよう
+    # 一段暗く、幅を揃えて置く。取れなければ空欄。
+    life = ($2 in start) ? ago(start[$2]) : ""
+    row = sprintf("%s  %s%s\033[0m\033[38;5;243m%s%*s\033[0m %s \033[38;5;243m%-4s\033[0m \033[38;5;240m%-4s\033[0m %s%.90s\033[0m",
+                  dot, name, repo, rest, (pad > 0 ? pad : 0), "", bar, ago($1), life, text, detail)
+    # 自分の行は行全体に背景色を敷く（寄り道の起点 = いま立っている層）。
+    # 各列の \033[0m が背景も消すので、リセットの直後に背景を貼り直し、右端
+    # まで空白で埋める（fzf 側は --ellipsis "" で切れ目の印を消してある）。
+    if ($8 == 1) {
+      bg = "\033[" self_bg "m"
+      gsub(/\033\[0m/, "&" bg, row)
+      row = bg row sprintf("%300s", "") "\033[0m"
+    }
+    printf "%s\t%s\n", row, $2
   }
 ' <<< "$rows")
 
+# fzf は既定で ctrl-q を abort に割り当てているので、prefix (C-q) を押した
+# だけでピッカーが閉じてしまう。寄り道と同じく「C-q m で閉じる」に揃える:
+# C-q で m に abort を動的に割り当て、クエリが変わったら解除する。
+# C-q 単独では何も起きない。Esc は従来どおり閉じる。
 selected=$(fzf --ansi --height 100% --layout reverse \
-      --border rounded --border-label " 入力したペイン (herdr) " \
-      --color "fg:-1,bg:-1,fg+:255,bg+:236,hl:75,hl+:75,pointer:75,marker:75,border:238,label:75,prompt:75,info:243,header:243,gutter:-1,spinner:75" \
-      --pointer "▌" --prompt "> " \
-      --delimiter='\t' --with-nth=1 --highlight-line <<< "$list") || exit 0
+      --border rounded --border-label " panes (herdr) " \
+      --color "fg:-1,bg:-1,fg+:255,bg+:$CURSOR_BG,hl:75,hl+:75,pointer:75,marker:75,border:238,label:75,prompt:75,info:243,header:243,gutter:-1,spinner:75" \
+      --pointer "▌" --prompt "> " --ellipsis "" \
+      --delimiter='\t' --with-nth=1 --highlight-line \
+      --expect=ctrl-o \
+      --bind 'ctrl-q:rebind(m)' --bind 'm:abort' --bind 'start:unbind(m)' \
+      --bind 'change:unbind(m)' <<< "$list") || exit 0
 
-pane_id="${selected##*$'\t'}"
+# --expect で 1行目に押されたキー（Enter なら空行）、2行目に選択行が来る。
+key="${selected%%$'\n'*}"
+line="${selected#*$'\n'}"
+pane_id="${line##*$'\t'}"
 [ -n "$pane_id" ] || exit 0
+
+# 自分のペイン（popup の下にあるペイン）は選んでも何もしない。attach すると
+# 自分の端末を自分の上に出して入力が自分に返る形になり、サイズも縮む。
+# フォーカス移動も無意味。popup では HERDR_ACTIVE_PANE_ID が下のペイン。
+current=$(awk -F'\t' '$5 == "1" { print $1; exit }' <<< "$panes")
+for me in "${HERDR_ACTIVE_PANE_ID:-}" "${HERDR_PANE_ID:-}" "$current"; do
+  [ -n "$me" ] && [ "$pane_id" = "$me" ] && exit 0
+done
+
+if [ "$key" != "ctrl-o" ]; then
+  # 寄り道: この popup の中に端末を attach する。exec なので popup は開いた
+  # まま、C-q m の detach で閉じる。
+  exec ~/.local/bin/herdr-pane-attach "$pane_id"
+fi
 
 # フォーカスは CLI ではなく socket API を直接叩く。`herdr pane focus` は
 # --direction 専用で、ペイン ID を渡す形が CLI に存在せず、渡すと usage を
