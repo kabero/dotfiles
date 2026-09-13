@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+"""herdr の端末をいまの TTY に attach する自前クライアント。C-q m で detach する。
+
+`herdr terminal attach` と同じことをするが、detach キーが ctrl+b q 固定で
+設定項目が無い（config-reference に attach/detach 関連のキーは keys.detach
+= クライアント全体のデタッチしか無い）ので、`herdr terminal session control`
+の JSON ストリームを使って自前で組む。popup は herdr にキーを渡さないため、
+prefix+m で開いた寄り道を prefix+m で閉じるにはこちらで横取りするしかない。
+
+  C-q m    detach（release を送って終了。popup コマンドとして動いていれば
+           popup が閉じて元の場所に戻る）
+  C-q C-q  attach 先に C-q をそのまま送る
+  C-q 他   C-q とそのキーをそのまま送る
+
+プロトコル（herdr 0.9.0 で実測）:
+  stdout  {"type":"terminal.frame","bytes":<base64 ANSI>,"full":bool,...}
+          初回は full=true で \\e[2J\\e[1;1H を含む全画面、以降は差分。
+          {"type":"terminal.closed","reason":...} で終わり。
+  stdin   {"type":"terminal.input","bytes":<base64>,"encoding":"base64"}
+          {"type":"terminal.resize","cols":N,"rows":N}
+          {"type":"terminal.release"}
+control は attach と同じく端末サイズを持つ（attach 先のペインがこちらの
+サイズになり、release で戻る）。
+
+使い方: herdr-pane-attach <pane_id|terminal_id|agent>
+"""
+
+import base64
+import fcntl
+import json
+import os
+import select
+import signal
+import struct
+import subprocess
+import sys
+import termios
+import time
+import tty
+
+PREFIX = 0x11          # C-q（herdr の prefix と同じ）
+DETACH = ord("m")
+LOG = os.path.expanduser("~/.local/state/herdr/pane-attach.log")   # 直近1回分
+
+
+def log(msg):
+    try:
+        with open(LOG, "a") as f:
+            f.write("%s %s\n" % (time.strftime("%H:%M:%S"), msg))
+    except OSError:
+        pass
+
+
+def term_size(fd=0):
+    rows, cols = struct.unpack("HHHH", fcntl.ioctl(fd, termios.TIOCGWINSZ, b"\0" * 8))[:2]
+    return (rows or 24), (cols or 80)
+
+
+def main():
+    if len(sys.argv) != 2:
+        sys.stderr.write("usage: herdr-pane-attach <target>\n")
+        return 2
+    target = sys.argv[1]
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        open(LOG, "w").close()
+    except OSError:
+        pass
+    rows, cols = term_size()
+    log("start target=%s size=%dx%d pid=%d" % (target, cols, rows, os.getpid()))
+    for sig in (signal.SIGHUP, signal.SIGTERM, signal.SIGINT, signal.SIGPIPE):
+        signal.signal(sig, lambda n, *_: (log("signal %d" % n), sys.exit(128 + n)))
+    proc = subprocess.Popen(
+        ["herdr", "terminal", "session", "control", target, "--takeover",
+         "--cols", str(cols), "--rows", str(rows)],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    out_fd = proc.stdout.fileno()
+
+    def send(cmd):
+        try:
+            proc.stdin.write((json.dumps(cmd) + "\n").encode())
+            proc.stdin.flush()
+        except (BrokenPipeError, OSError):
+            pass
+
+    resized = [False]
+    signal.signal(signal.SIGWINCH, lambda *_: resized.__setitem__(0, True))
+
+    saved = termios.tcgetattr(0)
+    tty.setraw(0)
+    pending = False        # 直前が C-q だったか
+    buf = b""
+    rc = 0
+    try:
+        while True:
+            if resized[0]:
+                resized[0] = False
+                rows, cols = term_size()
+                send({"type": "terminal.resize", "cols": cols, "rows": rows})
+            try:
+                ready, _, _ = select.select([0, out_fd], [], [], 0.2)
+            except InterruptedError:
+                continue
+            if out_fd in ready:
+                chunk = os.read(out_fd, 1 << 16)
+                if not chunk:
+                    log("exit: control stream EOF")
+                    break
+                buf += chunk
+                closed = False
+                while b"\n" in buf:
+                    line, buf = buf.split(b"\n", 1)
+                    try:
+                        rec = json.loads(line)
+                    except ValueError:
+                        continue
+                    if rec.get("type") == "terminal.frame":
+                        os.write(1, base64.b64decode(rec.get("bytes") or ""))
+                    elif rec.get("type") == "terminal.closed":
+                        log("exit: terminal.closed %r" % (rec.get("reason"),))
+                        closed = True
+                if closed:
+                    break
+            if 0 in ready:
+                data = os.read(0, 4096)
+                log("stdin %r" % (data,))
+                if not data:
+                    log("exit: stdin EOF")
+                    break
+                out = bytearray()
+                detach = False
+                for b in data:
+                    if pending:
+                        pending = False
+                        if b == DETACH:
+                            detach = True
+                            break
+                        if b != PREFIX:
+                            out.append(PREFIX)
+                        out.append(b)
+                    elif b == PREFIX:
+                        pending = True
+                    else:
+                        out.append(b)
+                if out:
+                    send({"type": "terminal.input",
+                          "bytes": base64.b64encode(bytes(out)).decode(),
+                          "encoding": "base64"})
+                if detach:
+                    log("exit: detach key")
+                    break
+    except Exception as e:
+        log("exit: exception %r" % (e,))
+        raise
+    finally:
+        log("cleanup")
+        send({"type": "terminal.release"})
+        try:
+            proc.stdin.close()
+        except OSError:
+            pass
+        try:
+            proc.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+        termios.tcsetattr(0, termios.TCSADRAIN, saved)
+        # 色・カーソル非表示・同期出力を戻してから popup を閉じる。
+        os.write(1, b"\x1b[0m\x1b[?25h\x1b[?2026l")
+    return rc
+
+
+if __name__ == "__main__":
+    sys.exit(main())
