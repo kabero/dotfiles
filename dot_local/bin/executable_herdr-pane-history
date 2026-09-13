@@ -31,11 +31,9 @@ set -u
 hist="$HOME/.local/state/herdr/pane-history.tsv"
 # これより古い入力は載せない。寄り道のスタックは「作業内容がまだ頭に残って
 # いるペイン」の一覧であって全履歴ではない。一晩空けば空になる程度の長さ。
-# 自分のペイン（起点）は例外で常に載る。
 MAX_AGE=${HPH_MAX_AGE:-$((8 * 3600))}
 # 色。端末は Kanagawa Dragon（背景 #181616）で fzf は端末の背景をそのまま使う
 # ので、同じパレットの暖色系の黒で揃える（無彩色の 23x 系は色味が浮く）。
-SELF_BG="48;2;40;39;39"       # 自分の行の背景 (dragonBlack4 #282727)
 CURSOR_BG="#393836"           # カーソル行 (dragonBlack5)
 [ -s "$hist" ] || { echo "履歴がまだありません" >&2; sleep 1; exit 0; }
 
@@ -48,14 +46,13 @@ panes=$(herdr pane list 2>/dev/null | jq -r '
 [ -n "$panes" ] || exit 0
 
 # pane 一覧 → 履歴 の順に awk へ流し、ペインごとの最新の1件だけを残す。
-# 閉じたペインは落とす。いま自分がいるペイン（8列目 = 1）は寄り道の起点、
-# つまり一番下の層なので、入力時刻に関わらず先頭に固定する。残りは MRU。
+# 閉じたペインと、いま自分がいるペインは落とす（自分は寄り道の行き先に
+# ならない）。残りは MRU。
 # ペイン一覧は環境変数で渡す: awk の -v は改行を含む値を受け取れない（BSD awk は
 # "newline in string" で落ちる）。herdr-repo-selector と同じ回避。
-# いま自分がいるペインも一覧に載せ、印だけ付ける。popup は起動元ペインの文脈を
-# 引き継がない（$HERDR_PANE_ID は空になる）ので、判定は API の focused が主。
-# $HERDR_PANE_ID は popup 以外から直接起動したときのための併用。
-rows=$(HPH_PANES="$panes" HPH_SELF="${HERDR_PANE_ID:-}" \
+# 自分の判定: popup には HERDR_ACTIVE_PANE_ID（下にあるペイン）が渡り、
+# HERDR_PANE_ID は空。直接起動したときは HERDR_PANE_ID。API の focused も併用。
+rows=$(HPH_PANES="$panes" HPH_SELF="${HERDR_ACTIVE_PANE_ID:-${HERDR_PANE_ID:-}}" \
   awk -F'\t' -v now="$(date +%s)" -v max_age="$MAX_AGE" '
   BEGIN {
     self = ENVIRON["HPH_SELF"]
@@ -73,12 +70,12 @@ rows=$(HPH_PANES="$panes" HPH_SELF="${HERDR_PANE_ID:-}" \
     ts[$2] = $1; kind[$2] = $3; detail[$2] = $4    # 後勝ち = 最新
   }
   END { for (p in ts) {
-          mine = (p == current || p == self) ? 1 : 0
-          if (!mine && now - ts[p] > max_age) continue
+          if (p == current || p == self) continue
+          if (now - ts[p] > max_age) continue
           printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
             ts[p], p, kind[p], detail[p], label[p], agent[p], status[p],
-            mine, title[p], cwd[p], sess[p] } }
-' "$hist" | sort -t$'\t' -k8,8rn -k1,1rn)
+            0, title[p], cwd[p], sess[p] } }
+' "$hist" | sort -t$'\t' -k1,1rn)
 
 [ -n "$rows" ] || { echo "飛べるペインがありません" >&2; sleep 1; exit 0; }
 
@@ -113,7 +110,7 @@ done <<< "$rows")
 # 表示行を組み立てる。エージェント状態は先頭のドットの色で示す
 # （blocked=入力待ち、done=未確認の完了、working=実行中、idle=待機）。
 # 文字で補わず色と明暗で見せる方針: 語やアイコンを足すと読む手間が増える。
-list=$(HPH_STARTS="$starts" awk -F'\t' -v now="$(date +%s)" -v home="$HOME" -v self_bg="$SELF_BG" '
+list=$(HPH_STARTS="$starts" awk -F'\t' -v now="$(date +%s)" -v home="$HOME" '
   BEGIN {
     n = split(ENVIRON["HPH_STARTS"], lines, "\n")
     for (i = 1; i <= n; i++) { split(lines[i], f, "\t"); if (f[2] != "") start[f[1]] = f[2] }
@@ -164,10 +161,7 @@ list=$(HPH_STARTS="$starts" awk -F'\t' -v now="$(date +%s)" -v home="$HOME" -v s
     bar = ""
     for (i = 1; i <= 5; i++) bar = bar ((i <= seg) ? "━" : "\033[38;5;236m━\033[0m")
     # 鮮度は色で示す: 1時間以内は白、それより古いものは段階的に落とす。
-    # いま自分がいるペインは薄く落とすだけにする（repo-selector と同じ流儀で、
-    # 文字を足さずに色で示す）。
-    if ($8 == 1)           { name = "\033[38;5;245m";   text = "\033[38;5;245m"; barc = "\033[38;5;245m" }
-    else if (age < 3600)   { name = "\033[1;38;5;255m"; text = "\033[38;5;250m"; barc = "\033[38;5;75m" }
+    if (age < 3600)        { name = "\033[1;38;5;255m"; text = "\033[38;5;250m"; barc = "\033[38;5;75m" }
     else if (age < 4*3600) { name = "\033[38;5;252m";   text = "\033[38;5;246m"; barc = "\033[38;5;67m" }
     else                   { name = "\033[38;5;246m";   text = "\033[38;5;241m"; barc = "\033[38;5;60m" }
     bar = barc bar "\033[0m"
@@ -180,14 +174,6 @@ list=$(HPH_STARTS="$starts" awk -F'\t' -v now="$(date +%s)" -v home="$HOME" -v s
     life = ($2 in start) ? ago(start[$2]) : ""
     row = sprintf("%s  %s%s\033[0m\033[38;5;243m%s%*s\033[0m %s \033[38;5;243m%-4s\033[0m \033[38;5;240m%-4s\033[0m %s%.90s\033[0m",
                   dot, name, repo, rest, (pad > 0 ? pad : 0), "", bar, ago($1), life, text, detail)
-    # 自分の行は行全体に背景色を敷く（寄り道の起点 = いま立っている層）。
-    # 各列の \033[0m が背景も消すので、リセットの直後に背景を貼り直し、右端
-    # まで空白で埋める（fzf 側は --ellipsis "" で切れ目の印を消してある）。
-    if ($8 == 1) {
-      bg = "\033[" self_bg "m"
-      gsub(/\033\[0m/, "&" bg, row)
-      row = bg row sprintf("%300s", "") "\033[0m"
-    }
     printf "%s\t%s\n", row, $2
   }
 ' <<< "$rows")
@@ -199,7 +185,7 @@ list=$(HPH_STARTS="$starts" awk -F'\t' -v now="$(date +%s)" -v home="$HOME" -v s
 selected=$(fzf --ansi --height 100% --layout reverse \
       --border rounded --border-label " panes (herdr) " \
       --color "fg:-1,bg:-1,fg+:255,bg+:$CURSOR_BG,hl:75,hl+:75,pointer:75,marker:75,border:238,label:75,prompt:75,info:243,header:243,gutter:-1,spinner:75" \
-      --pointer "▌" --prompt "> " --ellipsis "" \
+      --pointer "▌" --prompt "> " \
       --delimiter='\t' --with-nth=1 --highlight-line \
       --expect=ctrl-o \
       --bind 'ctrl-q:rebind(m)' --bind 'm:abort' --bind 'start:unbind(m)' \
@@ -211,9 +197,8 @@ line="${selected#*$'\n'}"
 pane_id="${line##*$'\t'}"
 [ -n "$pane_id" ] || exit 0
 
-# 自分のペイン（popup の下にあるペイン）は選んでも何もしない。attach すると
-# 自分の端末を自分の上に出して入力が自分に返る形になり、サイズも縮む。
-# フォーカス移動も無意味。popup では HERDR_ACTIVE_PANE_ID が下のペイン。
+# 自分のペインは一覧に載せていないが、念のため選ばれても何もしない。attach
+# すると自分の端末を自分の上に出して入力が自分に返る形になり、サイズも縮む。
 current=$(awk -F'\t' '$5 == "1" { print $1; exit }' <<< "$panes")
 for me in "${HERDR_ACTIVE_PANE_ID:-}" "${HERDR_PANE_ID:-}" "$current"; do
   [ -n "$me" ] && [ "$pane_id" = "$me" ] && exit 0
