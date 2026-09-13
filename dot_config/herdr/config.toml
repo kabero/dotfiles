@@ -104,8 +104,8 @@ height = "70%"
 # 「入力したペイン」だけの MRU ピッカー。herdr の last_pane (prefix+;) が
 # 1つ前に戻るのに対し、こちらは履歴を一覧して任意の1つを選ぶ。フォーカス
 # しただけのペインは載らず、コマンドを実行した／エージェントにプロンプトを
-# 投げたペインだけが対象（記録は dot_zshrc の preexec と
-# herdr-pane-historyd）。
+# 投げたペインだけが対象（記録は dot_zshrc の preexec と、プラグイン
+# kabe.pane-history のイベントフック。plugins/pane-history を参照）。
 # Enter は移動ではなく「寄り道」: 選んだペインの端末をこの popup の中に
 # attach する（herdr terminal attach）。popup が出ている = 寄り道中で、
 # もう一度 prefix+m で detach すると popup が閉じて元の場所に戻る。ctrl-o で従来の

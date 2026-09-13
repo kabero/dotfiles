@@ -1,0 +1,14 @@
+# prefix+m（herdr-pane-history）用の「入力したペイン」の記録。
+# エージェントペインへの入力は、agent_status が working に変わった瞬間として
+# 拾う。herdr のイベントフックで1イベント1プロセス。常駐なし。
+# シェルペインの分は dot_zshrc の preexec が直接書く。
+id = "kabe.pane-history"
+name = "Pane history"
+version = "0.2.0"
+min_herdr_version = "0.9.0"
+description = "Record which panes you actually typed in (for prefix+m)"
+platforms = ["macos", "linux"]
+
+[[events]]
+on = "pane.agent_status_changed"
+command = ["./record"]

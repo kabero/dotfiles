@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""pane.agent_status_changed のフック。フォーカス中のペインが working に
+なった = 人がプロンプトを投げた、と読んで pane-history.tsv に追記する。
+
+  <epoch>\t<pane_id>\t<agent>\t<detail>
+
+フォーカスで絞るのは、他のエージェントが API 経由で起こした working を
+混ぜないため。status_changed は変化時しか来ないので「working への遷移」は
+イベントそのもので保証される。1ターン内で working↔idle が振れるぶんは、
+同じペインの直近の記録から DEBOUNCE_SEC 以内なら捨てる。
+イベントの JSON は HERDR_PLUGIN_EVENT_JSON（形は herdr 0.9.0 の実測に合わせ、
+data の下でも直下でも読む）。
+"""
+
+import json
+import os
+import subprocess
+import sys
+import time
+
+HIST = os.path.expanduser("~/.local/state/herdr/pane-history.tsv")
+DEBOUNCE_SEC = 20
+MAX_LINES, KEEP_LINES = 2000, 1000
+
+
+def main():
+    raw = os.environ.get("HERDR_PLUGIN_EVENT_JSON") or ""
+    try:
+        ev = json.loads(raw)
+    except ValueError:
+        return 0
+    data = ev.get("data") if isinstance(ev.get("data"), dict) else ev
+    pane_id = data.get("pane_id")
+    if not pane_id or data.get("agent_status") != "working":
+        return 0
+
+    # フォーカス中か。フックには focused が無いので API に 1 回聞く。
+    herdr = os.environ.get("HERDR_BIN_PATH", "herdr")
+    try:
+        out = subprocess.run([herdr, "pane", "list"], capture_output=True, text=True, timeout=3).stdout
+        panes = json.loads(out)["result"]["panes"]
+    except Exception:
+        return 0
+    if not any(p.get("pane_id") == pane_id and p.get("focused") for p in panes):
+        return 0
+
+    now = int(time.time())
+    try:
+        with open(HIST) as f:
+            lines = f.readlines()
+    except OSError:
+        lines = []
+    for line in reversed(lines):
+        f = line.rstrip("\n").split("\t")
+        if len(f) >= 3 and f[1] == pane_id:
+            if f[2] == "agent" and now - int(f[0]) < DEBOUNCE_SEC:
+                return 0
+            break
+
+    os.makedirs(os.path.dirname(HIST), exist_ok=True)
+    with open(HIST, "a") as f:        # PIPE_BUF 未満の追記は不可分
+        f.write("%d\t%s\tagent\t%s\n" % (now, pane_id, (data.get("agent") or "agent")[:120]))
+    if len(lines) + 1 > MAX_LINES:
+        with open(HIST + ".tmp", "w") as f:
+            f.writelines(lines[-KEEP_LINES:])
+        os.replace(HIST + ".tmp", HIST)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -14,7 +14,8 @@
 # 寄り道は 1 段まで。
 # フォーカスしただけ、ログを眺めただけのペインは載らない。載るのは
 #   シェル      : コマンドを実行した (zsh preexec、dot_zshrc の HERDR ブロック)
-#   エージェント: プロンプトを投げた (herdr-pane-historyd が working 遷移を検知)
+#   エージェント: プロンプトを投げた (プラグイン kabe.pane-history が
+#                 pane.agent_status_changed フックで working 遷移を検知)
 # の2つだけ。prefix+m に [[keys.command]] で割り当ててある。
 #
 # 履歴は追記のみの ~/.local/state/herdr/pane-history.tsv:

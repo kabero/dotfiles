@@ -384,8 +384,9 @@ if [[ -n $(printenv HERDR_ENV) && -n $HERDR_PANE_ID ]] ; then
   # ペイン遷移履歴: 「コマンドを実行した」瞬間だけを記録する。フォーカスした
   # だけ・ログを眺めただけのペインは載らない。herdr の socket API には入力
   # イベントがないので（PaneInfo.revision も出力に追従しない）、シェル側は
-  # preexec が唯一の確実な入力シグナル。エージェントペインの分は
-  # herdr-pane-historyd が agent_status の working 遷移から拾う。
+  # preexec が唯一の確実な入力シグナル。エージェントペインの分は herdr の
+  # プラグイン kabe.pane-history（~/.config/herdr/plugins/pane-history）が
+  # pane.agent_status_changed のフックで拾う。常駐プロセスは無い。
   # 読み出しは herdr-pane-history (prefix+m)。
   zmodload -F zsh/datetime p:EPOCHSECONDS 2>/dev/null
   _herdr_history_dir=$HOME/.local/state/herdr
@@ -397,16 +398,6 @@ if [[ -n $(printenv HERDR_ENV) && -n $HERDR_PANE_ID ]] ; then
       print -r -- "$EPOCHSECONDS	$HERDR_PANE_ID	shell	${cmd:0:120}" \
           >> $_herdr_history_dir/pane-history.tsv 2>/dev/null
   }
-  # 履歴デーモンは1本だけ。pidfile が生きていれば起動しない。判定は
-  # zsh の組み込みだけで済ませ、シェル起動にフォークを足さない。
-  _herdr_history_ensure_daemon() {
-      local pidfile=$_herdr_history_dir/pane-historyd.pid pid=
-      [[ -r $pidfile ]] && pid=$(<$pidfile)
-      [[ -n $pid ]] && kill -0 $pid 2>/dev/null && return
-      herdr-pane-historyd >/dev/null 2>&1 &!
-  }
-  _herdr_history_ensure_daemon
-
   autoload -Uz add-zsh-hook
   add-zsh-hook precmd _herdr_label_precmd
   add-zsh-hook preexec _herdr_label_preexec
