@@ -36,14 +36,21 @@ MAX_AGE=${HPH_MAX_AGE:-$((8 * 3600))}
 # 色。端末は Kanagawa Dragon（背景 #181616）で fzf は端末の背景をそのまま使う
 # ので、同じパレットの暖色系の黒で揃える（無彩色の 23x 系は色味が浮く）。
 CURSOR_BG="#393836"           # カーソル行 (dragonBlack5)
+# 名前欄の背景はスペースごとの色（herdr-space-color、サイドバーの agents 欄の
+# スペース名と同じハッシュ・同じ色相）。同じスペースのペインが縦に揃って見える。
+SPACE_COLOR=~/.local/bin/herdr-space-color
 [ -s "$hist" ] || { echo "履歴がまだありません" >&2; sleep 1; exit 0; }
 
 # 生きているペイン一覧。label は herdr が出す表示名（"repo · claude" など）。
-panes=$(herdr pane list 2>/dev/null | jq -r '
+# 末尾にスペース名（workspace のラベル）を付ける: 色の元。
+wsmap=$(herdr workspace list 2>/dev/null | jq -c '
+  [.result.workspaces[] | {key: .workspace_id, value: (.label // "")}] | from_entries') || exit 1
+panes=$(herdr pane list 2>/dev/null | jq -r --argjson ws "$wsmap" '
   .result.panes[] | [.pane_id, (.label // ""), (.agent // ""), .agent_status,
                      (if .focused then "1" else "0" end),
                      (.terminal_title_stripped // ""), (.cwd // ""),
-                     (.agent_session.value // "")] | @tsv') || exit 1
+                     (.agent_session.value // ""),
+                     ($ws[.workspace_id] // "")] | @tsv') || exit 1
 [ -n "$panes" ] || exit 0
 
 # pane 一覧 → 履歴 の順に awk へ流し、ペインごとの最新の1件だけを残す。
@@ -62,7 +69,7 @@ rows=$(HPH_PANES="$panes" HPH_SELF="${HERDR_ACTIVE_PANE_ID:-${HERDR_PANE_ID:-}}"
       if (lines[i] == "") continue
       split(lines[i], f, "\t")
       label[f[1]] = f[2]; agent[f[1]] = f[3]; status[f[1]] = f[4]
-      title[f[1]] = f[6]; cwd[f[1]] = f[7]; sess[f[1]] = f[8]
+      title[f[1]] = f[6]; cwd[f[1]] = f[7]; sess[f[1]] = f[8]; space[f[1]] = f[9]
       if (f[5] == "1") current = f[1]
       alive[f[1]] = 1
     }
@@ -73,9 +80,9 @@ rows=$(HPH_PANES="$panes" HPH_SELF="${HERDR_ACTIVE_PANE_ID:-${HERDR_PANE_ID:-}}"
   END { for (p in ts) {
           if (p == current || p == self) continue
           if (now - ts[p] > max_age) continue
-          printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+          printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
             ts[p], p, kind[p], detail[p], label[p], agent[p], status[p],
-            0, title[p], cwd[p], sess[p] } }
+            0, title[p], cwd[p], sess[p], space[p] } }
 ' "$hist" | sort -t$'\t' -k1,1rn)
 
 [ -n "$rows" ] || { echo "飛べるペインがありません" >&2; sleep 1; exit 0; }
@@ -108,13 +115,26 @@ starts=$(while IFS=$'\t' read -r _ pid _ _ _ agent _ _ _ _ sess; do
   printf "%s\t%s\n" "$pid" "$start"
 done <<< "$rows")
 
+# スペース名 → 背景色（"r;g;b"）。一覧に出るスペースの分だけ、1 回の呼び出しで
+# まとめて引く。16進は bash の printf で 10進に直す（BSD awk に strtonum が無い）。
+spaces=()
+while IFS= read -r sp; do [ -n "$sp" ] && spaces+=("$sp"); done < <(cut -f12 <<< "$rows" | sort -u)
+colors=""
+if [ ${#spaces[@]} -gt 0 ] && [ -x "$SPACE_COLOR" ]; then
+  colors=$(while IFS=$'\t' read -r _ _ bg sp; do
+    printf "%s\t%d;%d;%d\n" "$sp" "0x${bg:1:2}" "0x${bg:3:2}" "0x${bg:5:2}"
+  done < <("$SPACE_COLOR" "${spaces[@]}"))
+fi
+
 # 表示行を組み立てる。エージェント状態は先頭のドットの色で示す
 # （blocked=入力待ち、done=未確認の完了、working=実行中、idle=待機）。
 # 文字で補わず色と明暗で見せる方針: 語やアイコンを足すと読む手間が増える。
-list=$(HPH_STARTS="$starts" awk -F'\t' -v now="$(date +%s)" -v home="$HOME" '
+list=$(HPH_STARTS="$starts" HPH_COLORS="$colors" awk -F'\t' -v now="$(date +%s)" -v home="$HOME" '
   BEGIN {
     n = split(ENVIRON["HPH_STARTS"], lines, "\n")
     for (i = 1; i <= n; i++) { split(lines[i], f, "\t"); if (f[2] != "") start[f[1]] = f[2] }
+    n = split(ENVIRON["HPH_COLORS"], lines, "\n")
+    for (i = 1; i <= n; i++) { split(lines[i], f, "\t"); if (f[2] != "") bg[f[1]] = "\033[48;2;" f[2] "m" }
   }
   function ago(s,   d) {
     d = now - s
@@ -125,11 +145,16 @@ list=$(HPH_STARTS="$starts" awk -F'\t' -v now="$(date +%s)" -v home="$HOME" '
   }
   {
     st = $7
-    if (st == "blocked")      dot = "\033[38;5;203m●\033[0m"
-    else if (st == "done")    dot = "\033[38;5;114m●\033[0m"
-    else if (st == "working") dot = "\033[38;5;75m●\033[0m"
-    else if (st == "idle")    dot = "\033[38;5;245m●\033[0m"
-    else                      dot = "\033[38;5;238m·\033[0m"
+    if (st == "blocked")      dot = "\033[38;5;203m●"
+    else if (st == "done")    dot = "\033[38;5;114m●"
+    else if (st == "working") dot = "\033[38;5;75m●"
+    else if (st == "idle")    dot = "\033[38;5;245m●"
+    else                      dot = "\033[38;5;238m·"
+    # 名前欄（ドット〜ラベル）の背景をスペースの色で塗る。欄の中で色を戻す
+    # ときは背景を保ったまま戻す（R）。fzf はカーソル行でも項目側の背景を
+    # 優先するので、カーソルは残りの欄の bg+ とポインタで分かる。
+    bgc = ($12 in bg) ? bg[$12] : ""
+    R = "\033[0m" bgc
     # ラベル "repo · agent" は repo を明るく、エージェント名を薄く。
     repo = $5; rest = ""; suffix = " · " $6
     if ($6 != "" && substr($5, length($5) - length(suffix) + 1) == suffix) {
@@ -173,8 +198,8 @@ list=$(HPH_STARTS="$starts" awk -F'\t' -v now="$(date +%s)" -v home="$HOME" '
     # セッションの長さ。経過時間（最後の入力からの時間）と区別できるよう
     # 一段暗く、幅を揃えて置く。取れなければ空欄。
     life = ($2 in start) ? ago(start[$2]) : ""
-    row = sprintf("%s  %s%s\033[0m\033[38;5;243m%s%*s\033[0m %s \033[38;5;243m%-4s\033[0m \033[38;5;240m%-4s\033[0m %s%.90s\033[0m",
-                  dot, name, repo, rest, (pad > 0 ? pad : 0), "", bar, ago($1), life, text, detail)
+    row = sprintf("%s %s%s  %s%s%s\033[38;5;243m%s%*s \033[0m %s \033[38;5;243m%-4s\033[0m \033[38;5;240m%-4s\033[0m %s%.90s\033[0m",
+                  bgc, dot, R, name, repo, R, rest, (pad > 0 ? pad : 0), "", bar, ago($1), life, text, detail)
     printf "%s\t%s\n", row, $2
   }
 ' <<< "$rows")

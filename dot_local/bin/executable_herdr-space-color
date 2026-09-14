@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""ワークスペース（スペース）名 → 色。名前のハッシュで決めるので、同じ名前は
+どこで見ても同じ色になる。使う側:
+  サイドバーの agents 欄: プラグイン kabe.space-color が各ペインに
+      $s<番号> トークンを報告し、config.toml が番号ごとの前景色を当てる
+      （サイドバーはトークンの前景色しか変えられず、行の背景は塗れない）。
+  prefix+m (herdr-pane-history): 名前欄の背景を bg で塗る。
+色の実体はここだけ。パレットは端末の Kanagawa Dragon（背景 #181616）から
+取り、bg はその色を背景に薄く混ぜたもの。
+
+  herdr-space-color LABEL...   # 1行ずつ  <番号>\t<fg>\t<bg>\t<LABEL>
+  herdr-space-color --palette  # 番号ごとの  <番号>\t<fg>\t<bg>\t<色名>
+  herdr-space-color --toml     # config.toml に貼る agents 行のトークン列
+"""
+
+import hashlib
+import sys
+
+BG = (0x18, 0x16, 0x16)          # dragonBlack3
+TINT = 0.28                       # bg に混ぜる割合。濃いとカーソル行と紛れる
+PALETTE = [                       # 見分けやすい 7 色。増やすと衝突は減るが似た色が混ざる
+    ("red", "#c4746e"),
+    ("orange", "#b6927b"),
+    ("yellow", "#c4b28a"),
+    ("green", "#87a987"),
+    ("aqua", "#8ea4a2"),
+    ("blue", "#7fb4ca"),
+    ("violet", "#938aa9"),
+]
+
+
+def index(label):
+    # md5 は速くて安定（Python の hash() はプロセスごとに変わる）。
+    return int(hashlib.md5(label.encode("utf-8")).hexdigest(), 16) % len(PALETTE)
+
+
+def blend(fg):
+    r, g, b = (int(fg[i:i + 2], 16) for i in (1, 3, 5))
+    return "#%02x%02x%02x" % tuple(
+        round(BG[i] * (1 - TINT) + c * TINT) for i, c in enumerate((r, g, b)))
+
+
+def main(argv):
+    if argv == ["--palette"]:
+        for i, (name, fg) in enumerate(PALETTE):
+            print("%d\t%s\t%s\t%s" % (i, fg, blend(fg), name))
+        return 0
+    if argv == ["--toml"]:
+        print(", ".join('{ token = "$s%d", fg = "%s" }' % (i, fg) for i, (_, fg) in enumerate(PALETTE)))
+        return 0
+    for label in argv:
+        i = index(label)
+        fg = PALETTE[i][1]
+        print("%d\t%s\t%s\t%s" % (i, fg, blend(fg), label))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

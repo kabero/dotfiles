@@ -1,0 +1,34 @@
+# サイドバー agents 欄の「スペース名に色を付ける」ための下請け。
+# herdr のサイドバーはトークンの値で前景色を変えられるが（rules）、1 トークン
+# 16 ルールまでで背景も塗れない。そこで各ペインに $s0〜$s6 のうち
+# 「スペース名のハッシュで決めた 1 つ」だけをトークンとして報告し、config.toml
+# 側でトークンごとに固定の色を当てる（報告していないトークンは表示されない）。
+# 色の決め方は ~/.local/bin/herdr-space-color（prefix+m と共通）。
+# 常駐なし: 起動時に全ペイン、あとはイベントごとに 1 プロセス。
+id = "kabe.space-color"
+name = "Space color"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Report a per-space color token on every pane (for sidebar agent rows)"
+platforms = ["macos", "linux"]
+
+[[startup]]
+command = ["./apply"]
+
+[[events]]
+on = "pane.created"
+command = ["./apply"]
+
+[[events]]
+on = "pane.moved"
+command = ["./apply"]
+
+[[events]]
+on = "workspace.renamed"
+command = ["./apply"]
+
+# cwd 由来のラベルが変わったとき用。頻繁に来る（agent_status の変化でも来る）
+# ので、apply 側でトークンが既に合っていれば何もしない。
+[[events]]
+on = "workspace.updated"
+command = ["./apply"]
