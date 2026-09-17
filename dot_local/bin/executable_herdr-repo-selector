@@ -12,20 +12,26 @@
 set -u
 ghq_root="$(ghq root)"
 
-# Build repo list: ghq repos + chezmoi (same as the tmux version)
+# Build repo list: ghq repos + chezmoi (same as the tmux version), plus the
+# initialised submodules of each ghq repo (`ghq list` stops at the outer
+# repo). A submodule rides along as <repo>/<path-in-repo>; its workspace label
+# is the basename and the sidebar shows the in-repo path via kabe.submodule-path.
 repo_list=$(ghq list)
+submodules=$(while IFS= read -r r; do
+  [ -f "$ghq_root/$r/.gitmodules" ] || continue
+  git -C "$ghq_root/$r" submodule status --recursive 2>/dev/null \
+    | awk -v r="$r" '$0 !~ /^-/ { print r "/" $2 }'   # "-" = not initialised
+done <<< "$repo_list")
+[ -n "$submodules" ] && repo_list="$repo_list"$'\n'"$submodules"
 repo_list="$repo_list
 chezmoi"
 
-# Workspace label = same naming as tmux sessions: path parts after host/owner
-# (nested submodules keep their subpath), else the basename.
+# Workspace label = basename (a submodule too: the sidebar adds its in-repo
+# path as $sub, so the label stays short).
 label_of() {
   case "$1" in
     chezmoi) echo chezmoi ;;
-    *) echo "$1" | awk -F/ '{
-         if (NF > 3) { s = ""; for (i = 4; i <= NF; i++) s = s (i > 4 ? "/" : "") $i; print s }
-         else print $NF
-       }' ;;
+    *) echo "${1##*/}" ;;
   esac
 }
 
@@ -48,9 +54,7 @@ WS_LABELS="$(printf '%s\n' "$ws_tsv" | cut -f1)" awk -F/ '
   !NF { next }
   {
     repo = $0
-    if (repo == "chezmoi") label = "chezmoi"
-    else if (NF > 3) { label = ""; for (i = 4; i <= NF; i++) label = label (i > 4 ? "/" : "") $i }
-    else label = $NF
+    label = (repo == "chezmoi") ? "chezmoi" : $NF
     if (label in open)
       printf "\033[38;5;75m●\033[0m  \033[1;38;5;255m%s\033[0m\t%s\n", repo, repo
     else

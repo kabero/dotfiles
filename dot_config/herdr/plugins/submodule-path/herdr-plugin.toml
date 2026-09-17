@@ -1,0 +1,33 @@
+# Spaces 欄に「submodule なら親リポジトリのルートから見た相対パス」を出す。
+# ワークスペースのカスタムトークン $sub に報告し、config.toml の
+# [ui.sidebar.spaces] rows で表示する。submodule でなければ $sub を消すので
+# 何も出ない。ワークスペース自体は cwd を持たず（workspace.list に無い）、
+# 代表 pane（アクティブタブのフォーカス pane）の cwd で判定する。
+# 常駐なし: 起動時に全ワークスペース、あとはイベントごとに 1 プロセス。
+id = "kabe.submodule-path"
+name = "Submodule path"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Report a workspace's path relative to its superproject root as $sub"
+platforms = ["macos", "linux"]
+
+[[startup]]
+command = ["./apply"]
+
+[[events]]
+on = "workspace.created"
+command = ["./apply"]
+
+# 頻繁に来る（agent_status の変化でも来る）ので apply 側で前回と同じなら書かない。
+[[events]]
+on = "workspace.updated"
+command = ["./apply"]
+
+# 代表 pane が変わる/増えるとき。
+[[events]]
+on = "pane.created"
+command = ["./apply"]
+
+[[events]]
+on = "pane.focused"
+command = ["./apply"]

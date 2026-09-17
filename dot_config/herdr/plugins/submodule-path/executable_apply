@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""ワークスペースの代表 pane の cwd が git submodule の中なら、いちばん外側の
+親リポジトリのルートから見た submodule の相対パス（libs/foo など）を
+workspace トークン $sub に報告する。submodule でなければ null で消す。
+
+  startup / 不明なイベント : 全ワークスペース
+  workspace.created/updated : そのワークスペース
+  pane.created/focused      : その pane のワークスペース
+
+代表 pane = アクティブタブのフォーカス pane（無ければ最初の pane）。
+workspace.list が tokens を返すので、値が既に合っていれば書かない
+（workspace.updated は agent_status の変化でも来る）。
+イベントの JSON は HERDR_PLUGIN_EVENT_JSON。socket は HERDR_SOCKET_PATH。
+"""
+
+import json
+import os
+import socket
+import subprocess
+import sys
+
+SOURCE = "kabe.submodule-path"
+TOKEN = "sub"
+SOCK = os.environ.get("HERDR_SOCKET_PATH") or os.path.expanduser("~/.config/herdr/herdr.sock")
+
+
+def call(method, params):
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.connect(SOCK)
+    try:
+        s.sendall((json.dumps({"id": "sp", "method": method, "params": params}) + "\n").encode())
+        return json.loads(s.makefile("r").readline()).get("result") or {}
+    finally:
+        s.close()
+
+
+def git(cwd, *args):
+    r = subprocess.run(["git", "-C", cwd, "rev-parse", *args],
+                       capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 else ""
+
+
+def sub_path(cwd):
+    """cwd が submodule の中なら、外側の親ルートから見た submodule の相対パス。"""
+    if not cwd or not os.path.isdir(cwd):
+        return None
+    top = git(cwd, "--show-toplevel")
+    if not top:
+        return None
+    root = top
+    while True:                       # ネストした submodule はいちばん外側まで上る
+        sup = git(root, "--show-superproject-working-tree")
+        if not sup:
+            break
+        root = sup
+    if root == top:
+        return None
+    return os.path.relpath(os.path.realpath(top), os.path.realpath(root))
+
+
+def representative_cwd(ws, panes):
+    mine = [p for p in panes if p.get("workspace_id") == ws["workspace_id"]]
+    for p in mine:
+        if p.get("tab_id") == ws.get("active_tab_id") and p.get("focused"):
+            return p.get("cwd")
+    return mine[0].get("cwd") if mine else None
+
+
+def apply(workspaces):
+    panes = call("pane.list", {}).get("panes", [])
+    for ws in workspaces:
+        value = sub_path(representative_cwd(ws, panes))
+        if (ws.get("tokens") or {}).get(TOKEN) == value:
+            continue
+        call("workspace.report_metadata",
+             {"workspace_id": ws["workspace_id"], "source": SOURCE, "tokens": {TOKEN: value}})
+
+
+def main():
+    raw = os.environ.get("HERDR_PLUGIN_EVENT_JSON") or ""
+    try:
+        ev = json.loads(raw) if raw else {}
+    except ValueError:
+        ev = {}
+    data = ev.get("data") if isinstance(ev.get("data"), dict) else ev
+    wid = data.get("workspace_id") or (data.get("workspace") or {}).get("workspace_id") \
+        or (data.get("pane") or {}).get("workspace_id")
+
+    workspaces = call("workspace.list", {}).get("workspaces", [])
+    if wid:
+        workspaces = [w for w in workspaces if w["workspace_id"] == wid]
+    apply(workspaces)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
