@@ -17,6 +17,11 @@ show_agent_labels_on_pane_borders = true
 # whatever needs input floats to the top, regardless of which space it lives in.
 agent_panel_sort = "priority"
 
+# フォーカス pane の枠。herdr 0.9.1 には枠の太さや線種（太線/二重線）の設定が
+# 無く、枠は常に 1 セルの細線。代わりに accent（フォーカス枠・ハイライト・
+# ナビ UI の色）を solarized の橙にして、既定の青より目に付くようにする。
+accent = "#cb4b16"
+
 # タブバーは下。tmux の status-bar が下にあったのと同じ位置で、視線が
 # シェルのプロンプト付近から動かずに済む。
 tab_bar_position = "bottom"
