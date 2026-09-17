@@ -151,6 +151,16 @@ key = "prefix+c"
 type = "shell"
 command = "~/.local/bin/herdr-new-tab"
 
+# 使い捨てターミナル。分割やタブを増やさずにポップアップでシェルを開き、
+# exit（C-d）で閉じてタイルに戻る。cwd はアクティブ pane に従う。
+[[keys.command]]
+key = "prefix+t"
+type = "popup"
+command = "exec \"${SHELL:-sh}\""
+description = "scratch terminal"
+width = "80%"
+height = "80%"
+
 [[keys.command]]
 key = "prefix+space"
 type = "plugin_action"
