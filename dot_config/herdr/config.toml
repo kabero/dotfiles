@@ -4,6 +4,11 @@ onboarding = false
 [theme]
 name = "solarized"
 
+# サイドバーのフォーカス行の背景。accent を橙にしたら行の背景まで強くなって
+# 薄字（dim）の 2〜3 行目が読めなくなったので、base02 の控えめな色に固定する。
+[theme.custom]
+active_row_bg = "#073642"
+
 [ui]
 # tmux: prefix+c creates a window immediately; skip herdr's tab-name prompt
 # (tabs get generated names, rename later with prefix+shift+t).
