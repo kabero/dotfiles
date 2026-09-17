@@ -139,6 +139,12 @@ key = "prefix+c"
 type = "shell"
 command = "~/.local/bin/herdr-new-tab"
 
+[[keys.command]]
+key = "prefix+space"
+type = "plugin_action"
+command = "kabe.herdr-party.toggle"
+description = "party pane"
+
 [experimental]
 # Pass the kitty graphics protocol through to panes, so image output
 # (wezterm imgcat, nvim image previews, etc.) renders inside herdr.
