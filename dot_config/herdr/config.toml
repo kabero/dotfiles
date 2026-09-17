@@ -50,8 +50,8 @@ tab_bar_right_separator = "  ·  "
 # 名前欄の背景と同じ色）。サイドバーは行の背景を塗れず（fg/bold/dim のみ）、
 # トークンの前景色を値ごとの rules で変えるだけだが 16 ルールまでなので、
 # 代わりにプラグイン kabe.space-color（plugins/space-color）が各ペインに
-# $s0〜$s6 のうち 1 つだけを "▌名前" の形で報告し、ここでトークンごとの色を
-# 当てる。▌ が背景色の代わりの帯。報告の無いトークンは出ない。
+# $s0〜$s6 のうち 1 つだけを報告し、ここでトークンごとの色を当てる。
+# 報告の無いトークンは出ない。
 # 色は ~/.local/bin/herdr-space-color --toml の出力（貼り直せば同期する）。
 # claude の 2〜3 行目は「いま何をしているか」: Claude Code のフック
 # （~/.claude/settings.json → ~/.local/bin/claude-herdr-act）が種類ごとのトークンに
