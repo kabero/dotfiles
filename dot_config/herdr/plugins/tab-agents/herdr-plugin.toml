@@ -1,0 +1,48 @@
+# タブ名の末尾に、そのタブに居るエージェントの数だけ ✳ を付ける（"1 ✳"）。
+# タブバーに出せるのはラベルだけで、エージェントの有無を出す設定が無い。
+# herdr は名前を変えたタブを自動連番から外す（閉じたあと "2 ✳" と "2" が
+# 並ぶ）ので、番号もこちらで位置から付け直す。手で付けた名前は末尾に印を
+# 足すだけ。常駐なし: 起動時に全タブ、あとはイベントごとに 1 プロセス。
+id = "kabe.tab-agents"
+name = "Tab agents"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Mark tabs that contain agents in their label"
+platforms = ["macos", "linux"]
+
+[[startup]]
+command = ["./apply"]
+
+[[events]]
+on = "tab.created"
+command = ["./apply"]
+
+[[events]]
+on = "tab.closed"
+command = ["./apply"]
+
+[[events]]
+on = "tab.moved"
+command = ["./apply"]
+
+[[events]]
+on = "pane.created"
+command = ["./apply"]
+
+[[events]]
+on = "pane.exited"
+command = ["./apply"]
+
+[[events]]
+on = "pane.moved"
+command = ["./apply"]
+
+[[events]]
+on = "pane.agent_detected"
+command = ["./apply"]
+
+# エージェントが終了して agent が消えたときはこれで拾う（頻繁に来るが、
+# ラベルが同じなら何もしない）。
+[[events]]
+on = "pane.agent_status_changed"
+command = ["./apply"]

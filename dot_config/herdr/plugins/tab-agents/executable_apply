@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""全ワークスペースのタブ名を「<位置> ✳…」に揃える。✳ はタブ内のエージェント
+pane の数。エージェントが居なければ「<位置>」だけ。
+
+自動命名（数字だけ、または数字 + 印）のタブは位置から番号を付け直す。それ以外
+（手で付けた名前）は印の部分だけ付け外しする。ラベルが同じなら rename しない
+（tab.renamed を出さないため、頻繁なイベントでも軽い）。
+イベントの中身は使わず毎回全タブを見る（数十タブでも 1 往復 × 2）。
+"""
+
+import json
+import os
+import re
+import socket
+import sys
+
+MARK = "✳"                   # ✳ 1 エージェント 1 つ
+AUTO = re.compile(r"^\d+(?: " + MARK + r"+)?$")
+TRAIL = re.compile(r" " + MARK + r"+$")
+SOCK = os.environ.get("HERDR_SOCKET_PATH") or os.path.expanduser("~/.config/herdr/herdr.sock")
+
+
+def call(method, params):
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.connect(SOCK)
+    try:
+        s.sendall((json.dumps({"id": "ta", "method": method, "params": params}) + "\n").encode())
+        return json.loads(s.makefile("r").readline()).get("result") or {}
+    finally:
+        s.close()
+
+
+def main():
+    tabs = call("tab.list", {}).get("tabs", [])
+    panes = call("pane.list", {}).get("panes", [])
+    agents = {}
+    for p in panes:
+        if p.get("agent"):
+            agents[p["tab_id"]] = agents.get(p["tab_id"], 0) + 1
+    pos = {}
+    for t in tabs:                   # tab.list はワークスペースごとに表示順
+        pos[t["tab_id"]] = pos.get(t["workspace_id"], 0) + 1
+        pos[t["workspace_id"]] = pos[t["tab_id"]]
+    for t in tabs:
+        label = t.get("label") or ""
+        base = str(pos[t["tab_id"]]) if AUTO.match(label) else TRAIL.sub("", label)
+        n = agents.get(t["tab_id"], 0)
+        new = base + (" " + MARK * n if n else "")
+        if new != label:
+            call("tab.rename", {"tab_id": t["tab_id"], "label": new})
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
