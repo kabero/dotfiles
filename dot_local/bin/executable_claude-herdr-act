@@ -4,11 +4,11 @@
 config.toml 側で扱いを変えられるようにしておく（色はトークン単位で行全体が染まるので使わず、絵文字で区別）（1 種類だけ値を持ち、他は消す）。2 行に折り返す
 ので <種類>1 / <種類>2 の 2 つずつ。
 
-  UserPromptSubmit  : p = 💬 <投げた指示>          （実行中、まだツール前）
+  UserPromptSubmit  : p = ❯ <投げた指示>           （実行中、まだツール前）
   PreToolUse        : t = 🔧 <ツール> <対象>        （Edit config.toml など）
   PermissionRequest : q = ❓ <ツール> <対象>        （許可待ち）
   Notification      : q = ❓ <聞かれている内容>      （permission/elicitation）
-  Stop / idle       : d = ✅ <最後に投げた指示>      （完了）
+  Stop / idle       : p = ❯ <最後に投げた指示>       （完了。状態は herdr のドットで分かる）
   SessionStart/End  : 全部消す
 
 stdin にフックの JSON。herdr の外（HERDR_PANE_ID 無し）では何もしない。
@@ -25,7 +25,7 @@ from urllib.parse import urlparse
 
 WIDTH = 34                        # 1 行の上限セル数（サイドバー幅 26 前後）
 LINES = 2                         # 折り返す行数。config.toml の $p1/$p2 などと対応
-KINDS = {"p": "💬 ", "t": "🔧 ", "q": "❓ ", "d": "✅ "}   # 種類 → 行頭の絵文字（幅 2 のものだけ）
+KINDS = {"p": "❯ ", "t": "🔧 ", "q": "❓ "}   # 種類 → 行頭の記号（絵文字は幅 2 のものだけ）
 STATE = os.path.expanduser("~/.local/state/claude-herdr-act")
 SOCK = os.environ.get("HERDR_SOCKET_PATH") or os.path.expanduser("~/.config/herdr/herdr.sock")
 SOURCE = "claude-hook"
@@ -136,13 +136,13 @@ def main():
     elif event == "Notification":
         nt = ev.get("notification_type") or ""
         if nt == "idle_prompt":
-            kind, text = "d", load_prompt(sid)
+            kind, text = "p", load_prompt(sid)
         elif nt in ("permission_prompt", "elicitation_dialog"):
             kind, text = "q", ev.get("message") or nt
         else:
             return 0
     elif event == "Stop":
-        kind, text = "d", load_prompt(sid)
+        kind, text = "p", load_prompt(sid)
     elif event == "SessionStart":
         pass
     elif event == "SessionEnd":
