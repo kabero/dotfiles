@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Claude Code のフックから、herdr のサイドバー agents 欄 2 行目に出す
-「いま何をしているか」を pane トークン $act に報告する。
+「いま何をしているか」を pane トークン $act / $act2（2 行に折り返し）に報告する。
 
   UserPromptSubmit  : › <投げた指示>            （実行中、まだツール前）
   PreToolUse        : <ツール> <対象>            （Edit config.toml など）
@@ -21,27 +21,39 @@ import sys
 import unicodedata
 from urllib.parse import urlparse
 
-WIDTH = 34                        # サイドバー幅 26 前後 + 折り返し無し前提の上限
+WIDTH = 34                        # 1 行の上限セル数（サイドバー幅 26 前後）
+LINES = 2                         # 折り返す行数。config.toml の $act, $act2 と対応
 STATE = os.path.expanduser("~/.local/state/claude-herdr-act")
 SOCK = os.environ.get("HERDR_SOCKET_PATH") or os.path.expanduser("~/.config/herdr/herdr.sock")
 SOURCE = "claude-hook"
 
 
-def clip(s, width=WIDTH):
+def wrap(s, width=WIDTH, lines=LINES):
+    """表示幅で LINES 行に折り返す。余れば最終行の末尾を … にする。"""
     s = " ".join(s.split())          # 改行・連続空白を 1 つに
-    out, w = "", 0
+    out, cur, w = [], "", 0
     for ch in s:
         cw = 2 if unicodedata.east_asian_width(ch) in ("W", "F") else 1
-        if w + cw > width - 1:
-            return out + "…"
-        out += ch
+        if w + cw > width:
+            out.append(cur)
+            cur, w = "", 0
+            if len(out) == lines:
+                out[-1] = out[-1][:-1] + "…"
+                break
+        cur += ch
         w += cw
-    return out
+    else:
+        out.append(cur)
+    out = [x for x in out if x]
+    return (out + [""] * lines)[:lines]
 
 
 def report(pane_id, value):
+    """value: 文字列（2 行に折り返して報告）か None（消す）。"""
+    l1, l2 = wrap(value) if value else ("", "")
     msg = {"id": "act", "method": "pane.report_metadata",
-           "params": {"pane_id": pane_id, "source": SOURCE, "tokens": {"act": value}}}
+           "params": {"pane_id": pane_id, "source": SOURCE,
+                      "tokens": {"act": l1 or None, "act2": l2 or None}}}
     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     s.settimeout(2)
     try:
@@ -108,19 +120,19 @@ def main():
     value = None                     # None = 変更なし、"" = 消す
 
     if kind == "UserPromptSubmit":
-        p = clip(ev.get("prompt") or "")
+        p = " ".join((ev.get("prompt") or "").split())[:300]
         save_prompt(sid, p)
         value = "› " + p if p else ""
     elif kind == "PreToolUse":
-        value = clip(tool_line(ev.get("tool_name") or "", ev.get("tool_input")))
+        value = (tool_line(ev.get("tool_name") or "", ev.get("tool_input")))
     elif kind == "PermissionRequest":
-        value = clip("? " + tool_line(ev.get("tool_name") or "", ev.get("tool_input")))
+        value = ("? " + tool_line(ev.get("tool_name") or "", ev.get("tool_input")))
     elif kind == "Notification":
         nt = ev.get("notification_type") or ""
         if nt == "idle_prompt":
             value = load_prompt(sid)
         elif nt in ("permission_prompt", "elicitation_dialog"):
-            value = clip("? " + (ev.get("message") or nt))
+            value = "? " + (ev.get("message") or nt)
     elif kind == "Stop":
         value = load_prompt(sid)
     elif kind == "SessionStart":
