@@ -53,11 +53,12 @@ tab_bar_right_separator = "  ·  "
 # $s0〜$s6 のうち 1 つだけを "▌名前" の形で報告し、ここでトークンごとの色を
 # 当てる。▌ が背景色の代わりの帯。報告の無いトークンは出ない。
 # 色は ~/.local/bin/herdr-space-color --toml の出力（貼り直せば同期する）。
-# claude の 2〜3 行目 $act/$act2 は「いま何をしているか」（2 行に折り返し）: Claude Code のフック
-# （~/.claude/settings.json → ~/.local/bin/claude-herdr-act）が報告する。
-# 実行中はツールと対象、許可待ちは聞かれている内容、完了は最後に投げた指示。
+# claude の 2〜3 行目は「いま何をしているか」: Claude Code のフック
+# （~/.claude/settings.json → ~/.local/bin/claude-herdr-act）が種類ごとのトークンに
+# 報告する（1 種類だけ値を持つ。2 行に折り返すので 1/2 の 2 つずつ）。
+#   $p = ❯ 投げた指示（青）   $t = ▸ 実行中のツール（白）
+#   $q = ? 許可待ち/質問（橙） $d = ✓ 完了、最後の指示（緑）
 # フックは Claude 起動時に読まれるので、既存セッションは再起動するまで空。
-# 文字色は明示（既定の灰色だとフォーカス行の灰色の背景に沈む）。
 [ui.sidebar.agents]
 rows = [["state_icon", { token = "$s0", fg = "#e46876" }, { token = "$s1", fg = "#ffa066" }, { token = "$s2", fg = "#e6c384" }, { token = "$s3", fg = "#98bb6c" }, { token = "$s4", fg = "#a3d4d5" }, { token = "$s5", fg = "#7e9cd8" }, { token = "$s6", fg = "#957fb8" }, "tab"], ["agent"]]
 
@@ -68,7 +69,7 @@ rows = [["state_icon", { token = "$s0", fg = "#e46876" }, { token = "$s1", fg = 
 rows = [["state_icon", "workspace"], [{ token = "$sub", dim = true }], ["branch", "git_status"]]
 
 [ui.sidebar.agents.rows_by_agent]
-claude = [["state_icon", { token = "$s0", fg = "#e46876" }, { token = "$s1", fg = "#ffa066" }, { token = "$s2", fg = "#e6c384" }, { token = "$s3", fg = "#98bb6c" }, { token = "$s4", fg = "#a3d4d5" }, { token = "$s5", fg = "#7e9cd8" }, { token = "$s6", fg = "#957fb8" }, "tab"], [{ token = "$act", fg = "#c5c9c5" }], [{ token = "$act2", fg = "#c5c9c5" }]]
+claude = [["state_icon", { token = "$s0", fg = "#e46876" }, { token = "$s1", fg = "#ffa066" }, { token = "$s2", fg = "#e6c384" }, { token = "$s3", fg = "#98bb6c" }, { token = "$s4", fg = "#a3d4d5" }, { token = "$s5", fg = "#7e9cd8" }, { token = "$s6", fg = "#957fb8" }, "tab"], [{ token = "$p1", fg = "#7fb4ca" }, { token = "$t1", fg = "#c5c9c5" }, { token = "$q1", fg = "#ff9e3b" }, { token = "$d1", fg = "#98bb6c" }], [{ token = "$p2", fg = "#7fb4ca" }, { token = "$t2", fg = "#c5c9c5" }, { token = "$q2", fg = "#ff9e3b" }, { token = "$d2", fg = "#98bb6c" }]]
 
 [ui.toast]
 # Route notifications to macOS itself (terminal-notifier, else osascript)

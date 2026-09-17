@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Claude Code のフックから、herdr のサイドバー agents 欄 2 行目に出す
-「いま何をしているか」を pane トークン $act / $act2（2 行に折り返し）に報告する。
+「いま何をしているか」を pane トークンに報告する。種類ごとに別トークンにして
+config.toml 側で記号と色を変える（1 種類だけ値を持ち、他は消す）。2 行に折り返す
+ので <種類>1 / <種類>2 の 2 つずつ。
 
-  UserPromptSubmit  : › <投げた指示>            （実行中、まだツール前）
-  PreToolUse        : <ツール> <対象>            （Edit config.toml など）
-  PermissionRequest : ? <ツール> <対象>          （許可待ち）
-  Notification      : ? <聞かれている内容>        （permission/elicitation）
-  Stop / idle       : <最後に投げた指示>          （完了。状態の色は herdr が出す）
-  SessionStart/End  : トークンを消す
+  UserPromptSubmit  : p = ❯ <投げた指示>          （実行中、まだツール前）
+  PreToolUse        : t = ▸ <ツール> <対象>        （Edit config.toml など）
+  PermissionRequest : q = ? <ツール> <対象>        （許可待ち）
+  Notification      : q = ? <聞かれている内容>      （permission/elicitation）
+  Stop / idle       : d = ✓ <最後に投げた指示>      （完了）
+  SessionStart/End  : 全部消す
 
 stdin にフックの JSON。herdr の外（HERDR_PANE_ID 無し）では何もしない。
 最後の指示は Stop で使うのでセッションごとにファイルへ残す。
@@ -22,7 +24,8 @@ import unicodedata
 from urllib.parse import urlparse
 
 WIDTH = 34                        # 1 行の上限セル数（サイドバー幅 26 前後）
-LINES = 2                         # 折り返す行数。config.toml の $act, $act2 と対応
+LINES = 2                         # 折り返す行数。config.toml の $p1/$p2 などと対応
+KINDS = {"p": "❯ ", "t": "▸ ", "q": "? ", "d": "✓ "}   # 種類 → 行頭の記号
 STATE = os.path.expanduser("~/.local/state/claude-herdr-act")
 SOCK = os.environ.get("HERDR_SOCKET_PATH") or os.path.expanduser("~/.config/herdr/herdr.sock")
 SOURCE = "claude-hook"
@@ -48,12 +51,15 @@ def wrap(s, width=WIDTH, lines=LINES):
     return (out + [""] * lines)[:lines]
 
 
-def report(pane_id, value):
-    """value: 文字列（2 行に折り返して報告）か None（消す）。"""
-    l1, l2 = wrap(value) if value else ("", "")
+def report(pane_id, kind, text):
+    """kind の <kind>1/<kind>2 に記号付きで折り返した text を入れ、他の種類は消す。
+    kind が None なら全部消す。"""
+    tokens = {k + str(i): None for k in KINDS for i in (1, 2)}
+    if kind and text:
+        l1, l2 = wrap(KINDS[kind] + text)
+        tokens[kind + "1"], tokens[kind + "2"] = l1 or None, l2 or None
     msg = {"id": "act", "method": "pane.report_metadata",
-           "params": {"pane_id": pane_id, "source": SOURCE,
-                      "tokens": {"act": l1 or None, "act2": l2 or None}}}
+           "params": {"pane_id": pane_id, "source": SOURCE, "tokens": tokens}}
     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     s.settimeout(2)
     try:
@@ -115,39 +121,40 @@ def main():
         ev = json.load(sys.stdin)
     except ValueError:
         return 0
-    kind = ev.get("hook_event_name") or ""
+    event = ev.get("hook_event_name") or ""
     sid = ev.get("session_id") or ""
-    value = None                     # None = 変更なし、"" = 消す
+    kind, text = None, ""            # kind None + text "" = 全部消す
 
-    if kind == "UserPromptSubmit":
-        p = " ".join((ev.get("prompt") or "").split())[:300]
-        save_prompt(sid, p)
-        value = "› " + p if p else ""
-    elif kind == "PreToolUse":
-        value = (tool_line(ev.get("tool_name") or "", ev.get("tool_input")))
-    elif kind == "PermissionRequest":
-        value = ("? " + tool_line(ev.get("tool_name") or "", ev.get("tool_input")))
-    elif kind == "Notification":
+    if event == "UserPromptSubmit":
+        text = " ".join((ev.get("prompt") or "").split())[:300]
+        save_prompt(sid, text)
+        kind = "p"
+    elif event == "PreToolUse":
+        kind, text = "t", tool_line(ev.get("tool_name") or "", ev.get("tool_input"))
+    elif event == "PermissionRequest":
+        kind, text = "q", tool_line(ev.get("tool_name") or "", ev.get("tool_input"))
+    elif event == "Notification":
         nt = ev.get("notification_type") or ""
         if nt == "idle_prompt":
-            value = load_prompt(sid)
+            kind, text = "d", load_prompt(sid)
         elif nt in ("permission_prompt", "elicitation_dialog"):
-            value = "? " + (ev.get("message") or nt)
-    elif kind == "Stop":
-        value = load_prompt(sid)
-    elif kind == "SessionStart":
-        value = ""
-    elif kind == "SessionEnd":
-        value = ""
+            kind, text = "q", ev.get("message") or nt
+        else:
+            return 0
+    elif event == "Stop":
+        kind, text = "d", load_prompt(sid)
+    elif event == "SessionStart":
+        pass
+    elif event == "SessionEnd":
         try:
             os.remove(prompt_path(sid))
         except OSError:
             pass
-
-    if value is None:
+    else:
         return 0
+
     try:
-        report(pane_id, value or None)
+        report(pane_id, kind, text)
     except OSError:
         pass                         # herdr が居ない/落ちている: フックは失敗させない
     return 0
