@@ -9,7 +9,7 @@ config.toml 側で扱いを変えられるようにしておく（色はトー�
   PermissionRequest : q = ❓ <ツール> <対象>        （許可待ち）
   Notification      : q = ❓ <聞かれている内容>      （permission/elicitation）
   Stop / idle       : p = ❯ <最後に投げた指示>       （完了。状態は herdr のドットで分かる）
-  SessionStart/End  : 全部消す
+  SessionStart/End  : 全部消す（SessionStart の source=compact は続きなので消さない）
 
 stdin にフックの JSON。herdr の外（HERDR_PANE_ID 無し）では何もしない。
 最後の指示は Stop で使うのでセッションごとにファイルへ残す。
@@ -137,14 +137,19 @@ def main():
         nt = ev.get("notification_type") or ""
         if nt == "idle_prompt":
             kind, text = "p", load_prompt(sid)
+            if not text:
+                return 0
         elif nt in ("permission_prompt", "elicitation_dialog"):
             kind, text = "q", ev.get("message") or nt
         else:
             return 0
     elif event == "Stop":
         kind, text = "p", load_prompt(sid)
+        if not text:
+            return 0                 # 指示の記録が無い（古いセッション）: 今の表示を残す
     elif event == "SessionStart":
-        pass
+        if ev.get("source") == "compact":
+            return 0                 # コンテキスト圧縮は同じセッションの続き。消さない
     elif event == "SessionEnd":
         try:
             os.remove(prompt_path(sid))
