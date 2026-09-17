@@ -7,11 +7,11 @@ name = "solarized"
 # サイドバーのフォーカス行の背景。solarized の既定（base02 #073642）は青緑で、
 # その上の灰色の文字が沈んで読めない。中立な暗い灰色（Kanagawa Dragon の
 # dragonBlack5、prefix+m のカーソル行と同じ色）にする。agents 欄・spaces 欄で
-# 使うトークンが違うので 3 つとも同じ値にしておく。
+# 使うトークンが違うので 3 つとも同じ値にしておく（#393836 はまだ明るかった）。
 [theme.custom]
-active_row_bg = "#393836"
-selection_bg = "#393836"
-surface_dim = "#393836"
+active_row_bg = "#282727"
+selection_bg = "#282727"
+surface_dim = "#282727"
 
 [ui]
 # tmux: prefix+c creates a window immediately; skip herdr's tab-name prompt
