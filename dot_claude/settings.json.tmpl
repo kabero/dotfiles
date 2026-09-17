@@ -154,10 +154,17 @@
           {
             "type": "command",
             "command": "afplay /System/Library/Sounds/Glass.aiff"
-          }
+          },
+          { "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }
         ]
       }
-    ]
+    ],
+    "UserPromptSubmit": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }],
+    "PreToolUse": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }],
+    "PermissionRequest": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }],
+    "Notification": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }],
+    "SessionStart": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }],
+    "SessionEnd": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }]
   },
   "enabledPlugins": {},
   "skipDangerousModePermissionPrompt": true,
