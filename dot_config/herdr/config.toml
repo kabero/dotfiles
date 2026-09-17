@@ -154,7 +154,7 @@ command = "~/.local/bin/herdr-new-tab"
 # 使い捨てターミナル。分割やタブを増やさずにポップアップでシェルを開き、
 # exit（C-d）で閉じてタイルに戻る。cwd はアクティブ pane に従う。
 [[keys.command]]
-key = "prefix+t"
+key = "prefix+enter"
 type = "popup"
 command = "exec \"${SHELL:-sh}\""
 description = "scratch terminal"
