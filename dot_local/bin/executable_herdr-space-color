@@ -3,7 +3,8 @@
 どこで見ても同じ色になる。使う側:
   サイドバーの agents 欄: プラグイン kabe.space-color が各ペインに
       $s<番号> トークンを報告し、config.toml が番号ごとの前景色を当てる
-      （サイドバーはトークンの前景色しか変えられず、行の背景は塗れない）。
+      （サイドバーはトークンの fg/bold/dim しか変えられず、行の背景は塗れない。
+      代わりに値の先頭に ▌ を付けて色の帯に見せる）。
   prefix+m (herdr-pane-history): 名前欄の背景を bg で塗る。
 色の実体はここだけ。パレットは端末の Kanagawa Dragon（背景 #181616）から
 取り、bg はその色を背景に薄く混ぜたもの。
@@ -18,14 +19,14 @@ import sys
 
 BG = (0x18, 0x16, 0x16)          # dragonBlack3
 TINT = 0.28                       # bg に混ぜる割合。濃いとカーソル行と紛れる
-PALETTE = [                       # 見分けやすい 7 色。増やすと衝突は減るが似た色が混ざる
-    ("red", "#c4746e"),
-    ("orange", "#b6927b"),
-    ("yellow", "#c4b28a"),
-    ("green", "#87a987"),
-    ("aqua", "#8ea4a2"),
-    ("blue", "#7fb4ca"),
-    ("violet", "#938aa9"),
+PALETTE = [                       # 見分けやすい 7 色。増やすと衝突は減るが似た色が混ざる。
+    ("red", "#e46876"),           # Dragon の暗い系（#c4746e 等）は隣同士が見分けにくかった
+    ("orange", "#ffa066"),        # ので、同じ Kanagawa の明るい側（wave の accent）から取る。
+    ("yellow", "#e6c384"),
+    ("green", "#98bb6c"),
+    ("cyan", "#a3d4d5"),
+    ("blue", "#7e9cd8"),
+    ("violet", "#957fb8"),
 ]
 
 

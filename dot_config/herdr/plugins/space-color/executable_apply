@@ -6,8 +6,10 @@
   workspace.renamed  : そのスペースのペイン全部
   workspace.updated  : 同上（ラベルが変わっていなければ何もしない）
 
-トークンは s0..s<N-1> のうち 1 つだけ値（= スペース名）を持ち、残りは null で
-消す。値が既に合っているペインは書かない（workspace.updated は頻繁に来る）。
+トークンは s0..s<N-1> のうち 1 つだけ値（= "▌" + スペース名）を持ち、残りは
+null で消す。▌ はサイドバーが行の背景を塗れない代わりの色の帯（トークンは
+fg しか変えられないので、太い塗りの文字で色を見せる）。
+値が既に合っているペインは書かない（workspace.updated は頻繁に来る）。
 番号は ~/.local/bin/herdr-space-color が決める（prefix+m と同じ関数）。
 イベントの JSON は HERDR_PLUGIN_EVENT_JSON。socket は HERDR_SOCKET_PATH。
 """
@@ -19,6 +21,7 @@ import subprocess
 import sys
 
 SOURCE = "kabe.space-color"
+MARK = "\u258c"                  # ▌ 左半分の塗り。名前の左に色の帯として出る
 HELPER = os.path.expanduser("~/.local/bin/herdr-space-color")
 SOCK = os.environ.get("HERDR_SOCKET_PATH") or os.path.expanduser("~/.config/herdr/herdr.sock")
 
@@ -62,11 +65,12 @@ def apply(panes):
         if not label or label not in idx:
             continue
         key = "s%d" % idx[label]
-        if (p.get("tokens") or {}).get(key) == label and \
+        value = MARK + label
+        if (p.get("tokens") or {}).get(key) == value and \
                 not any(k in (p.get("tokens") or {}) for k in ("s%d" % i for i in range(n)) if k != key):
             continue
         tokens = {"s%d" % i: None for i in range(n)}
-        tokens[key] = label
+        tokens[key] = value
         call("pane.report_metadata",
              {"pane_id": p["pane_id"], "source": SOURCE, "tokens": tokens})
 

@@ -32,16 +32,17 @@ tab_bar_right = [
 tab_bar_right_separator = "  ·  "
 
 # スペース名はハッシュで決めた色で出す（同じスペース = 同じ色。prefix+m の
-# 名前欄の背景と同じ色）。サイドバーは行の背景を塗れず、トークンの前景色を
-# 値ごとの rules で変えるだけだが 16 ルールまでなので、代わりにプラグイン
-# kabe.space-color（plugins/space-color）が各ペインに $s0〜$s6 のうち 1 つだけ
-# を報告し、ここでトークンごとの色を当てる。報告の無いトークンは出ない。
+# 名前欄の背景と同じ色）。サイドバーは行の背景を塗れず（fg/bold/dim のみ）、
+# トークンの前景色を値ごとの rules で変えるだけだが 16 ルールまでなので、
+# 代わりにプラグイン kabe.space-color（plugins/space-color）が各ペインに
+# $s0〜$s6 のうち 1 つだけを "▌名前" の形で報告し、ここでトークンごとの色を
+# 当てる。▌ が背景色の代わりの帯。報告の無いトークンは出ない。
 # 色は ~/.local/bin/herdr-space-color --toml の出力（貼り直せば同期する）。
 [ui.sidebar.agents]
-rows = [["state_icon", { token = "$s0", fg = "#c4746e" }, { token = "$s1", fg = "#b6927b" }, { token = "$s2", fg = "#c4b28a" }, { token = "$s3", fg = "#87a987" }, { token = "$s4", fg = "#8ea4a2" }, { token = "$s5", fg = "#7fb4ca" }, { token = "$s6", fg = "#938aa9" }, "tab"], ["agent"]]
+rows = [["state_icon", { token = "$s0", fg = "#e46876" }, { token = "$s1", fg = "#ffa066" }, { token = "$s2", fg = "#e6c384" }, { token = "$s3", fg = "#98bb6c" }, { token = "$s4", fg = "#a3d4d5" }, { token = "$s5", fg = "#7e9cd8" }, { token = "$s6", fg = "#957fb8" }, "tab"], ["agent"]]
 
 [ui.sidebar.agents.rows_by_agent]
-claude = [["state_icon", { token = "$s0", fg = "#c4746e" }, { token = "$s1", fg = "#b6927b" }, { token = "$s2", fg = "#c4b28a" }, { token = "$s3", fg = "#87a987" }, { token = "$s4", fg = "#8ea4a2" }, { token = "$s5", fg = "#7fb4ca" }, { token = "$s6", fg = "#938aa9" }, "tab"], ["terminal_title_stripped"]]
+claude = [["state_icon", { token = "$s0", fg = "#e46876" }, { token = "$s1", fg = "#ffa066" }, { token = "$s2", fg = "#e6c384" }, { token = "$s3", fg = "#98bb6c" }, { token = "$s4", fg = "#a3d4d5" }, { token = "$s5", fg = "#7e9cd8" }, { token = "$s6", fg = "#957fb8" }, "tab"], ["terminal_title_stripped"]]
 
 [ui.toast]
 # Route notifications to macOS itself (terminal-notifier, else osascript)
