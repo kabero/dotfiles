@@ -1,3 +1,41 @@
+#!/bin/sh
+# ~/.claude/settings.json has three writers: this repo, Claude Code itself
+# (enabledPlugins, extraKnownMarketplaces, rules added by "always allow") and
+# herdr, which reinstalls its SessionStart hook on every integration update.
+# Owning the whole file means permanent drift, so own a subset instead:
+#
+#   owned   env, permissions, the skip*/voiceEnabled flags
+#   merged  hooks - ours, plus any foreign entry left untouched
+#   ignored everything else, including keys a future Claude Code invents
+#
+# stdin is the current target file (empty on a fresh machine), stdout becomes
+# its new contents. When the owned keys already match, stdin is echoed back
+# byte for byte, so `chezmoi diff` stays quiet however the app reformats it.
+
+set -eu
+
+cur=$(mktemp "${TMPDIR:-/tmp}/chezmoi-claude-settings.XXXXXX") || exit 1
+trap 'rm -f "$cur"' EXIT HUP INT TERM
+cat >"$cur"
+
+# Nothing there yet: start from an empty object rather than an empty file.
+# Deliberately no grep/sed here - this runs before the Brewfile on a fresh
+# machine, so it leans only on the shell and coreutils chezmoi already needs.
+if [ ! -s "$cur" ]; then
+  printf '{}\n' >"$cur"
+fi
+
+# No jq yet (fresh machine, before the Brewfile runs): hand the file back as
+# it is. Half-applying the config would be worse than leaving it to the
+# next apply.
+command -v jq >/dev/null 2>&1 || { cat "$cur"; exit 0; }
+
+# Hand-broken JSON: rebuild from scratch instead of failing the apply.
+if ! jq -e . "$cur" >/dev/null 2>&1; then
+  printf '{}\n' >"$cur"
+fi
+
+desired=$(cat <<'CHEZMOI_DESIRED_JSON'
 {
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
@@ -166,9 +204,29 @@
     "SessionStart": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }],
     "SessionEnd": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }]
   },
-  "enabledPlugins": {},
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "skipAutoPermissionPrompt": true,
   "voiceEnabled": true
 }
+CHEZMOI_DESIRED_JSON
+)
+
+# Deep-merge the owned keys over the live file, then rebuild hooks per event:
+# our entries first, then live entries that are not ours (herdr's, anyone's).
+program='
+  . as $in
+  | ($in * ($d | del(.hooks)))
+  | .hooks = (
+      $d.hooks as $mine
+      | (($in.hooks) // {}) as $live
+      | reduce ((($mine | keys_unsorted) + ($live | keys_unsorted)) | unique)[] as $k
+          ({}; .[$k] = (($mine[$k] // []) + (($live[$k] // []) - ($mine[$k] // []))))
+    )
+'
+
+if jq -e --argjson d "$desired" "($program) == ." "$cur" >/dev/null 2>&1; then
+  cat "$cur"
+else
+  jq --argjson d "$desired" "$program" "$cur"
+fi
