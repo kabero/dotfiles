@@ -212,6 +212,8 @@ them first if they should be reviewed.
 
 📖 **See [`dot_config/nvim/README.md`](./dot_config/nvim/README.md)** for the full configuration overview, distinctive settings, and the keybinding cheatsheet.
 
+🧩 **See [`dot_config/nvim/PLUGINS.md`](./dot_config/nvim/PLUGINS.md)** for the plugin list — every plugin per spec file, with what it is for and when it loads.
+
 #### Basic Usage
 
 - **Plugin manager**: lazy.nvim (specs under `dot_config/nvim/lua/plugins/`)

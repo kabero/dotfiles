@@ -36,15 +36,17 @@ lua/
 
 ## 特徴的な構成
 
+採用しているプラグインの全一覧は [`PLUGINS.md`](./PLUGINS.md)。ここは方針だけ。
+
 | 領域 | 採用 | 備考 |
 |---|---|---|
 | プラグイン管理 | **lazy.nvim** | `lua/plugins/*` を自動 import |
 | カラースキーム | **kanagawa (dragon)** | italic 無効・gutter 透過 |
 | ステータス/UI | **lualine** + **incline**(winbar) | `laststatus=3` グローバル, `cmdheight=0`, `showtabline=0` |
 | ピッカー | **snacks.nvim** | files/grep/git/lsp、dashboard で `gh pr/issue` 表示 |
-| 補完 | **nvim-cmp** | LSP capabilities をサーバへ broadcast 済み |
-| AI 補完 | **copilot.vim**(ghost text) + **sidekick.nvim**(NES) | 役割分担：補完は copilot、*次の編集予測*は sidekick |
-| LSP | **mason** + **mason-lspconfig**(`automatic_enable`) | UI に lspsaga、進捗に fidget、署名に lsp_signature |
+| 補完 | **blink.cmp** | LSP capabilities をサーバへ broadcast 済み。署名ヘルプも本体機能 |
+| AI 補完 | **copilot.vim**(ghost text) | `<C-l>` で確定。秘匿情報のファイルタイプ／パスでは自動オフ |
+| LSP | **mason** + **mason-lspconfig**(`automatic_enable`) | UI に lspsaga、通知は snacks.notifier |
 | 構文 | **nvim-treesitter** + **textobjects** | 両者とも `master` ブランチ（クラシック API）で固定 |
 | Git | **gitsigns** / **fugitive** / **diffview** / **committia** | レビュー特化（後述）。コミット/ステージはターミナル運用 |
 | ファイラ | **oil.nvim** | netrw は無効化、`-` で親ディレクトリ |
