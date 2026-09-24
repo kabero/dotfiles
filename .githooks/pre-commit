@@ -1,0 +1,42 @@
+#!/bin/sh
+# Refuse a commit whose staged content looks like a credential.
+#
+# This repository is public and carries the configuration of every machine, so a
+# token that lands here is published as soon as it is pushed. Deleting it later
+# is not enough: the commit has to be rewritten (git rebase -i, git filter-repo)
+# and the credential rotated. That is why the check runs at commit time and not
+# at push time — the cheapest moment to stop a secret is before it has a hash.
+# The whole history scans in ~0.1s, so a staged diff costs nothing.
+#
+# Enable it once per clone:
+#     git config core.hooksPath .githooks
+# core.hooksPath is deliberately not set globally. It is a single slot, and a
+# repository that sets it locally — husky does, as .husky/_ — wins over the
+# global value, so the check would silently stop running exactly where a project
+# has its own hook tooling.
+#
+# A false positive goes away with a `gitleaks:allow` comment at the end of the
+# line, or by putting the finding's fingerprint in .gitleaksignore.
+
+set -eu
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+    echo "pre-commit: gitleaks not found; skipping secret scan" >&2
+    echo "pre-commit: brew bundle --file=excludes/Brewfile installs it" >&2
+    exit 0
+fi
+
+if gitleaks git --staged --redact --verbose --no-banner --log-level warn .; then
+    exit 0
+fi
+
+cat >&2 <<'MSG'
+
+pre-commit: the staged changes look like they contain a credential.
+
+Remove it, or — if it is a false positive — append `gitleaks:allow` to the line
+or add the fingerprint above to .gitleaksignore. To commit anyway, once:
+
+    git commit --no-verify
+MSG
+exit 1

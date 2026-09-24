@@ -69,6 +69,24 @@ brew bundle --file=~/.local/share/chezmoi/excludes/Brewfile
 asdf install
 ```
 
+#### 6. Enable the secret-scan hook
+
+```sh
+git -C ~/.local/share/chezmoi config core.hooksPath .githooks
+```
+
+`.githooks/pre-commit` refuses a commit whose staged changes look like a credential, using
+[gitleaks](https://github.com/gitleaks/gitleaks). This repository is public, so a token committed
+here does not go away by deleting it — the history has to be rewritten and the credential rotated.
+The hook is the cheap moment to catch it.
+
+The setting is per clone because `core.hooksPath` is a single slot: setting it globally would be
+silently overridden by any repository that sets it locally, husky being the common case.
+
+A false positive goes away with a `gitleaks:allow` comment at the end of the line, or by putting the
+reported fingerprint in `.gitleaksignore`. `git commit --no-verify` skips the hook once. Without
+`gitleaks` on `PATH` the hook warns and lets the commit through — step 4 installs it.
+
 ## ⚙️ Configuration
 
 ### Environment Variables
@@ -117,6 +135,7 @@ Custom completions are stored in `$HOME/.zsh/completions/`
 ├── dot_local/bin/            # Executable scripts (git-wt, herdr-repo-selector, ...)
 ├── dot_claude/               # Claude Code config (CLAUDE.md, agents, settings)
 ├── run_onchange_after_10-claude-mcp.sh  # Registers standard MCP servers (playwright)
+├── .githooks/pre-commit      # gitleaks secret scan (see Setup step 6); not applied to $HOME
 ├── excludes/                 # Kept in the repo, NOT applied to $HOME
 │   ├── Brewfile              # Homebrew package list
 │   ├── Dockerfile            # Container build reference
