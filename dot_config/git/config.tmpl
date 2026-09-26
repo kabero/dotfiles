@@ -45,3 +45,9 @@ root = {{ env "GHQ_ROOT" | default "~/ghq" }}
     smudge = git-lfs smudge -- %f
     process = git-lfs filter-process
     required = true
+
+# 全リポジトリの pre-commit で gitleaks を走らせる。config ベースの hook（git 2.54+）は
+# core.hooksPath や .git/hooks と併走するので、lefthook や husky のあるリポジトリでも効く
+[hook "gitleaks"]
+    command = ~/.config/git/hooks/pre-commit-scan-credentials.sh
+    event = pre-commit

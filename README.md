@@ -83,6 +83,10 @@ The hook is the cheap moment to catch it.
 The setting is per clone because `core.hooksPath` is a single slot: setting it globally would be
 silently overridden by any repository that sets it locally, husky being the common case.
 
+Every other repository is covered by a config-based hook (git 2.54+): `[hook "gitleaks"]` in
+`~/.config/git/config` runs `~/.config/git/hooks/pre-commit-scan-credentials.sh` on pre-commit.
+It runs alongside `core.hooksPath` and `.git/hooks`, so lefthook and husky repositories get it too.
+
 A false positive goes away with a `gitleaks:allow` comment at the end of the line, or by putting the
 reported fingerprint in `.gitleaksignore`. `git commit --no-verify` skips the hook once. Without
 `gitleaks` on `PATH` the hook warns and lets the commit through — step 4 installs it.
