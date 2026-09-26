@@ -22,9 +22,12 @@ prompt_new_tab_name = false
 # counterpart of the tmux window-status Claude glyphs: see what runs where.
 show_agent_labels_on_pane_borders = true
 
-# Agent panel as a flat attention queue instead of grouped per workspace:
-# whatever needs input floats to the top, regardless of which space it lives in.
-agent_panel_sort = "priority"
+# Agent panel grouped per workspace. priority（入力待ちを最上段に浮かせる
+# フラットな行列）も試したが、行がスペースをまたいで並び替わるので「どの
+# claude がどこの子か」を毎回読み直すことになった。グループなら位置が固定で、
+# 入力待ちは state_icon の色で十分に目に付く。取りうる値は spaces /
+# workspaces / priority。
+agent_panel_sort = "spaces"
 
 # フォーカス pane の枠。herdr 0.9.1 には枠の太さや線種（太線/二重線）の設定が
 # 無く、枠は常に 1 セルの細線。代わりに accent（フォーカス枠・ハイライト・
