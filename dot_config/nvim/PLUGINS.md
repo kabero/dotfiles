@@ -78,6 +78,7 @@
 | [copilot.vim](https://github.com/github/copilot.vim) | AI 補完（ghost text）。`<C-l>` で確定、`<C-c>` で却下。秘匿情報のファイルタイプ／パスでは自動オフ | `InsertEnter` |
 | [rustowl](https://github.com/cordx56/rustowl) | Rust の所有権・ライフタイム可視化。`<leader>o` でトグル | `ft = rust` |
 | [sensei.nvim](https://github.com/kabero/sensei.nvim) | Claude Code をサイドカーにした MCP サーバ。答えは書かずヒントだけ出す。言語は既定で日本語、subject と build driver はプロジェクトの exrc で設定し、その `require` がロード契機も兼ねる | `:Sensei*` |
+| [notemode.nvim](https://github.com/kabero/notemode.nvim) | ノートモード（`:Note`）。ghq の clone があればそれを読み込み、無ければ GitHub から取得 | `:Note`, `ft = markdown` |
 
 ## ui.lua
 

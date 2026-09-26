@@ -134,4 +134,19 @@ return {
         --     })
         -- Then :SenseiInstall once per project, and `:terminal claude`.
     },
+
+    {
+        "kabero/notemode.nvim",
+        -- Developed in the ghq clone; use it when present so edits apply
+        -- without a push. Elsewhere lazy.nvim clones from GitHub.
+        dir = (function()
+            local path = vim.fn.expand("~/ghq/github.com/kabero/notemode.nvim")
+            return vim.uv.fs_stat(path) and path or nil
+        end)(),
+        cmd = "Note",
+        -- A markdown file under the notes dir becomes a note buffer on open,
+        -- which needs the plugin's FileType autocmd already in place.
+        ft = "markdown",
+        opts = {},
+    },
 }
