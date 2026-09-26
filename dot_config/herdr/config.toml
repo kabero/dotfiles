@@ -22,6 +22,12 @@ prompt_new_tab_name = false
 # counterpart of the tmux window-status Claude glyphs: see what runs where.
 show_agent_labels_on_pane_borders = true
 
+# 単独ペインにも枠を描く。既定の auto は分割したペインにしか枠を出さないので、
+# タブに 1 枚しかない Claude のペインは枠ごと消え、show_agent_labels_on_pane_borders
+# で出るはずのエージェント名も一緒に消えていた（「これは claude のペインだ」が
+# 一番分かりにくいのがその状態）。always なら 1 枚でも枠と名前が出る。
+pane_borders = "always"
+
 # Agent panel grouped per workspace. priority（入力待ちを最上段に浮かせる
 # フラットな行列）も試したが、行がスペースをまたいで並び替わるので「どの
 # claude がどこの子か」を毎回読み直すことになった。グループなら位置が固定で、
