@@ -115,10 +115,13 @@ starts=$(while IFS=$'\t' read -r _ pid _ _ _ agent _ _ _ _ sess; do
   printf "%s\t%s\n" "$pid" "$start"
 done <<< "$rows")
 
-# スペース名 → 背景色（"r;g;b"）。一覧に出るスペースの分だけ、1 回の呼び出しで
-# まとめて引く。16進は bash の printf で 10進に直す（BSD awk に strtonum が無い）。
+# スペース名 → 背景色（"r;g;b"）。1 回の呼び出しでまとめて引く。
+# 16進は bash の printf で 10進に直す（BSD awk に strtonum が無い）。
+# 渡すのは「一覧に出るスペース」ではなく「生きているスペース全部」。
+# herdr-space-color は色が被ったときに渡された集合の中でずらすので、部分集合を
+# 渡すとサイドバーの $sN と違う色になってしまう。余分に渡しても引くだけ。
 spaces=()
-while IFS= read -r sp; do [ -n "$sp" ] && spaces+=("$sp"); done < <(cut -f12 <<< "$rows" | sort -u)
+while IFS= read -r sp; do [ -n "$sp" ] && spaces+=("$sp"); done < <(jq -r '.[]' <<< "$wsmap" | sort -u)
 colors=""
 if [ ${#spaces[@]} -gt 0 ] && [ -x "$SPACE_COLOR" ]; then
   colors=$(while IFS=$'\t' read -r _ _ bg sp; do

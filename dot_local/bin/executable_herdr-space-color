@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """ワークスペース（スペース）名 → 色。名前のハッシュで決めるので、同じ名前は
-どこで見ても同じ色になる。使う側:
+どこで見ても同じ色になる。ただし同時に生きているスペース同士で色が被ったら、
+空いている番号へずらす（下の assign を参照）。使う側:
   サイドバーの agents 欄: プラグイン kabe.space-color が各ペインに
       $s<番号> トークンを報告し、config.toml が番号ごとの前景色を当てる
       （サイドバーはトークンの fg/bold/dim しか変えられず、行の背景は塗れない）。
@@ -9,6 +10,8 @@
 取り、bg はその色を背景に薄く混ぜたもの。
 
   herdr-space-color LABEL...   # 1行ずつ  <番号>\t<fg>\t<bg>\t<LABEL>
+                               # ずらしは渡した LABEL 群の中でだけ起きるので、
+                               # 呼ぶ側は生きているスペースを一度に全部渡すこと
   herdr-space-color --palette  # 番号ごとの  <番号>\t<fg>\t<bg>\t<色名>
   herdr-space-color --toml     # config.toml に貼る agents 行のトークン列
 """
@@ -18,7 +21,8 @@ import sys
 
 BG = (0x18, 0x16, 0x16)          # dragonBlack3
 TINT = 0.28                       # bg に混ぜる割合。濃いとカーソル行と紛れる
-PALETTE = [                       # 見分けやすい 7 色。増やすと衝突は減るが似た色が混ざる。
+PALETTE = [                       # 見分けやすい 7 色。増やすより assign のずらしで捌く
+                                  # （増やすと似た色が混ざって見分けが付かない）。
     ("red", "#e46876"),           # Dragon の暗い系（#c4746e 等）は隣同士が見分けにくかった
     ("orange", "#ffa066"),        # ので、同じ Kanagawa の明るい側（wave の accent）から取る。
     ("yellow", "#e6c384"),
@@ -29,9 +33,34 @@ PALETTE = [                       # 見分けやすい 7 色。増やすと衝�
 ]
 
 
-def index(label):
+def first_choice(label):
     # md5 は速くて安定（Python の hash() はプロセスごとに変わる）。
     return int(hashlib.md5(label.encode("utf-8")).hexdigest(), 16) % len(PALETTE)
+
+
+def assign(labels):
+    """ラベル群 → 番号。ハッシュを第一希望にし、同時に生きている他のスペースと
+    被っていたら空いている番号へずらす。
+
+    バケットが 7 つしかないのでハッシュだけでは衝突が普通に起きる（4 スペースで
+    65%、5 スペースで 85%）。実際 chezmoi と lookout が両方 violet になっていた。
+    ずらす順はラベルのソート順に固定してあるので、同じ集合なら誰が呼んでも同じ
+    結果になる（サイドバーの $sN と prefix+m の背景がずれない）。
+    代償: スペースが増減すると、衝突に巻き込まれた側の色は変わりうる。衝突して
+    いないスペースの色はハッシュのまま動かない。
+    8 スペース目からはパレットを使い切るので第一希望のまま（衝突を許す）。
+    """
+    n = len(PALETTE)
+    taken = set()
+    out = {}
+    for label in sorted(labels):
+        i = first_choice(label)
+        if len(taken) < n:
+            while i in taken:
+                i = (i + 1) % n
+        out[label] = i
+        taken.add(i)
+    return out
 
 
 def blend(fg):
@@ -48,8 +77,9 @@ def main(argv):
     if argv == ["--toml"]:
         print(", ".join('{ token = "$s%d", fg = "%s" }' % (i, fg) for i, (_, fg) in enumerate(PALETTE)))
         return 0
+    idx = assign(set(argv))
     for label in argv:
-        i = index(label)
+        i = idx[label]
         fg = PALETTE[i][1]
         print("%d\t%s\t%s\t%s" % (i, fg, blend(fg), label))
     return 0
