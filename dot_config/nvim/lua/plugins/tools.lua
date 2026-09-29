@@ -148,17 +148,8 @@ return {
         -- which needs the plugin's FileType autocmd already in place.
         ft = "markdown",
         keys = {
-            { "<leader>mm", "<cmd>Note toggle<CR>", desc = "Note mode toggle" },
+            { "<leader>mm", "<cmd>Note<CR>", desc = "Note mode toggle" },
         },
-        -- Inside a note buffer <leader> belongs to the notes, shadowing the
-        -- global <leader>d (Diffview) and n (notifications). <LocalLeader>
-        -- (\) is Option+¥ on a JIS keyboard.
-        opts = {
-            mappings = {
-                new = "<leader>n",
-                daily = "<leader>d",
-                capture = "<leader>c",
-            },
-        },
+        opts = {},
     },
 }
