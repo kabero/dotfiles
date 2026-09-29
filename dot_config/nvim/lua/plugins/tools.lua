@@ -148,7 +148,7 @@ return {
         -- which needs the plugin's FileType autocmd already in place.
         ft = "markdown",
         keys = {
-            { "<leader>mm", "<cmd>Note<CR>", desc = "Note mode toggle" },
+            { "<leader>m", "<cmd>Note<CR>", desc = "Note mode toggle" },
         },
         opts = {},
     },
