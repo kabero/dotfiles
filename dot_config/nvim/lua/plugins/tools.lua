@@ -151,16 +151,12 @@ return {
             { "<leader>mm", "<cmd>Note toggle<CR>", desc = "Note mode toggle" },
         },
         -- Inside a note buffer <leader> belongs to the notes, shadowing the
-        -- global <leader>g (snacks), d (Diffview) and n (notifications).
-        -- The plugin maps with nowait, so <leader>g fires without waiting
-        -- on the global <leader>gs etc. <LocalLeader> (\) is Option+¥ on JIS.
+        -- global <leader>d (Diffview) and n (notifications). <LocalLeader>
+        -- (\) is Option+¥ on a JIS keyboard.
         opts = {
             mappings = {
-                backlinks = "<leader>b",
                 new = "<leader>n",
                 daily = "<leader>d",
-                grep = "<leader>g",
-                tags = "<leader>t",
                 capture = "<leader>c",
             },
         },
