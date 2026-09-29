@@ -147,6 +147,21 @@ return {
         -- A markdown file under the notes dir becomes a note buffer on open,
         -- which needs the plugin's FileType autocmd already in place.
         ft = "markdown",
-        opts = {},
+        keys = {
+            { "<leader>mm", "<cmd>Note toggle<CR>", desc = "Note mode toggle" },
+        },
+        -- <leader>m is free globally, so the note-buffer maps live under it
+        -- rather than <LocalLeader> (\ is Option+¥ on a JIS keyboard).
+        opts = {
+            mappings = {
+                backlinks = "<leader>mb",
+                find = "<leader>mf",
+                new = "<leader>mn",
+                daily = "<leader>md",
+                grep = "<leader>mg",
+                tags = "<leader>mt",
+                capture = "<leader>mc",
+            },
+        },
     },
 }

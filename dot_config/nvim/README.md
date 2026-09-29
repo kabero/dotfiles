@@ -163,6 +163,16 @@ lua/
 | `<leader>q` | jaq でファイルを実行（markdown では render-markdown の表示トグル） |
 | `<leader>o` | RustOwl トグル（rust） |
 
+### ノート（notemode.nvim, `<leader>m` グループ）
+| キー | 動作 |
+|---|---|
+| `<leader>mm` | ノートモードの開閉（どこからでも） |
+| `<leader>mf` / `mn` / `md` | ノートを探す / 新規作成 / 日付のノート（以下ノートバッファ内のみ） |
+| `<leader>mg` / `mt` / `mb` | 全文検索 / タグ / バックリンク |
+| `<leader>mc` | inbox に追記 |
+| `<CR>` / `<BS>` / `<Tab>` | リンクをたどる / 戻る / 次のリンク |
+| `<C-Space>` | タスクの切り替え |
+
 ### ユーザーコマンド
 | コマンド | 動作 |
 |---|---|
