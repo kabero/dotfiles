@@ -164,12 +164,12 @@ lua/
 | `<leader>o` | RustOwl トグル（rust） |
 
 ### ノート（notemode.nvim）
-ノートバッファ内では `<leader>` をノート用に置き換える（グローバルの `<leader>f*` `<leader>g*` `<leader>d` `<leader>n` は隠れる）。
+ノートバッファ内では `<leader>` をノート用に置き換える（グローバルの `<leader>g*` `<leader>d` `<leader>n` は隠れる）。
 
 | キー | 動作 |
 |---|---|
 | `<leader>mm` | ノートモードの開閉（どこからでも） |
-| `<leader>f` / `n` / `d` | ノートを探す / 新規作成 / 日付のノート（以下ノートバッファ内のみ） |
+| `<leader>n` / `d` | 新規作成 / 日付のノート（以下ノートバッファ内のみ） |
 | `<leader>g` / `t` / `b` | 全文検索 / タグ / バックリンク |
 | `<leader>c` | inbox に追記 |
 | `<CR>` / `<BS>` / `<Tab>` | リンクをたどる / 戻る / 次のリンク |
