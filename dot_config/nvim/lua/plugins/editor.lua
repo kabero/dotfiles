@@ -26,23 +26,6 @@ return {
     },
 
     {
-        "phaazon/hop.nvim",
-        event = 'VeryLazy',
-        config = function()
-            local hop = require('hop')
-            hop.setup({
-                create_hl_autocmd = false,
-            })
-            vim.api.nvim_set_keymap("n", "<leader>s", ":HopWordMW<CR>", { noremap = true, silent = true })
-
-            vim.api.nvim_set_hl(0, 'HopNextKey', { fg = '#4cc9f0', bold = true, cterm = { bold = true, italic = true } })
-            vim.api.nvim_set_hl(0, 'HopNextKey1', { fg = '#9d4edd', bold = true, cterm = { bold = true } })
-            vim.api.nvim_set_hl(0, 'HopNextKey2', { fg = '#9d4edd', bold = true, cterm = { bold = true } })
-            vim.api.nvim_set_hl(0, 'HopUnmatched', { fg = '#444444', cterm = { italic = true } })
-        end
-    },
-
-    {
         "mechatroner/rainbow_csv",
         ft = "csv",
         config = function()

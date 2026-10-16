@@ -23,7 +23,7 @@ lua/
     snacks.lua            -- picker / dashboard / 各種 QoL
     treesitter.lua        -- treesitter + textobjects
     git.lua               -- gitsigns / fugitive / diffview / git-conflict / committia
-    editor.lua            -- autopairs / surround / commentary / hop 等
+    editor.lua            -- autopairs / surround / commentary 等
     tools.lua             -- oil / copilot / rustowl / sensei 等
     -- sensei.nvim はグローバルでは language=Japanese だけを既定にし、subject と
     -- build driver は各プロジェクトの exrc(.nvim.lua)で require("sensei").setup{...}。
@@ -50,7 +50,6 @@ lua/
 | 構文 | **nvim-treesitter** + **textobjects** | 両者とも `master` ブランチ（クラシック API）で固定 |
 | Git | **gitsigns** / **fugitive** / **diffview** / **committia** | レビュー特化（後述）。コミット/ステージはターミナル運用 |
 | ファイラ | **oil.nvim** | netrw は無効化、`-` で親ディレクトリ |
-| 移動 | **hop.nvim** | `<leader>s` で単語ホップ |
 | Markdown | **render-markdown.nvim** | バッファ内インラインレンダリング、`<leader>q` でトグル |
 | 学習支援 | **sensei.nvim** | Claude Code をサイドカーにした MCP サーバ。答えは書かず、buffer/診断/ビルド結果を見てヒントだけ出す。プロジェクトごとに `:SenseiInstall` |
 
@@ -158,7 +157,6 @@ lua/
 | キー | 動作 |
 |---|---|
 | `-` | oil で親ディレクトリを開く |
-| `<leader>s` | hop で単語ホップ |
 | `go` | open-browser でスマート検索（URL/語） |
 | `<leader>q` | jaq でファイルを実行（markdown では render-markdown の表示トグル） |
 | `<leader>o` | RustOwl トグル（rust） |

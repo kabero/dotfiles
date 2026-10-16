@@ -66,7 +66,6 @@
 | [nvim-surround](https://github.com/kylechui/nvim-surround) | 囲み文字の追加/変更/削除 | `VeryLazy` |
 | [vim-endwise](https://github.com/tpope/vim-endwise) | `end` / `endif` 等の自動補完 | `VeryLazy` |
 | [vim-sleuth](https://github.com/tpope/vim-sleuth) | インデント設定をファイルから推定 | `BufReadPost` |
-| [hop.nvim](https://github.com/phaazon/hop.nvim) | `<leader>s` で単語ホップ | `VeryLazy` |
 | [rainbow_csv](https://github.com/mechatroner/rainbow_csv) | CSV の列ごとの色分け | `ft = csv` |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | Markdown のバッファ内インラインレンダリング。既定オフ、`<leader>q` でトグル | `ft = markdown` |
 
