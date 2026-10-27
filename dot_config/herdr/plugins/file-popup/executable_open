@@ -1,0 +1,6 @@
+#!/bin/sh
+# This noninteractive launcher is replaced immediately by nvim.
+export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+line=${OPENFILE_LINE:-1}
+case "$line" in *[!0-9]*|'') exit 2 ;; esac
+exec nvim "+$line" -- "${OPENFILE_PATH:?missing file path}"

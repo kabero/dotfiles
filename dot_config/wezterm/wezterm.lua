@@ -50,7 +50,7 @@ wezterm.on('open-uri', function(window, pane, uri)
     return -- real URLs: default handling (browser)
   end
   -- The script itself picks the venue: tmux popup when a tmux client is
-  -- attached, a temporary herdr split otherwise. Calling it directly (not
+  -- attached, a native herdr popup otherwise. Calling it directly (not
   -- via `tmux run-shell`) keeps it working when no tmux server is running.
   wezterm.background_child_process {
     wezterm.home_dir .. '/.local/bin/tmux-open-file', '--token', target,

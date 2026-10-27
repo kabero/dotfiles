@@ -1,0 +1,14 @@
+id = "kabe.file-popup"
+name = "File popup"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Open clicked file paths in nvim without starting an interactive shell"
+platforms = ["macos", "linux"]
+
+[[panes]]
+id = "editor"
+title = "nvim"
+placement = "popup"
+width = "92%"
+height = "88%"
+command = ["./open"]
