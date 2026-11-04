@@ -14,18 +14,20 @@ config.use_ime = true
 config.font_size = 13.0
 config.term = "xterm-256color"
 config.window_background_opacity = 1.00
+config.default_cursor_style = 'SteadyBar'
 
-config.window_padding = {
-  left = 0,
-  right = 0,
-  top = 0,
-  bottom = 0,
+config.colors = {
+  cursor_bg = '#e6c384',
+  cursor_border = '#e6c384',
+  selection_bg = '#282727',
 }
 
--- config.colors = {
---   background = '#100000',
---   compose_cursor = '#2b3261',
--- }
+config.window_padding = {
+  left = 8,
+  right = 8,
+  top = 6,
+  bottom = 6,
+}
 
 -- File paths become clickable hyperlinks, like URLs. Shift+click one (Shift
 -- bypasses tmux mouse reporting, so WezTerm handles the click natively) to
