@@ -2,11 +2,12 @@
 onboarding = false
 
 [theme]
-name = "catppuccin"
+name = "dracula"
 
 # サイドバーのフォーカス行と選択面を、黒背景に馴染む暗い紫にする。
 # agents 欄・spaces 欄で使うトークンが違うので 3 つとも同じ値にする。
 [theme.custom]
+accent = "#bd93f9"
 panel_bg = "#0b0912"
 sidebar_bg = "#0b0912"
 active_row_bg = "#2b2038"
@@ -34,9 +35,6 @@ pane_borders = "always"
 # 入力待ちは state_icon の色で十分に目に付く。取りうる値は spaces /
 # workspaces / priority。
 agent_panel_sort = "spaces"
-
-# フォーカス pane の枠・ハイライト・ナビ UI の色を WezTerm のカーソルと揃える。
-accent = "#b08ae6"
 
 # タブバーは下。tmux の status-bar が下にあったのと同じ位置で、視線が
 # シェルのプロンプト付近から動かずに済む。
