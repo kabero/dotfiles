@@ -3,7 +3,7 @@
 # 16 ルールまでで背景も塗れない。そこで各ペインに $s0〜$s6 のうち
 # 「スペース名のハッシュで決めた 1 つ」だけをトークンとして報告し、config.toml
 # 側でトークンごとに固定の色を当てる（報告していないトークンは表示されない）。
-# 色の決め方は ~/.local/bin/herdr-space-color（prefix+m と共通）。
+# 色の決め方は ~/.local/bin/herdr-space-color。
 # 常駐なし: 起動時に全ペイン、あとはイベントごとに 1 プロセス。
 id = "kabe.space-color"
 name = "Space color"

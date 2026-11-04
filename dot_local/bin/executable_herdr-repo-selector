@@ -15,7 +15,7 @@ ghq_root="$(ghq root)"
 # Build repo list: ghq repos + chezmoi (same as the tmux version), plus the
 # initialised submodules of each ghq repo (`ghq list` stops at the outer
 # repo). A submodule rides along as <repo>/<path-in-repo>; its workspace label
-# is the basename and the sidebar shows the in-repo path via kabe.submodule-path.
+# is the basename.
 repo_list=$(ghq list)
 submodules=$(while IFS= read -r r; do
   [ -f "$ghq_root/$r/.gitmodules" ] || continue
@@ -26,8 +26,7 @@ done <<< "$repo_list")
 repo_list="$repo_list
 chezmoi"
 
-# Workspace label = basename (a submodule too: the sidebar adds its in-repo
-# path as $sub, so the label stays short).
+# Workspace label = basename (including submodules).
 label_of() {
   case "$1" in
     chezmoi) echo chezmoi ;;

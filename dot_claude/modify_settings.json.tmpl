@@ -5,7 +5,7 @@
 # Owning the whole file means permanent drift, so own a subset instead:
 #
 #   owned   env, permissions, the skip*/voiceEnabled flags
-#   merged  hooks - ours, plus any foreign entry left untouched
+#   merged  hooks - ours, plus foreign entries (obsolete claude-herdr-act removed)
 #   ignored everything else, including keys a future Claude Code invents
 #
 # stdin is the current target file (empty on a fresh machine), stdout becomes
@@ -191,17 +191,10 @@ desired=$(cat <<'CHEZMOI_DESIRED_JSON'
           {
             "type": "command",
             "command": "afplay /System/Library/Sounds/Glass.aiff"
-          },
-          { "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }
+          }
         ]
       }
-    ],
-    "UserPromptSubmit": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }],
-    "PreToolUse": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }],
-    "PermissionRequest": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }],
-    "Notification": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }],
-    "SessionStart": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }],
-    "SessionEnd": [{ "matcher": "", "hooks": [{ "type": "command", "command": "~/.local/bin/claude-herdr-act", "timeout": 5 }] }]
+    ]
   },
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
@@ -212,15 +205,19 @@ CHEZMOI_DESIRED_JSON
 )
 
 # Deep-merge the owned keys over the live file, then rebuild hooks per event:
-# our entries first, then live entries that are not ours (herdr's, anyone's).
+# our entries first, then foreign entries; remove our retired hook command.
 program='
+  def without_retired_hook:
+    map(if .hooks? then .hooks |= map(select(.command != "~/.local/bin/claude-herdr-act")) else . end)
+    | map(select((.hooks? // [null]) | length > 0));
   . as $in
   | ($in * ($d | del(.hooks)))
   | .hooks = (
       $d.hooks as $mine
       | (($in.hooks) // {}) as $live
       | reduce ((($mine | keys_unsorted) + ($live | keys_unsorted)) | unique)[] as $k
-          ({}; .[$k] = (($mine[$k] // []) + (($live[$k] // []) - ($mine[$k] // []))))
+          ({}; (($mine[$k] // []) + ((($live[$k] // []) | without_retired_hook) - ($mine[$k] // []))) as $entries
+            | if $entries == [] then . else .[$k] = $entries end)
     )
 '
 

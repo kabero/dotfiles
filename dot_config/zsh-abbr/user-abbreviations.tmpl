@@ -3,7 +3,11 @@ abbr -q --user grepc="grep --color=always"
 abbr -q --user av=aws-vault
 abbr -q --user ave="aws-vault exec"
 abbr -q --user dbash="docker build -t tmp . && docker run -it --rm --entrypoint /bin/bash tmp"
+{{ if eq .chezmoi.hostname "saury" -}}
+abbr -q --user c=codex
+{{- else -}}
 abbr -q --user c=claude
+{{- end }}
 abbr -q --user ccc="claude --dangerously-skip-permissions"
 abbr -q --user d="docker compose exec"
 abbr -q --user sk=skills
