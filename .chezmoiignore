@@ -6,3 +6,5 @@ kabe/
 kabe/**
 examples/
 examples/**
+**/__pycache__
+**/__pycache__/**

@@ -10,17 +10,34 @@
 # workspace there; adding a remote origin is left to the user.
 
 set -u
+
+# Fetch Herdr workspaces while ghq scans repositories; both are independent.
+ws_file=$(mktemp)
+list_file=$(mktemp)
+trap 'rm -f "$ws_file" "$list_file"' EXIT
+herdr workspace list > "$ws_file" 2>/dev/null &
+ws_pid=$!
 ghq_root="$(ghq root)"
 
-# Build repo list: ghq repos + chezmoi (same as the tmux version), plus the
-# initialised submodules of each ghq repo (`ghq list` stops at the outer
-# repo). A submodule rides along as <repo>/<path-in-repo>; its workspace label
-# is the basename.
+# Build repo list: ghq repos + chezmoi, plus initialized submodules.
+# Read .gitmodules paths and check for a checkout's .git marker. `git submodule
+# status --recursive` walks every submodule's repository and makes opening the
+# picker slow on machines with many submodules.
+list_submodules() {
+  local dir=$1 relative=$2 entry path child
+  [ -f "$dir/.gitmodules" ] || return 0
+  while IFS= read -r -d '' entry; do
+    path=${entry#*$'\n'}
+    case "$path" in ''|.|..|/*|../*|*/../*|*/..|./*|*/./*|*/.) continue ;; esac
+    child="$dir/$path"
+    [ -e "$child/.git" ] || continue
+    printf '%s/%s\n' "$relative" "$path"
+    list_submodules "$child" "$relative/$path"
+  done < <(git config --null --file "$dir/.gitmodules" --get-regexp '^submodule\..*\.path$' 2>/dev/null)
+}
 repo_list=$(ghq list)
 submodules=$(while IFS= read -r r; do
-  [ -f "$ghq_root/$r/.gitmodules" ] || continue
-  git -C "$ghq_root/$r" submodule status --recursive 2>/dev/null \
-    | awk -v r="$r" '$0 !~ /^-/ { print r "/" $2 }'   # "-" = not initialised
+  list_submodules "$ghq_root/$r" "$r"
 done <<< "$repo_list")
 [ -n "$submodules" ] && repo_list="$repo_list"$'\n'"$submodules"
 repo_list="$repo_list
@@ -35,16 +52,16 @@ label_of() {
 }
 
 # Existing herdr workspaces: label \t id
-ws_tsv=$(herdr workspace list 2>/dev/null \
-  | jq -r '.result.workspaces[] | [.label, .workspace_id] | @tsv' 2>/dev/null)
+wait "$ws_pid" || :
+ws_tsv=$(jq -r '.result.workspaces[] | [.label, .workspace_id] | @tsv' \
+  < "$ws_file" 2>/dev/null)
 
 # Render: open workspaces first (blue dot, bright), rest dimmed, in one awk
 # pass (a per-repo bash loop forks several processes per repo and gets slow).
 # The canonical repo path rides along as a hidden TSV field (fzf shows field 1
-# only). Workspace labels come in via the environment to sidestep awk's
+# only); the visible path omits a leading host such as github.com/. Workspace
+# labels come in via the environment to sidestep awk's
 # empty-first-file NR==FNR pitfall.
-list_file=$(mktemp)
-trap 'rm -f "$list_file"' EXIT
 WS_LABELS="$(printf '%s\n' "$ws_tsv" | cut -f1)" awk -F/ '
   BEGIN {
     n = split(ENVIRON["WS_LABELS"], l, "\n")
@@ -54,10 +71,14 @@ WS_LABELS="$(printf '%s\n' "$ws_tsv" | cut -f1)" awk -F/ '
   {
     repo = $0
     label = (repo == "chezmoi") ? "chezmoi" : $NF
+    display = repo
+    slash = index(display, "/")
+    if (slash && substr(display, 1, slash - 1) ~ /\./)
+      display = substr(display, slash + 1)
     if (label in open)
-      printf "\033[38;5;75m●\033[0m  \033[1;38;5;255m%s\033[0m\t%s\n", repo, repo
+      printf "\033[38;5;75m●\033[0m  \033[1;38;5;255m%s\033[0m\t%s\n", display, repo
     else
-      closed[++c] = sprintf("   \033[38;5;250m%s\033[0m\t%s", repo, repo)
+      closed[++c] = sprintf("   \033[38;5;250m%s\033[0m\t%s", display, repo)
   }
   END { for (i = 1; i <= c; i++) print closed[i] }
 ' <<< "$repo_list" > "$list_file"
@@ -67,7 +88,7 @@ WS_LABELS="$(printf '%s\n' "$ws_tsv" | cut -f1)" awk -F/ '
 # "[new project]" entry (hidden field NEW:<user>/<name>). Selecting it
 # creates the repo via `ghq create` below. {q} is shell-quoted by fzf.
 export _HRS_LIST="$list_file" _HRS_ROOT="$ghq_root"
-reload='q={q}; cat "$_HRS_LIST"; if printf %s "$q" | grep -Eq "^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$" && [ ! -e "$_HRS_ROOT/github.com/$q" ]; then printf "\033[38;5;114m+\033[0m  \033[38;5;114m[new project] %s\033[0m\tNEW:%s\n" "$q" "$q"; fi'
+reload='q={q}; cat "$_HRS_LIST"; case "$q" in */*) case "$q" in */*/*|/*|*/|*[!A-Za-z0-9._/-]*) ;; *) if [ ! -e "$_HRS_ROOT/github.com/$q" ]; then printf "\033[38;5;114m+\033[0m  \033[38;5;114m[new project] %s\033[0m\tNEW:%s\n" "$q" "$q"; fi ;; esac ;; esac'
 
 selected=$(fzf --ansi --height 100% --layout reverse \
       --border rounded --border-label " repo (herdr) " \
