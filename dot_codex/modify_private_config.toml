@@ -9,7 +9,7 @@ import tomllib
 original = sys.stdin.read()
 tomllib.loads(original)
 lines = original.splitlines(keepends=True)
-theme = 'theme = "gruvbox-dark"\n'
+theme = 'theme = "catppuccin-mocha"\n'
 table = re.compile(r"^\s*\[.*\]\s*(?:#.*)?$")
 
 for index, line in enumerate(lines):

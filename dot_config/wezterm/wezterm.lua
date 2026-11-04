@@ -17,9 +17,9 @@ config.window_background_opacity = 1.00
 config.default_cursor_style = 'SteadyBar'
 
 config.colors = {
-  cursor_bg = '#e6c384',
-  cursor_border = '#e6c384',
-  selection_bg = '#282727',
+  cursor_bg = '#b08ae6',
+  cursor_border = '#b08ae6',
+  selection_bg = '#2b2038',
 }
 
 config.window_padding = {
