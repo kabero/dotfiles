@@ -1,7 +1,7 @@
 local wezterm = require 'wezterm'
 local config = {}
 
-config.color_scheme = 'Purpledream (base16)'
+config.color_scheme = 'One Half Black (Gogh)'
 
 config.window_decorations = "RESIZE"
 config.enable_tab_bar = false
