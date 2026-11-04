@@ -19,14 +19,7 @@ surface_dim = "#2b2038"
 # (tabs get generated names, rename later with prefix+shift+t).
 prompt_new_tab_name = false
 
-# Show detected agent names (claude, etc.) on split pane borders — the herdr
-# counterpart of the tmux window-status Claude glyphs: see what runs where.
-show_agent_labels_on_pane_borders = true
-
-# 単独ペインにも枠を描く。既定の auto は分割したペインにしか枠を出さないので、
-# タブに 1 枚しかない Claude のペインは枠ごと消え、show_agent_labels_on_pane_borders
-# で出るはずのエージェント名も一緒に消えていた（「これは claude のペインだ」が
-# 一番分かりにくいのがその状態）。always なら 1 枚でも枠と名前が出る。
+# 単独ペインにも枠を描く。既定の auto は分割したペインだけに枠を描く。
 pane_borders = "always"
 
 # Agent panel grouped per workspace. priority（入力待ちを最上段に浮かせる
