@@ -87,6 +87,12 @@ reported fingerprint in `.gitleaksignore`. `git commit --no-verify` skips the ho
 
 ## ⚙️ Configuration
 
+### Codex
+
+`dot_codex/modify_private_config.toml` keeps the Gruvbox Dark terminal theme in
+`~/.codex/config.toml`. Codex's other settings and local state remain in that file;
+they are not committed to this repository.
+
 ### Environment Variables
 
 | Variable | Description | Default Value | Required |
