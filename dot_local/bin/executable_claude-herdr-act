@@ -1,0 +1,4 @@
+#!/bin/sh
+# Compatibility for Claude sessions that loaded the old hook before it was removed.
+# New sessions no longer configure this hook; never report anything to Herdr.
+exit 0
