@@ -9,18 +9,21 @@ Neovim **0.11+** 用の個人設定。[lazy.nvim](https://github.com/folke/lazy.
 ## ファイル構成
 
 ```
-init.lua                  -- bootstrap・autocmd・ユーザーコマンド(:Note 等)
+init.lua                  -- bootstrap と各モジュールの読み込み
 lua/
   options.lua             -- vim.opt 全般・プロバイダ/組込プラグイン無効化
   keymap.lua              -- 素の(プラグイン非依存)キーマップ
   filetype.lua            -- chezmoi/.tmpl/env 等のファイルタイプ判定
+  autocmds.lua            -- yank・カーソル復元・端末などの自動コマンド
+  run.lua                 -- :Run / <leader>q とプロジェクトの RunTasks
+  x_palette.lua           -- :X / <leader>x のコマンドパレット
   colors.lua              -- colorscheme 指定 + ハイライト上書き
   plugins/
-    lsp.lua               -- mason / lspconfig / lspsaga / conform / fidget
+    lsp.lua               -- mason / lspconfig / lspsaga / conform
     -- 整形は conform.nvim。グローバルで formatter を固定せず、各プロジェクトの
     -- exrc(.nvim.lua)で require("conform").formatters_by_ft.<ft> = {...} で登録する。
-    completion.lua        -- nvim-cmp
-    snacks.lua            -- picker / dashboard / 各種 QoL
+    completion.lua        -- blink.cmp
+    snacks.lua            -- picker / notifier / 各種 QoL
     treesitter.lua        -- treesitter + textobjects
     git.lua               -- gitsigns / fugitive / diffview / git-conflict / committia
     editor.lua            -- autopairs / surround / commentary 等
@@ -28,7 +31,7 @@ lua/
     -- sensei.nvim はグローバルでは language=Japanese だけを既定にし、subject と
     -- build driver は各プロジェクトの exrc(.nvim.lua)で require("sensei").setup{...}。
     -- この require がプラグインのロード契機も兼ねる（サイドカーは未ロードだと繋がらない）。
-    ui.lua                -- lualine / incline / which-key / colorizer 等
+    ui.lua                -- lualine / incline / rainbow-delimiters / colorizer 等
     colorscheme.lua       -- kanagawa
 ```
 
@@ -43,7 +46,7 @@ lua/
 | プラグイン管理 | **lazy.nvim** | `lua/plugins/*` を自動 import |
 | カラースキーム | **kanagawa (dragon)** | italic 無効・gutter 透過 |
 | ステータス/UI | **lualine** + **incline**(winbar) | `laststatus=3` グローバル, `cmdheight=0`, `showtabline=0` |
-| ピッカー | **snacks.nvim** | files/grep/git/lsp、dashboard で `gh pr/issue` 表示 |
+| ピッカー | **snacks.nvim** | files/grep/git/lsp。dashboard は無効 |
 | 補完 | **blink.cmp** | LSP capabilities をサーバへ broadcast 済み。署名ヘルプも本体機能 |
 | AI 補完 | **copilot.vim**(ghost text) | `<C-l>` で確定。秘匿情報のファイルタイプ／パスでは自動オフ |
 | LSP | **mason** + **mason-lspconfig**(`automatic_enable`) | UI に lspsaga、通知は snacks.notifier |
@@ -59,7 +62,7 @@ lua/
 - **chezmoi 連携のファイルタイプ判定**：`dot_*` ソースを実ファイル名にマップして判定。`*.tmpl` は元拡張子で解決（`dot_zshrc.tmpl` → `zsh`）。
 
 ### 基本オプション（特徴的なもの）
-`exrc=true`（プロジェクトローカル rc）・`undofile`・`noswapfile`・`clipboard=unnamedplus`・`ignorecase`+`smartcase`・`updatetime=250`・`timeoutlen=300`・`signcolumn=yes`・インデントは `expandtab`/`shiftwidth=tabstop=4`（C は 2）。
+`exrc=true`（プロジェクトローカル rc）・`undofile`・`noswapfile`・`clipboard=unnamedplus`・`ignorecase`+`smartcase`・`updatetime=250`・`timeoutlen=800`・`signcolumn=yes`・インデントは `expandtab`/`shiftwidth=tabstop=4`（C は 2）。
 
 ---
 
@@ -102,11 +105,9 @@ lua/
 |---|---|
 | `<C-n>` / `<C-p>` | 候補を次 / 前へ |
 | `<C-f>` / `<CR>` | 確定 |
-| **`<Tab>`** | **統合ハンドラ**: NES適用 → ネイティブ inline補完 → cmp確定 → 素の Tab |
+| **`<Tab>`** | blink.cmp の表示中候補を確定 → スニペット内を移動 → 素の Tab |
 | `<C-l>` | Copilot 候補を受理 |
 | `<C-c>` | Copilot 候補を破棄 |
-| `<leader>ac` | sidekick: Claude をトグル |
-| `<leader>at` / `<leader>af` / `<leader>av` | sidekick: 選択箇所 / ファイル / ビジュアル選択を送信 |
 
 ### Treesitter テキストオブジェクト
 | キー | 対象 |
@@ -157,8 +158,9 @@ lua/
 | キー | 動作 |
 |---|---|
 | `-` | oil で親ディレクトリを開く |
-| `go` | open-browser でスマート検索（URL/語） |
-| `<leader>q` | jaq でファイルを実行（markdown では render-markdown の表示トグル） |
+| `go` | URL を開く / 単語や選択範囲を Web 検索 |
+| `<leader>q` | `:Run` でファイルを実行（Markdown では表示トグル） |
+| `<leader>x` | プロジェクトごとのコマンドパレット `:X` |
 | `<leader>o` | RustOwl トグル（rust） |
 
 ### ノート（notemode.nvim）
@@ -173,10 +175,11 @@ lua/
 | `:Note` | `kabe/notes/` の最新インデックスのノートを開く |
 | `:Note new` | 次番号のノートを作成 |
 | `:Note <name>` | `kabe/notes/<name>.md` を開く |
-| `:HighlightInfo` | カーソル下のハイライトグループを表示 |
 | `:SenseiInstall` | そのプロジェクトを sensei 用にセットアップ（`.mcp.json` / `CLAUDE.md` / `.claude/`） |
 | `:Sensei` / `:SenseiStatus` | セットアップ状況・socket・登録ツールの確認 |
 | `:SenseiClearHints` | 画面上のヒント(virtual text)を消す |
+| `:Run [task]` | ファイルタイプ別の実行、または `.nvim.lua` の `RunTasks` を実行 |
+| `:X` | プロジェクトごとのシェルコマンドを編集・実行 |
 
 ---
 
@@ -184,5 +187,5 @@ lua/
 
 - **muscle memory を最優先**：既存の lhs を奪う変更はしない。新機能は空きキーに乗せる。
 - **既存資産の活用優先**：新規プラグインは最小限。インストール済みで未活用のもの（diffview 等）をまず使い切る。
-- **`<Tab>` の単一所有者**：補完確定と NES 適用が同キーを奪い合わないよう sidekick 側のハンドラに集約（cmp 側の `<TAB>` は外してある）。
+- **`<Tab>` の単一所有者**：blink.cmp の候補確定とスニペット移動を `completion.lua` のハンドラに集約。
 - **treesitter は `master` で統一**：本体・textobjects とも旧 API。`main`（リライト版）とは混在不可。
