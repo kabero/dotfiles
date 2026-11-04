@@ -39,6 +39,7 @@ tab_bar_position = "bottom"
 # 状態を出す設定が無いので、まず「どこかに入力待ちが居るか」を一目で分かる
 # ようにする。command は herdr サーバー側で解決・実行される。
 tab_bar_right = [
+  { type = "zoom" },
   { type = "command", command = "~/.local/bin/herdr-agent-status", interval_seconds = 5, timeout_seconds = 2 },
   { type = "datetime", format = "%H:%M" },
 ]

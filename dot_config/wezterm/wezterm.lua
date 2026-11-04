@@ -36,12 +36,28 @@ local function toggle_opacity(window)
   window:set_config_overrides(overrides)
 end
 
+local function update_window_status(window)
+  local overrides = window:get_config_overrides() or {}
+  local opacity = overrides.window_background_opacity or config.window_background_opacity
+  local pinned = wezterm.GLOBAL['pinned_window_' .. window:window_id()] == true
+  local status = string.format(' BG %d%% ', math.floor(opacity * 100 + 0.5))
+  if pinned then
+    status = status .. '· PIN '
+  end
+  window:set_right_status(status)
+end
+
 local window_control = wezterm.action_callback(function(window, pane, id, _)
   if id == 'opacity' then
     toggle_opacity(window)
   elseif id == 'pin' then
-    window:perform_action(wezterm.action.ToggleAlwaysOnTop, pane)
+    local key = 'pinned_window_' .. window:window_id()
+    local pinned = wezterm.GLOBAL[key] ~= true
+    window:perform_action(
+      wezterm.action.SetWindowLevel(pinned and 'AlwaysOnTop' or 'Normal'), pane)
+    wezterm.GLOBAL[key] = pinned
   end
+  update_window_status(window)
 end)
 
 wezterm.on('new-tab-button-click', function(window, pane, button)
@@ -51,6 +67,7 @@ wezterm.on('new-tab-button-click', function(window, pane, button)
   local overrides = window:get_config_overrides() or {}
   local opacity = overrides.window_background_opacity or config.window_background_opacity
   local next_opacity = opacity == 1.0 and config.window_background_opacity or 1.0
+  local pinned = wezterm.GLOBAL['pinned_window_' .. window:window_id()] == true
   window:perform_action(wezterm.action.InputSelector {
     title = 'Terminal menu',
     choices = {
@@ -60,7 +77,7 @@ wezterm.on('new-tab-button-click', function(window, pane, button)
           math.floor(opacity * 100 + 0.5),
           math.floor(next_opacity * 100 + 0.5)),
       },
-      { id = 'pin', label = 'PIN  最前面に固定 / 解除' },
+      { id = 'pin', label = pinned and 'PIN  最前面固定を解除' or 'PIN  最前面に固定' },
     },
     action = window_control,
   }, pane)
@@ -68,9 +85,7 @@ wezterm.on('new-tab-button-click', function(window, pane, button)
 end)
 
 wezterm.on('update-status', function(window, _)
-  local overrides = window:get_config_overrides() or {}
-  local opacity = overrides.window_background_opacity or config.window_background_opacity
-  window:set_right_status(string.format(' BG %d%% ', opacity * 100))
+  update_window_status(window)
 end)
 
 config.colors = {
