@@ -29,22 +29,26 @@ $shell\
 $character"""
 
 [character]
-success_symbol = '[\$](bold green)'
-error_symbol = '[\$](bold red)'
+success_symbol = '[\$](bold fg:#b08ae6)'
+error_symbol = '[\$](bold fg:#ff6e88)'
 
 [directory]
 read_only = " "
 truncation_length = 8
 truncate_to_repo = true
+style = 'bold fg:#b08ae6'
 
 [env_var.GIT_SUPERPROJECT_PREFIX]
 format = '[$env_value]($style)'
-style = 'bold cyan'
+style = 'bold fg:#8d79a8'
+
+[git_branch]
+style = 'fg:#a891c5'
 
 [hostname]
 ssh_only = true
 format = "[$hostname]($style): "
-style = "green"
+style = "fg:#8d79a8"
 disabled = false
 
 [username]
