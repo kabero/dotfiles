@@ -11,8 +11,8 @@ config.use_fancy_tab_bar = false
 config.show_tabs_in_tab_bar = false
 config.show_new_tab_button_in_tab_bar = true
 config.tab_bar_style = {
-  new_tab = wezterm.format { { Text = ' ◐ GLASS ' } },
-  new_tab_hover = wezterm.format { { Text = ' ◐ GLASS ' } },
+  new_tab = wezterm.format { { Text = ' ◐ MENU ' } },
+  new_tab_hover = wezterm.format { { Text = ' ◐ MENU ' } },
 }
 config.font = wezterm.font_with_fallback {
     { family = 'JetBrainsMono Nerd Font', weight = 'Light' },
@@ -26,10 +26,7 @@ config.window_background_opacity = 0.85
 config.macos_window_background_blur = 20
 config.default_cursor_style = 'SteadyBar'
 
-wezterm.on('new-tab-button-click', function(window, _, button)
-  if button ~= 'Left' then
-    return false
-  end
+local function toggle_opacity(window)
   local overrides = window:get_config_overrides() or {}
   if overrides.window_background_opacity == 1.0 then
     overrides.window_background_opacity = nil
@@ -37,6 +34,36 @@ wezterm.on('new-tab-button-click', function(window, _, button)
     overrides.window_background_opacity = 1.0
   end
   window:set_config_overrides(overrides)
+end
+
+local window_control = wezterm.action_callback(function(window, pane, id, _)
+  if id == 'opacity' then
+    toggle_opacity(window)
+  elseif id == 'pin' then
+    window:perform_action(wezterm.action.ToggleAlwaysOnTop, pane)
+  end
+end)
+
+wezterm.on('new-tab-button-click', function(window, pane, button)
+  if button ~= 'Left' then
+    return false
+  end
+  local overrides = window:get_config_overrides() or {}
+  local opacity = overrides.window_background_opacity or config.window_background_opacity
+  local next_opacity = opacity == 1.0 and config.window_background_opacity or 1.0
+  window:perform_action(wezterm.action.InputSelector {
+    title = 'Terminal menu',
+    choices = {
+      {
+        id = 'opacity',
+        label = string.format('BG  %d%% → %d%%',
+          math.floor(opacity * 100 + 0.5),
+          math.floor(next_opacity * 100 + 0.5)),
+      },
+      { id = 'pin', label = 'PIN  最前面に固定 / 解除' },
+    },
+    action = window_control,
+  }, pane)
   return false
 end)
 

@@ -43,7 +43,7 @@ format = '[$env_value]($style)'
 style = 'bold fg:#8d79a8'
 
 [git_branch]
-style = 'fg:#a891c5'
+style = 'bold fg:#c9a8f4'
 
 [hostname]
 ssh_only = true
@@ -62,6 +62,7 @@ disabled = true
 [git_status]
 ahead = "⇡"
 behind = "⇣"
+style = 'bold fg:#ff6e88'
 
 [kubernetes]
 disabled = true

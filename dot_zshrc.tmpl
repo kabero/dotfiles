@@ -368,52 +368,6 @@ function ssh() {
   fi
 }
 
-# herdr: show the repo on each pane border so splits in one window are
-# tellable apart (no per-pane border color API; the label is the border's
-# one customizable element). Manual pane names suppress herdr's auto agent
-# labels (claude etc.), so when an agent command launches, preexec bakes it
-# into the label ("repo · claude") and precmd drops it again on exit.
-# Renames go over the socket only when the label actually changes.
-if [[ -n $(printenv HERDR_ENV) && -n $HERDR_PANE_ID ]] ; then
-  _herdr_pane_label() {
-      [[ ${+_herdr_label_current} -eq 1 && $1 == $_herdr_label_current ]] && return
-      _herdr_label_current=$1
-      # Disowned background rename: keeps the ~12ms fork+socket roundtrip
-      # off the prompt's critical path.
-      if [[ -n $1 ]] ; then
-          herdr pane rename "$HERDR_PANE_ID" "$1" >/dev/null 2>&1 &!
-      else
-          herdr pane rename "$HERDR_PANE_ID" --clear >/dev/null 2>&1 &!
-      fi
-  }
-  _herdr_label_precmd() {
-      # Repo name cached by PWD: the git fork (~13ms) only runs on cd.
-      if [[ $PWD != $_herdr_repo_pwd ]] ; then
-          _herdr_repo_pwd=$PWD
-          local root=$(git rev-parse --show-toplevel 2>/dev/null)
-          if [[ -z $root || $root == $HOME ]] ; then
-              _herdr_repo_name=""
-          else
-              _herdr_repo_name=${root:t}
-          fi
-      fi
-      _herdr_pane_label "$_herdr_repo_name"
-  }
-  _herdr_label_preexec() {
-      # Any command may spawn a subshell whose own hooks rename this pane
-      # (chezmoi cd); drop the cache so the next precmd re-asserts the label.
-      unset _herdr_label_current
-      case "$1" in
-          claude*|codex*|copilot*|gemini*)
-              _herdr_pane_label "${_herdr_repo_name:+$_herdr_repo_name · }${1%% *}"
-              ;;
-      esac
-  }
-  autoload -Uz add-zsh-hook
-  add-zsh-hook precmd _herdr_label_precmd
-  add-zsh-hook preexec _herdr_label_preexec
-fi
-
 # Abbreviations are loaded from ~/.config/zsh-abbr/user-abbreviations.
 # Keep code conditional: zsh-abbr skips it when a real `code` command exists.
 abbr -q --session code=cursor 2>/dev/null
