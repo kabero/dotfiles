@@ -22,7 +22,7 @@ set -eu
 
 if ! command -v gitleaks >/dev/null 2>&1; then
     echo "pre-commit: gitleaks not found; skipping secret scan" >&2
-    echo "pre-commit: brew bundle --file=excludes/Brewfile installs it" >&2
+    echo "pre-commit: install it with brew install gitleaks to enable the scan" >&2
     exit 0
 fi
 

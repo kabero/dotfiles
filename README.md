@@ -55,21 +55,14 @@ chezmoi init https://github.com/kabero/dotfiles.git
 chezmoi apply
 ```
 
-#### 4. Install packages (Optional)
-
-```sh
-# Install packages using Brewfile
-brew bundle --file=~/.local/share/chezmoi/excludes/Brewfile
-```
-
-#### 5. Additional setup
+#### 4. Additional setup
 
 ```sh
 # Install language runtimes with asdf (per-project .tool-versions)
 asdf install
 ```
 
-#### 6. Enable the secret-scan hook
+#### 5. Enable the secret-scan hook
 
 ```sh
 git -C ~/.local/share/chezmoi config core.hooksPath .githooks
@@ -89,7 +82,8 @@ It runs alongside `core.hooksPath` and `.git/hooks`, so lefthook and husky repos
 
 A false positive goes away with a `gitleaks:allow` comment at the end of the line, or by putting the
 reported fingerprint in `.gitleaksignore`. `git commit --no-verify` skips the hook once. Without
-`gitleaks` on `PATH` the hook warns and lets the commit through — step 4 installs it.
+`gitleaks` on `PATH` the hook warns and lets the commit through. Install it with
+`brew install gitleaks` if you want the scan enabled.
 
 ## ⚙️ Configuration
 
@@ -139,9 +133,8 @@ Custom completions are stored in `$HOME/.zsh/completions/`
 ├── dot_local/bin/            # Executable scripts (git-wt, herdr-repo-selector, ...)
 ├── dot_claude/               # Claude Code config (CLAUDE.md, agents, settings)
 ├── run_onchange_after_10-claude-mcp.sh  # Registers standard MCP servers (playwright)
-├── .githooks/pre-commit      # gitleaks secret scan (see Setup step 6); not applied to $HOME
+├── .githooks/pre-commit      # gitleaks secret scan (see Setup step 5); not applied to $HOME
 ├── excludes/                 # Kept in the repo, NOT applied to $HOME
-│   ├── Brewfile              # Homebrew package list
 │   ├── Dockerfile            # Container build reference
 │   ├── scripts/              # Misc setup/helper scripts
 │   └── vimium_config.txt     # Vimium key configuration

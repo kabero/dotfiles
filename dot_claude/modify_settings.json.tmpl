@@ -19,15 +19,14 @@ trap 'rm -f "$cur"' EXIT HUP INT TERM
 cat >"$cur"
 
 # Nothing there yet: start from an empty object rather than an empty file.
-# Deliberately no grep/sed here - this runs before the Brewfile on a fresh
-# machine, so it leans only on the shell and coreutils chezmoi already needs.
+# Deliberately no grep/sed here - this must also run on a fresh machine, so it
+# leans only on the shell and coreutils chezmoi already needs.
 if [ ! -s "$cur" ]; then
   printf '{}\n' >"$cur"
 fi
 
-# No jq yet (fresh machine, before the Brewfile runs): hand the file back as
-# it is. Half-applying the config would be worse than leaving it to the
-# next apply.
+# No jq yet on a fresh machine: hand the file back as it is. Half-applying the
+# config would be worse than leaving it to the next apply.
 command -v jq >/dev/null 2>&1 || { cat "$cur"; exit 0; }
 
 # Hand-broken JSON: rebuild from scratch instead of failing the apply.
