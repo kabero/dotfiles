@@ -76,9 +76,9 @@ WS_LABELS="$(printf '%s\n' "$ws_tsv" | cut -f1)" awk -F/ '
     if (slash && substr(display, 1, slash - 1) ~ /\./)
       display = substr(display, slash + 1)
     if (label in open)
-      printf "\033[38;5;75m●\033[0m  \033[1;38;5;255m%s\033[0m\t%s\n", display, repo
+      printf "\033[38;5;75m●\033[0m  %s\t%s\n", display, repo
     else
-      closed[++c] = sprintf("   \033[38;5;250m%s\033[0m\t%s", display, repo)
+      closed[++c] = sprintf("   %s\t%s", display, repo)
   }
   END { for (i = 1; i <= c; i++) print closed[i] }
 ' <<< "$repo_list" > "$list_file"
@@ -88,12 +88,12 @@ WS_LABELS="$(printf '%s\n' "$ws_tsv" | cut -f1)" awk -F/ '
 # "[new project]" entry (hidden field NEW:<user>/<name>). Selecting it
 # creates the repo via `ghq create` below. {q} is shell-quoted by fzf.
 export _HRS_LIST="$list_file" _HRS_ROOT="$ghq_root"
-reload='q={q}; cat "$_HRS_LIST"; case "$q" in */*) case "$q" in */*/*|/*|*/|*[!A-Za-z0-9._/-]*) ;; *) if [ ! -e "$_HRS_ROOT/github.com/$q" ]; then printf "\033[38;5;114m+\033[0m  \033[38;5;114m[new project] %s\033[0m\tNEW:%s\n" "$q" "$q"; fi ;; esac ;; esac'
+reload='q={q}; cat "$_HRS_LIST"; case "$q" in */*) case "$q" in */*/*|/*|*/|*[!A-Za-z0-9._/-]*) ;; *) if [ ! -e "$_HRS_ROOT/github.com/$q" ]; then printf "+  new project  %s\tNEW:%s\n" "$q" "$q"; fi ;; esac ;; esac'
 
 selected=$(fzf --ansi --height 100% --layout reverse \
-      --border rounded --border-label " repo (herdr) " \
-      --color "fg:-1,bg:-1,fg+:255,bg+:236,hl:75,hl+:75,pointer:75,marker:75,border:238,label:75,prompt:75,info:243,header:243,gutter:-1,spinner:75" \
-      --pointer "▌" --prompt "> " \
+      --border=none --margin=0 --padding=0 --info=inline-right --no-separator \
+      --color "fg:-1,bg:-1,fg+:-1,bg+:#282727,hl:#7e9cd8,hl+:#7e9cd8,prompt:#7e9cd8,pointer:#7e9cd8,info:#727169,gutter:-1,spinner:#727169" \
+      --pointer ">" --prompt "repo> " \
       --bind "change:reload:$reload" \
       --delimiter='\t' --with-nth=1 --highlight-line < "$list_file") || exit 0
 
