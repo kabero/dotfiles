@@ -4,7 +4,16 @@ local config = {}
 config.color_scheme = 'One Half Black (Gogh)'
 
 config.window_decorations = "RESIZE"
-config.enable_tab_bar = false
+-- Keep Herdr's tabs and place a slim WezTerm control bar beneath them.
+config.enable_tab_bar = true
+config.tab_bar_at_bottom = true
+config.use_fancy_tab_bar = false
+config.show_tabs_in_tab_bar = false
+config.show_new_tab_button_in_tab_bar = true
+config.tab_bar_style = {
+  new_tab = wezterm.format { { Text = ' ◐ GLASS ' } },
+  new_tab_hover = wezterm.format { { Text = ' ◐ GLASS ' } },
+}
 config.font = wezterm.font_with_fallback {
     { family = 'JetBrainsMono Nerd Font', weight = 'Light' },
     'Hiragino Maru Gothic ProN'
@@ -13,13 +22,39 @@ config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
 config.use_ime = true
 config.font_size = 13.0
 config.term = "xterm-256color"
-config.window_background_opacity = 1.00
+config.window_background_opacity = 0.85
+config.macos_window_background_blur = 20
 config.default_cursor_style = 'SteadyBar'
+
+wezterm.on('new-tab-button-click', function(window, _, button)
+  if button ~= 'Left' then
+    return false
+  end
+  local overrides = window:get_config_overrides() or {}
+  if overrides.window_background_opacity == 1.0 then
+    overrides.window_background_opacity = nil
+  else
+    overrides.window_background_opacity = 1.0
+  end
+  window:set_config_overrides(overrides)
+  return false
+end)
+
+wezterm.on('update-status', function(window, _)
+  local overrides = window:get_config_overrides() or {}
+  local opacity = overrides.window_background_opacity or config.window_background_opacity
+  window:set_right_status(string.format(' BG %d%% ', opacity * 100))
+end)
 
 config.colors = {
   cursor_bg = '#b08ae6',
   cursor_border = '#b08ae6',
   selection_bg = '#2b2038',
+  tab_bar = {
+    background = '#0b0912',
+    new_tab = { bg_color = '#241c32', fg_color = '#b08ae6' },
+    new_tab_hover = { bg_color = '#352447', fg_color = '#f8f8f2' },
+  },
 }
 
 config.window_padding = {
