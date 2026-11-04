@@ -223,8 +223,10 @@ if command_exists fzf; then
     fi
     # cd (fzf + zoxide) with zz
     zz() {
-        local dirpath=$(zoxide query -l | sed "s|$HOME|~|g" | fzf --prompt "> " --preview="eval echo {} | sed 's|~|$HOME|' | xargs eza -a --oneline --sort=ext")
-        cd $(eval echo $(echo $dirpath | sed 's|~|$HOME|'))
+        local dirpath
+        dirpath=$(zoxide query -l | fzf --prompt "> " --preview 'eza -a --oneline --sort=ext -- {}') || return
+        [[ -n $dirpath ]] || return
+        builtin cd -- "$dirpath"
     }
 fi
 
