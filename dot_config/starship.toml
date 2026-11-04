@@ -8,6 +8,7 @@ format = """
 $username\
 $hostname\
 $localip\
+${env_var.GIT_SUPERPROJECT_PREFIX}\
 $directory\
 $git_branch\
 $git_commit\
@@ -35,6 +36,10 @@ error_symbol = '[\$](bold red)'
 read_only = " "
 truncation_length = 8
 truncate_to_repo = true
+
+[env_var.GIT_SUPERPROJECT_PREFIX]
+format = '[$env_value]($style)'
+style = 'bold cyan'
 
 [hostname]
 ssh_only = true

@@ -98,6 +98,7 @@ reported fingerprint in `.gitleaksignore`. `git commit --no-verify` skips the ho
 ### Zsh Features
 
 - **Shared history**: Command history is shared across all terminal sessions (`share_history`)
+- **Submodule prompt**: Starship shows the path from the parent repository (for example, `parent/deps/child/src`). Git lookup runs when changing directories, not on every prompt redraw.
 - **PATH management**: Prepends `~/scripts/bin`, `~/bin`, and `~/.local/bin` (among others) to PATH
 - **fzf-powered widgets**:
   - `Ctrl+R` / `Ctrl+T` / `Ctrl+G`: history / file / ghq-repo pickers (see [Key Bindings](#-usage))

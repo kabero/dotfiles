@@ -117,7 +117,34 @@ direnv() {
     direnv "$@"
 }
 
-command_exists starship && eval "$(starship init zsh)"
+if command_exists starship; then
+    eval "$(starship init zsh)"
+
+    # The directory module starts at the current repo root. Add the parent path
+    # for submodules, computed on cd rather than on every prompt redraw.
+    _starship_superproject_prefix() {
+        local super_root sub_root relative
+        super_root=$(git rev-parse --show-superproject-working-tree 2>/dev/null)
+        if [[ -z $super_root ]]; then
+            unset GIT_SUPERPROJECT_PREFIX
+            return
+        fi
+        sub_root=$(git rev-parse --show-toplevel 2>/dev/null)
+        relative=${sub_root#"$super_root"/}
+        if [[ $relative == $sub_root || -z $relative ]]; then
+            unset GIT_SUPERPROJECT_PREFIX
+            return
+        fi
+        if [[ $relative == */* ]]; then
+            export GIT_SUPERPROJECT_PREFIX="${super_root:t}/${relative:h}/"
+        else
+            export GIT_SUPERPROJECT_PREFIX="${super_root:t}/"
+        fi
+    }
+    autoload -Uz add-zsh-hook
+    add-zsh-hook chpwd _starship_superproject_prefix
+    _starship_superproject_prefix
+fi
 
 # fzf
 if command_exists fzf; then
