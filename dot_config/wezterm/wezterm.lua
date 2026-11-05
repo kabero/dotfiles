@@ -24,7 +24,7 @@ config.font_size = 13.0
 config.term = "xterm-256color"
 config.window_background_opacity = 0.83
 config.macos_window_background_blur = 30
-config.default_cursor_style = 'SteadyBar'
+config.default_cursor_style = 'SteadyBlock'
 
 local function toggle_opacity(window)
   local overrides = window:get_config_overrides() or {}
